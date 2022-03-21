@@ -114,6 +114,7 @@ class ExtensionPayload(BaseModel):
     variables: Optional[list]
     schedulables: Optional[List[Schedulable]]
     repository: Optional[Repository]
+    runner_version: Optional[str]
 
 
 class Message(BaseModel):

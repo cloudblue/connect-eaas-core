@@ -52,6 +52,7 @@ EXTENSION_DATA = {
         'readme_url': 'https://read.me',
         'changelog_url': 'https://change.log',
     },
+    'runner_version': '3',
 }
 EXTENSION_DATA_LEGACY = {
     'capabilities': {'test': 'data'},
@@ -59,6 +60,7 @@ EXTENSION_DATA_LEGACY = {
     'schedulables': [{'method': 'method_name', 'name': 'Name', 'description': 'Description'}],
     'readme_url': 'https://read.me',
     'changelog_url': 'https://change.log',
+    'runner_version': '3',
 }
 
 SETTINGS_DATA = {
@@ -133,6 +135,7 @@ def test_parse_extension_message():
             **EXTENSION_DATA,
             'variables': None,
             'schedulables': None,
+            'runner_version': None,
         },
     }
 
