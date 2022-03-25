@@ -58,6 +58,7 @@ class TaskOptions(BaseModel):
     task_category: str
     result: Optional[str]
     countdown: int = 0
+    runtime: float = 0.0
     output: Optional[str]
     correlation_id: Optional[str]
     reply_to: Optional[str]
