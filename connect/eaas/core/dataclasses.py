@@ -86,7 +86,7 @@ class Service(BaseModel):
     account_name: Optional[str]
     service_id: Optional[str]
     # delete after stop using version 1
-    product_id: Optional[str]
+    products: Optional[List[str]]
     hub_id: Optional[str]
 
 
@@ -150,6 +150,11 @@ def transform_data(message_type, data):
 def transform_data_to_legacy(message_type, data):
     if message_type == MessageType.SETTINGS:
         message_type = MessageType.CONFIGURATION
+        if 'service' in data:
+            products = data['service'].get('products', [])
+            data['service']['product_id'] = products[0] if products and len(products) > 0 else None
+            data['service'].pop('products', None)
+
         data.update(
             configuration=data.get('variables'),
             **data.get('logging', {}),
