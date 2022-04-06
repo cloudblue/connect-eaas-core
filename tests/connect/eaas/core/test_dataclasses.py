@@ -77,7 +77,7 @@ SETTINGS_DATA = {
         'account_id': 'account_id',
         'account_name': 'account_name',
         'service_id': 'service_id',
-        'product_id': None,
+        'products': None,
         'hub_id': None,
     },
 }
@@ -243,6 +243,19 @@ def test_transform_settings_data_to_legacy():
 
     assert message_type == MessageType.CONFIGURATION
     assert transformed_data == SETTNIGS_DATA_LEGACY
+
+
+def test_transform_settings_data_to_legacy_with_product():
+    new_settings = {**SETTINGS_DATA}
+    new_settings['service']['products'] = ['PRD-000']
+    message_type, transformed_data = transform_data_to_legacy(
+        message_type=MessageType.SETTINGS,
+        data=new_settings,
+    )
+    legacy_settings = {**SETTNIGS_DATA_LEGACY}
+    legacy_settings['product_id'] = 'PRD-000'
+    assert message_type == MessageType.CONFIGURATION
+    assert transformed_data == legacy_settings
 
 
 def test_transform_task_data_to_legacy():
