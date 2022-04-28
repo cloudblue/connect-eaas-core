@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "connect-eaas-core"
-version = "25.0.0"
+version = "1.4.0"
 description = "Connect Eaas Core"
 authors = ["CloudBlue LLC"]
 license = "Apache-2.0"
