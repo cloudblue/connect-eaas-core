@@ -42,8 +42,8 @@ class ResultType:
 
 
 class MessageType:
-    EXTENSION = 'extension'
-    SETTINGS = 'settings'
+    SETUP_REQUEST = 'setup_request'
+    SETUP_RESPONSE = 'setup_response'
     TASK = 'task'
     PAUSE = 'pause'
     RESUME = 'resume'
@@ -56,12 +56,16 @@ class MessageType:
 class TaskOptions(BaseModel):
     task_id: str
     task_category: str
-    result: Optional[str]
-    countdown: int = 0
-    runtime: float = 0.0
-    output: Optional[str]
     correlation_id: Optional[str]
     reply_to: Optional[str]
+
+
+class TaskOutput(BaseModel):
+    result: str
+    data: Optional[Any]
+    countdown: int = 0
+    runtime: float = 0.0
+    error: Optional[str]
 
 
 class TaskInput(BaseModel):
@@ -70,18 +74,13 @@ class TaskInput(BaseModel):
     data: Optional[Any]
 
 
-class TaskPayload(BaseModel):
+class Task(BaseModel):
     options: TaskOptions
     input: TaskInput
+    output: Optional[TaskOutput]
 
 
-class Logging(BaseModel):
-    logging_api_key: Optional[str]
-    log_level: Optional[str]
-    runner_log_level: Optional[str]
-
-
-class Service(BaseModel):
+class LogMeta(BaseModel):
     account_id: Optional[str]
     account_name: Optional[str]
     service_id: Optional[str]
@@ -90,12 +89,18 @@ class Service(BaseModel):
     hub_id: Optional[str]
 
 
-class SettingsPayload(BaseModel):
+class Logging(BaseModel):
+    logging_api_key: Optional[str]
+    log_level: Optional[str]
+    runner_log_level: Optional[str]
+    meta: Optional[LogMeta]
+
+
+class SetupResponse(BaseModel):
     variables: Optional[dict]
     # delete after stop using version 1
     environment_type: Optional[str]
     logging: Optional[Logging]
-    service: Optional[Service]
 
 
 class Schedulable(BaseModel):
@@ -109,7 +114,7 @@ class Repository(BaseModel):
     changelog_url: Optional[str]
 
 
-class ExtensionPayload(BaseModel):
+class SetupRequest(BaseModel):
     # for version 1 'capabilities' renaming to 'event_subscriptions'
     event_subscriptions: dict
     variables: Optional[list]
@@ -121,24 +126,24 @@ class ExtensionPayload(BaseModel):
 class Message(BaseModel):
     version: Literal[1, 2] = 1
     message_type: str
-    data: Union[TaskPayload, ExtensionPayload, SettingsPayload, None]
+    data: Union[Task, SetupRequest, SetupResponse, None]
 
 
-def transform_data(message_type, data):
+def transform_data_from_v1(message_type, data):
     if message_type == MessageType.CONFIGURATION:
-        message_type = MessageType.SETTINGS
+        message_type = MessageType.SETUP_RESPONSE
         data.update(
             variables=data.get('configuration'),
-            logging=Logging(**data).dict(),
-            service=Service(**data).dict(),
+            logging=Logging(**data, meta=LogMeta(**data).dict()).dict(),
         )
     elif message_type == MessageType.TASK:
         data.update(
             options=TaskOptions(**data).dict(),
             input=TaskInput(**data, event_type=data['task_type']).dict(),
+            output=TaskOutput(**data, error=data['output']).dict(),
         )
     elif message_type == MessageType.CAPABILITIES:
-        message_type = MessageType.EXTENSION
+        message_type = MessageType.SETUP_REQUEST
         data.update(
             event_subscriptions=data.get('capabilities'),
             repository=Repository(**data).dict(),
@@ -147,36 +152,43 @@ def transform_data(message_type, data):
     return message_type, data
 
 
-def transform_data_to_legacy(message_type, data):
-    if message_type == MessageType.SETTINGS:
+def transform_data_to_v1(message_type, data):
+    if message_type == MessageType.SETUP_RESPONSE:
         message_type = MessageType.CONFIGURATION
-        if 'service' in data:
-            products = data['service'].get('products', [])
-            data['service']['product_id'] = products[0] if products and len(products) > 0 else None
-            data['service'].pop('products', None)
-
+        logging = data.get('logging', {})
+        log_meta = logging.pop('meta', {})
+        if log_meta:
+            products = log_meta.get('products', [])
+            log_meta['product_id'] = products[0] if products and len(products) > 0 else None
+            log_meta.pop('products', None)
         data.update(
             configuration=data.get('variables'),
-            **data.get('logging', {}),
-            **data.get('service', {}),
+            **logging,
+            **log_meta,
         )
 
         data.pop('logging', None)
-        data.pop('service', None)
         data.pop('variables', None)
 
     elif message_type == MessageType.TASK:
+        input = data.pop('input', {})
+        input.pop('data', None)
+        output = data.pop('output', {})
+        error = output.pop('error', None)
+        task_output_data = output.pop('data', None)
         data.update(
-            task_type=data['input']['event_type'],
-            **data.get('input', {}),
+            task_type=input.get('event_type'),
+            data=task_output_data,
+            output=error,
+            **input,
             **data.get('options', {}),
+            **output,
         )
 
         data.pop('event_type', None)
-        data.pop('input', None)
         data.pop('options', None)
 
-    elif message_type == MessageType.EXTENSION:
+    elif message_type == MessageType.SETUP_REQUEST:
         message_type = MessageType.CAPABILITIES
         data.update(
             capabilities=data.get('event_subscriptions'),
@@ -195,9 +207,13 @@ def parse_message(payload):
     data = payload.get('data')
 
     if version == 1:
-        message_type, data = transform_data(message_type, data)
+        message_type, data = transform_data_from_v1(message_type, data)
 
-    if message_type not in [MessageType.TASK, MessageType.EXTENSION, MessageType.SETTINGS]:
+    if message_type not in (
+        MessageType.TASK,
+        MessageType.SETUP_REQUEST,
+        MessageType.SETUP_RESPONSE,
+    ):
         data = None
 
     return Message(version=version, message_type=message_type, data=data)
