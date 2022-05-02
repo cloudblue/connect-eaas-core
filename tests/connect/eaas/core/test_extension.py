@@ -1,6 +1,6 @@
 import pytest
 
-from connect.eaas.core.dataclasses import ResultType
+from connect.eaas.core.enums import ResultType
 from connect.eaas.core.extension import (
     CustomEventResponse,
     ProcessingResponse,
