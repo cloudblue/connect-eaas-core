@@ -2,7 +2,7 @@ import json
 
 import pkg_resources
 
-from connect.eaas.core.dataclasses import ResultType
+from connect.eaas.core.enums import ResultType
 
 
 class _Response:

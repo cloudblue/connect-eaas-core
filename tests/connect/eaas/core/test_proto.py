@@ -1,11 +1,12 @@
 import copy
 
-from connect.eaas.core.dataclasses import (
+import pytest
+
+from connect.eaas.core.proto import (
     Logging,
     LogMeta,
     Message,
     MessageType,
-    parse_message,
     Repository,
     Schedulable,
     SetupRequest,
@@ -13,9 +14,7 @@ from connect.eaas.core.dataclasses import (
     Task,
     TaskInput,
     TaskOptions,
-    transform_data_to_v1,
 )
-
 
 TASK_DATA = {
     'options': {
@@ -33,23 +32,72 @@ TASK_DATA = {
         'result': 'result',
         'countdown': 10,
         'runtime': 3.2,
-        'error': 'output',
+        'message': 'output',
         'data': {'data': 'value'},
     },
 }
-TASK_DATA_V1 = {
+
+
+TASK_INPUT_DATA = {
+    'options': {
+        'task_id': 'task_id',
+        'task_category': 'task_category',
+        'correlation_id': 'correlation_id',
+        'reply_to': 'reply_to',
+    },
+    'input': {
+        'event_type': 'task_type',
+        'object_id': 'object_id',
+        'data': {'data': 'value'},
+    },
+}
+
+TASK_INPUT_DATA_V1 = {
+    'task_id': 'task_id',
+    'task_category': 'task_category',
+    'task_type': 'task_type',
+    'object_id': 'object_id',
+    'data': {'data': 'value'},
+    'correlation_id': 'correlation_id',
+    'reply_to': 'reply_to',
+}
+
+
+TASK_OUTPUT_DATA = {
+    'options': {
+        'task_id': 'task_id',
+        'task_category': 'task_category',
+        'correlation_id': 'correlation_id',
+        'reply_to': 'reply_to',
+    },
+    'input': {
+        'event_type': 'task_type',
+        'object_id': 'object_id',
+        'data': None,
+    },
+    'output': {
+        'result': 'result',
+        'countdown': 10,
+        'runtime': 3.2,
+        'message': 'output',
+        'data': {'output_data': 'value'},
+    },
+}
+
+TASK_OUTPUT_DATA_V1 = {
     'task_id': 'task_id',
     'task_category': 'task_category',
     'task_type': 'task_type',
     'object_id': 'object_id',
     'result': 'result',
-    'data': {'data': 'value'},
+    'data': {'output_data': 'value'},
     'countdown': 10,
     'runtime': 3.2,
     'output': 'output',
     'correlation_id': 'correlation_id',
     'reply_to': 'reply_to',
 }
+
 
 SETUP_REQUEST_DATA = {
     'event_subscriptions': {'test': 'data'},
@@ -99,15 +147,28 @@ SETUP_RESPONSE_DATA_V1 = {
     'hub_id': None,
 }
 
+SETUP_RESPONSE_DATA_V1_NO_META = {
+    'configuration': {'conf1': 'val1'},
+    'logging_api_key': 'logging-token',
+    'environment_type': 'environ-type',
+    'log_level': 'log-level',
+    'runner_log_level': 'runner-log-level',
+    'account_id': None,
+    'account_name': None,
+    'service_id': None,
+    'product_id': None,
+    'hub_id': None,
+}
 
-def test_parse_task_message():
+
+def test_deserialize_task_message():
     msg_data = {
         'version': 2,
         'message_type': 'task',
         'data': copy.deepcopy(TASK_DATA),
     }
 
-    message = parse_message(msg_data)
+    message = Message.deserialize(msg_data)
 
     assert isinstance(message, Message)
     assert message.message_type == MessageType.TASK
@@ -117,14 +178,14 @@ def test_parse_task_message():
     assert isinstance(message.data.input, TaskInput)
 
 
-def test_parse_settings_message():
+def test_deserialize_setup_response_message():
     msg_data = {
         'version': 2,
         'message_type': 'setup_response',
         'data': copy.deepcopy(SETUP_RESPONSE_DATA),
     }
 
-    message = parse_message(msg_data)
+    message = Message.deserialize(msg_data)
 
     assert isinstance(message, Message)
     assert message.message_type == MessageType.SETUP_RESPONSE
@@ -134,7 +195,7 @@ def test_parse_settings_message():
     assert isinstance(message.data.logging.meta, LogMeta)
 
 
-def test_parse_extension_message():
+def test_deserialize_setup_request_message():
     msg_data = {
         'version': 2,
         'message_type': 'setup_request',
@@ -146,7 +207,7 @@ def test_parse_extension_message():
         },
     }
 
-    message = parse_message(msg_data)
+    message = Message.deserialize(msg_data)
 
     assert isinstance(message, Message)
     assert message.message_type == MessageType.SETUP_REQUEST
@@ -155,14 +216,14 @@ def test_parse_extension_message():
     assert isinstance(message.data.repository, Repository)
 
 
-def test_parse_extension_message_with_vars_and_schedulables():
+def test_deserialize_setup_request_message_with_vars_and_schedulables():
     msg_data = {
         'version': 2,
         'message_type': 'setup_request',
         'data': SETUP_REQUEST_DATA,
     }
 
-    message = parse_message(msg_data)
+    message = Message.deserialize(msg_data)
 
     assert message.dict() == msg_data
     assert message.data.variables == msg_data['data']['variables']
@@ -172,39 +233,48 @@ def test_parse_extension_message_with_vars_and_schedulables():
     assert message.data.variables[0]['bar'] == msg_data['data']['variables'][0]['bar']
 
 
-def test_parse_pause_message():
-    msg_data = {'message_type': 'pause', 'data': {}}
-
-    message = parse_message(msg_data)
-
-    assert isinstance(message, Message)
-    assert message.message_type == MessageType.PAUSE
-    assert message.data is None
-
-
-def test_transform_v1_task_data():
+def test_deserialize_v1_shutdown():
     msg_data_v1 = {
-        'message_type': 'task',
-        'data': copy.deepcopy(TASK_DATA_V1),
+        'message_type': MessageType.SHUTDOWN,
     }
 
-    message = parse_message(msg_data_v1)
+    message = Message.deserialize(msg_data_v1)
+
+    assert isinstance(message, Message)
+    assert message.version == 1
+    assert message.message_type == MessageType.SHUTDOWN
+
+
+def test_serialize_v1_shutdown():
+    msg = Message(version=1, message_type=MessageType.SHUTDOWN)
+
+    serialized = msg.serialize(1)
+    assert serialized['message_type'] == MessageType.SHUTDOWN
+
+
+def test_serialize_v1_task_data():
+    msg_data_v1 = {
+        'message_type': MessageType.TASK,
+        'data': copy.deepcopy(TASK_OUTPUT_DATA_V1),
+    }
+
+    message = Message.deserialize(msg_data_v1)
 
     assert isinstance(message, Message)
     assert message.version == 1
     assert message.message_type == MessageType.TASK
     assert isinstance(message.data, Task)
 
-    assert message.dict()['data'] == TASK_DATA
+    assert message.dict()['data'] == TASK_OUTPUT_DATA
 
 
-def test_transform_v1_settings_data():
+def test_deserialize_v1_setup_response_data():
     msg_data_v1 = {
-        'message_type': 'configuration',
+        'message_type': MessageType.CONFIGURATION,
         'data': copy.deepcopy(SETUP_RESPONSE_DATA_V1),
     }
 
-    message = parse_message(msg_data_v1)
+    message = Message.deserialize(msg_data_v1)
 
     assert isinstance(message, Message)
     assert message.version == 1
@@ -214,13 +284,13 @@ def test_transform_v1_settings_data():
     assert message.dict()['data'] == SETUP_RESPONSE_DATA
 
 
-def test_transform_v1_extension_data():
+def test_deserialize_v1_setup_request_data():
     msg_data_v1 = {
         'message_type': 'capabilities',
         'data': copy.deepcopy(SETUP_REQUEST_DATA_V1),
     }
 
-    message = parse_message(msg_data_v1)
+    message = Message.deserialize(msg_data_v1)
 
     assert isinstance(message, Message)
     assert message.version == 1
@@ -230,43 +300,99 @@ def test_transform_v1_extension_data():
     assert message.dict()['data'] == SETUP_REQUEST_DATA
 
 
-def test_transform_extension_data_to_legacy():
-    message_type, transformed_data = transform_data_to_v1(
+def test_serialize_setup_request_data_to_v1():
+    msg = Message(
+        version=2,
         message_type=MessageType.SETUP_REQUEST,
         data=copy.deepcopy(SETUP_REQUEST_DATA),
     )
 
-    assert message_type == MessageType.CAPABILITIES
-    assert transformed_data == SETUP_REQUEST_DATA_V1
+    v1 = msg.serialize(1)
+
+    assert v1['message_type'] == MessageType.CAPABILITIES
+    assert v1['data'] == SETUP_REQUEST_DATA_V1
 
 
-def test_transform_settings_data_to_legacy():
-    message_type, transformed_data = transform_data_to_v1(
+def test_serialize_setup_response_data_to_v1():
+    msg = Message(
+        version=2,
         message_type=MessageType.SETUP_RESPONSE,
         data=copy.deepcopy(SETUP_RESPONSE_DATA),
     )
 
-    assert message_type == MessageType.CONFIGURATION
-    assert transformed_data == SETUP_RESPONSE_DATA_V1
+    v1 = msg.serialize(1)
+
+    assert v1['message_type'] == MessageType.CONFIGURATION
+    assert v1['data'] == SETUP_RESPONSE_DATA_V1
 
 
-def test_transform_settings_data_to_legacy_with_product():
+def test_serialize_setup_response_data_to_v1_no_meta():
+    data = copy.deepcopy(SETUP_RESPONSE_DATA)
+    data['logging'].pop('meta')
+    msg = Message(
+        version=2,
+        message_type=MessageType.SETUP_RESPONSE,
+        data=data,
+    )
+
+    v1 = msg.serialize(1)
+
+    assert v1['message_type'] == MessageType.CONFIGURATION
+    assert v1['data'] == SETUP_RESPONSE_DATA_V1_NO_META
+
+
+@pytest.mark.parametrize(
+    ('products', 'expected_product_id'),
+    (
+        (['PRD-000'], 'PRD-000'),
+        (['PRD-000', 'PRD-001'], 'PRD-000,PRD-001'),
+    ),
+)
+def test_serialize_setup_response_data_to_v1_with_product(products, expected_product_id):
     new_settings = copy.deepcopy(SETUP_RESPONSE_DATA)
-    new_settings['logging']['meta']['products'] = ['PRD-000']
-    message_type, transformed_data = transform_data_to_v1(
+    new_settings['logging']['meta']['products'] = products
+
+    msg = Message(
+        version=2,
         message_type=MessageType.SETUP_RESPONSE,
         data=new_settings,
     )
+
+    v1 = msg.serialize(1)
+
     legacy_settings = copy.deepcopy(SETUP_RESPONSE_DATA_V1)
-    legacy_settings['product_id'] = 'PRD-000'
-    assert message_type == MessageType.CONFIGURATION
-    assert transformed_data == legacy_settings
+    legacy_settings['product_id'] = expected_product_id
+    assert v1['message_type'] == MessageType.CONFIGURATION
+    assert v1['data'] == legacy_settings
 
 
-def test_transform_task_data_to_legacy():
-    message_type, transformed_data = transform_data_to_v1(
+def test_serialize_task_data_to_v1():
+    msg = Message(
+        version=2,
         message_type=MessageType.TASK,
-        data=copy.deepcopy(TASK_DATA),
+        data=TASK_INPUT_DATA,
     )
 
-    assert transformed_data == TASK_DATA_V1
+    v1 = msg.serialize(1)
+
+    assert v1['message_type'] == MessageType.TASK
+    assert v1['data'] == TASK_INPUT_DATA_V1
+
+
+@pytest.mark.parametrize(
+    ('msg_type', 'data'),
+    (
+        (MessageType.SETUP_REQUEST, SETUP_REQUEST_DATA),
+        (MessageType.SETUP_RESPONSE, SETUP_RESPONSE_DATA),
+        (MessageType.TASK, TASK_DATA),
+        (MessageType.SHUTDOWN, None),
+    ),
+)
+def test_serialize_v2(msg_type, data):
+    msg = Message(version=2, message_type=msg_type, data=data)
+
+    serialized = msg.serialize()
+
+    assert serialized['version'] == 2
+    assert serialized['message_type'] == msg_type
+    assert serialized['data'] == data
