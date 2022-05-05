@@ -56,11 +56,19 @@ class Logging(BaseModel):
     meta: Optional[LogMeta]
 
 
+class EventDefinition(BaseModel):
+    event_type: str
+    api_resource_endpoint: str
+    api_collection_endpoint: str
+    api_collection_filter: str
+
+
 class SetupResponse(BaseModel):
     variables: Optional[dict]
     # delete after stop using version 1
     environment_type: Optional[str]
     logging: Optional[Logging]
+    event_definitions: Optional[List[EventDefinition]]
 
 
 class Schedulable(BaseModel):

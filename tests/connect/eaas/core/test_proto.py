@@ -3,6 +3,7 @@ import copy
 import pytest
 
 from connect.eaas.core.proto import (
+    EventDefinition,
     Logging,
     LogMeta,
     Message,
@@ -133,6 +134,7 @@ SETUP_RESPONSE_DATA = {
             'hub_id': None,
         },
     },
+    'event_definitions': None,
 }
 SETUP_RESPONSE_DATA_V1 = {
     'configuration': {'conf1': 'val1'},
@@ -395,4 +397,29 @@ def test_serialize_v2(msg_type, data):
 
     assert serialized['version'] == 2
     assert serialized['message_type'] == msg_type
+    assert serialized['data'] == data
+
+
+def test_serialize_setup_response_with_events_definitions():
+    data = copy.deepcopy(SETUP_RESPONSE_DATA)
+    data['event_definitions'] = [
+        {
+            'event_type': 'event_type',
+            'api_resource_endpoint': 'api_resource_endpoint',
+            'api_collection_endpoint': 'api_collection_endpoint',
+            'api_collection_filter': 'api_collection_filter',
+        },
+    ]
+    msg = Message(
+        version=2,
+        message_type=MessageType.SETUP_RESPONSE,
+        data=data,
+    )
+
+    assert isinstance(msg.data.event_definitions[0], EventDefinition)
+
+    serialized = msg.serialize()
+
+    assert serialized['version'] == 2
+    assert serialized['message_type'] == MessageType.SETUP_RESPONSE
     assert serialized['data'] == data
