@@ -1,94 +1,13 @@
+import inspect
 import json
 
 import pkg_resources
 
-from connect.eaas.core.enums import ResultType
-
-
-class _Response:
-    def __init__(self, status, output=None):
-        self.status = status
-        self.output = output
-
-    @classmethod
-    def done(cls, *args, **kwargs):
-        return cls(ResultType.SUCCESS)
-
-    @classmethod
-    def fail(cls, output=None):
-        return cls(ResultType.FAIL, output=output)
-
-
-class ProcessingResponse(_Response):
-
-    def __init__(self, status, countdown=30, output=None):
-        super().__init__(status, output)
-        self.countdown = 30 if countdown < 30 else countdown
-
-    @classmethod
-    def skip(cls, output=None):
-        return cls(ResultType.SKIP, output=output)
-
-    @classmethod
-    def reschedule(cls, countdown=30):
-        return cls(ResultType.RESCHEDULE, countdown=countdown)
-
-    @classmethod
-    def slow_process_reschedule(cls, countdown=300):
-        return cls(
-            ResultType.RESCHEDULE,
-            countdown=300 if countdown < 300 else countdown,
-        )
-
-
-class ValidationResponse(_Response):
-    def __init__(self, status, data, output=None):
-        super().__init__(status, output)
-        self.data = data
-
-    @classmethod
-    def done(cls, data):
-        return cls(ResultType.SUCCESS, data)
-
-    @classmethod
-    def fail(cls, data=None, output=None):
-        return cls(ResultType.FAIL, data=data, output=output)
-
-
-class _InteractiveTaskResponse(_Response):
-    def __init__(self, status, http_status, headers, body, output):
-        super().__init__(status, output)
-        self.http_status = http_status
-        self.headers = headers
-        self.body = body
-
-    @property
-    def data(self):
-        return {
-            'http_status': self.http_status,
-            'headers': self.headers,
-            'body': self.body,
-        }
-
-    @classmethod
-    def done(cls, http_status=200, headers=None, body=None):
-        return cls(ResultType.SUCCESS, http_status, headers, body, None)
-
-    @classmethod
-    def fail(cls, http_status=400, headers=None, body=None, output=None):
-        return cls(ResultType.FAIL, http_status, headers, body, output)
-
-
-class CustomEventResponse(_InteractiveTaskResponse):
-    pass
-
-
-class ProductActionResponse(_InteractiveTaskResponse):
-    pass
-
-
-class ScheduledExecutionResponse(_Response):
-    pass
+from connect.eaas.core.constants import (
+    EVENT_INFO_ATTR_NAME,
+    SCHEDULABLE_INFO_ATTR_NAME,
+    VARIABLES_INFO_ATTR_NAME,
+)
 
 
 class Extension:
@@ -106,62 +25,25 @@ class Extension:
             ),
         )
 
-    def process_asset_purchase_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
+    @classmethod
+    def get_events(cls):
+        return cls._get_methods_info(EVENT_INFO_ATTR_NAME)
 
-    def process_asset_change_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
+    @classmethod
+    def get_schedulables(cls):
+        return cls._get_methods_info(SCHEDULABLE_INFO_ATTR_NAME)
 
-    def process_asset_suspend_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
+    @classmethod
+    def get_variables(cls):
+        return getattr(cls, VARIABLES_INFO_ATTR_NAME, [])
 
-    def process_asset_resume_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_asset_cancel_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_asset_adjustment_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def validate_asset_purchase_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def validate_asset_change_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_tier_config_setup_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_tier_config_change_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_tier_config_adjustment_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def validate_tier_config_setup_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def validate_tier_config_change_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def execute_product_action(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_product_custom_event(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_new_listing_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_remove_listing_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_tier_account_update_request(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_usage_file(self, request):  # pragma: no cover
-        raise NotImplementedError()
-
-    def process_usage_chunk_file(self, request):  # pragma: no cover
-        raise NotImplementedError()
+    @classmethod
+    def _get_methods_info(cls, attr_name):
+        info = []
+        members = inspect.getmembers(cls)
+        for _, value in members:
+            if not (inspect.isfunction(value) or inspect.iscoroutinefunction(value)):
+                continue
+            if hasattr(value, attr_name):
+                info.append(getattr(value, attr_name))
+        return info

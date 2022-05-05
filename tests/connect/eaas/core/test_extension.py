@@ -1,102 +1,98 @@
-import pytest
-
-from connect.eaas.core.enums import ResultType
-from connect.eaas.core.extension import (
-    CustomEventResponse,
-    ProcessingResponse,
-    ProductActionResponse,
-    ScheduledExecutionResponse,
-    ValidationResponse,
-)
+from connect.eaas.core.decorators import event, schedulable, variables
+from connect.eaas.core.extension import Extension
 
 
-def test_result_ok():
-    assert ProcessingResponse.done().status == ResultType.SUCCESS
-    assert ScheduledExecutionResponse.done().status == ResultType.SUCCESS
-    data = {'test': 'data'}
-    ok = ValidationResponse.done(data)
-    assert ok.status == ResultType.SUCCESS
-    assert ok.data == data
+def test_get_events():
+
+    class MyExtension(Extension):
+
+        @event(
+            'asset_purchase_request_processing',
+            statuses=['pending', 'inquiring'],
+        )
+        def process_purchase(self, request):
+            """This process purchases"""
+            pass
+
+        @event(
+            'asset_change_request_processing',
+            statuses=['pending', 'inquiring'],
+        )
+        async def process_change(self, request):
+            pass
+
+    assert sorted(MyExtension.get_events(), key=lambda x: x['method']) == [
+        {
+            'method': 'process_change',
+            'event_type': 'asset_change_request_processing',
+            'statuses': ['pending', 'inquiring'],
+        },
+        {
+            'method': 'process_purchase',
+            'event_type': 'asset_purchase_request_processing',
+            'statuses': ['pending', 'inquiring'],
+        },
+    ]
+
+    assert MyExtension(None, None, None).process_purchase.__name__ == 'process_purchase'
+    assert MyExtension(None, None, None).process_purchase.__doc__ == 'This process purchases'
 
 
-def test_result_skip():
-    assert ProcessingResponse.skip().status == ResultType.SKIP
+def test_get_schedulables():
+
+    class MyExtension(Extension):
+
+        @schedulable(
+            'schedulable1_name',
+            'schedulable1_description',
+        )
+        def schedulable1(self, request):
+            """This is schedulable"""
+            pass
+
+        @schedulable(
+            'schedulable2_name',
+            'schedulable2_description',
+        )
+        async def schedulable2(self, request):
+            pass
+
+    assert sorted(MyExtension.get_schedulables(), key=lambda x: x['method']) == [
+        {
+            'method': 'schedulable1',
+            'name': 'schedulable1_name',
+            'description': 'schedulable1_description',
+        },
+        {
+            'method': 'schedulable2',
+            'name': 'schedulable2_name',
+            'description': 'schedulable2_description',
+        },
+    ]
+
+    assert MyExtension(None, None, None).schedulable1.__name__ == 'schedulable1'
+    assert MyExtension(None, None, None).schedulable1.__doc__ == 'This is schedulable'
 
 
-def test_result_skip_with_output():
-    skip = ProcessingResponse.skip('output')
-    assert skip.status == ResultType.SKIP
-    assert skip.output == 'output'
+def test_get_variables():
 
+    vars = [
+        {
+            'name': 'var1',
+            'initial_value': 'val1',
+        },
+        {
+            'name': 'var2',
+            'initial_value': 'val2',
+            'secure': True,
+        },
+    ]
 
-@pytest.mark.parametrize(
-    ('countdown', 'expected'),
-    (
-        (0, 30),
-        (-1, 30),
-        (1, 30),
-        (30, 30),
-        (31, 31),
-        (100, 100),
-    ),
-)
-def test_result_reschedule(countdown, expected):
-    r = ProcessingResponse.reschedule(countdown)
+    @variables(vars)
+    class MyExtension(Extension):
+        """this is my extension"""
+        pass
 
-    assert r.status == ResultType.RESCHEDULE
-    assert r.countdown == expected
-
-
-@pytest.mark.parametrize(
-    ('countdown', 'expected'),
-    (
-        (0, 300),
-        (-1, 300),
-        (1, 300),
-        (30, 300),
-        (300, 300),
-        (600, 600),
-    ),
-)
-def test_result_slow_reschedule(countdown, expected):
-    r = ProcessingResponse.slow_process_reschedule(countdown)
-
-    assert r.status == ResultType.RESCHEDULE
-    assert r.countdown == expected
-
-
-@pytest.mark.parametrize(
-    'response_cls',
-    (
-        ProcessingResponse, ValidationResponse,
-        CustomEventResponse, ProductActionResponse,
-        ScheduledExecutionResponse,
-    ),
-)
-def test_result_fail(response_cls):
-    r = response_cls.fail(output='reason of failure')
-
-    assert r.status == ResultType.FAIL
-    assert r.output == 'reason of failure'
-
-
-def test_custom_event():
-    r = CustomEventResponse.done(headers={'X-Custom-Header': 'value'}, body='text')
-
-    assert r.status == ResultType.SUCCESS
-    assert r.data == {
-        'http_status': 200,
-        'headers': {'X-Custom-Header': 'value'},
-        'body': 'text',
-    }
-
-
-def test_product_action():
-    r = ProductActionResponse.done(headers={'X-Custom-Header': 'value'}, body='text')
-
-    assert r.status == ResultType.SUCCESS
-    assert r.data == {
-        'http_status': 200,
-        'headers': {'X-Custom-Header': 'value'},
-        'body': 'text',
-    }
+    assert MyExtension.get_variables() == vars
+    assert MyExtension.__name__ == 'MyExtension'
+    assert MyExtension.__doc__ == 'this is my extension'
