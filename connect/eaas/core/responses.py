@@ -15,7 +15,7 @@ class _Response:
         return cls(ResultType.FAIL, output=output)
 
 
-class ProcessingResponse(_Response):
+class BackgroundResponse(_Response):
 
     def __init__(self, status, countdown=30, output=None):
         super().__init__(status, output)
@@ -37,21 +37,11 @@ class ProcessingResponse(_Response):
         )
 
 
-class ValidationResponse(_Response):
-    def __init__(self, status, data, output=None):
-        super().__init__(status, output)
-        self.data = data
-
-    @classmethod
-    def done(cls, data):
-        return cls(ResultType.SUCCESS, data)
-
-    @classmethod
-    def fail(cls, data=None, output=None):
-        return cls(ResultType.FAIL, data=data, output=output)
+class ProcessingResponse(BackgroundResponse):
+    pass
 
 
-class _InteractiveTaskResponse(_Response):
+class InteractiveResponse(_Response):
     def __init__(self, status, http_status, headers, body, output):
         super().__init__(status, output)
         self.http_status = http_status
@@ -75,11 +65,25 @@ class _InteractiveTaskResponse(_Response):
         return cls(ResultType.FAIL, http_status, headers, body, output)
 
 
-class CustomEventResponse(_InteractiveTaskResponse):
+class ValidationResponse(InteractiveResponse):
+    def __init__(self, status, data, output=None):
+        http_status = 200 if status == ResultType.SUCCESS else 400
+        super().__init__(status, http_status, None, data, output)
+
+    @classmethod
+    def done(cls, data):
+        return cls(ResultType.SUCCESS, data)
+
+    @classmethod
+    def fail(cls, data=None, output=None):
+        return cls(ResultType.FAIL, data=data, output=output)
+
+
+class CustomEventResponse(InteractiveResponse):
     pass
 
 
-class ProductActionResponse(_InteractiveTaskResponse):
+class ProductActionResponse(InteractiveResponse):
     pass
 
 
