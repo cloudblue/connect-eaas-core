@@ -1,5 +1,7 @@
+import os
+
 from connect.eaas.core.decorators import event, schedulable, variables
-from connect.eaas.core.extension import Extension
+from connect.eaas.core.extension import Extension, UIExtension
 
 
 def test_get_events():
@@ -96,3 +98,27 @@ def test_get_variables():
     assert MyExtension.get_variables() == vars
     assert MyExtension.__name__ == 'MyExtension'
     assert MyExtension.__doc__ == 'this is my extension'
+
+
+def test_get_static_root(mocker):
+    mocker.patch('connect.eaas.core.extension.os.path.exists', return_value=True)
+    mocker.patch('connect.eaas.core.extension.os.path.isdir', return_value=True)
+
+    class MyUIExtension(UIExtension):
+        pass
+
+    assert MyUIExtension.get_static_root() == os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            'static_root',
+        ),
+    )
+
+
+def test_get_static_root_not_exists(mocker):
+    mocker.patch('connect.eaas.core.extension.os.path.exists', return_value=False)
+
+    class MyUIExtension(UIExtension):
+        pass
+
+    assert MyUIExtension.get_static_root() is None

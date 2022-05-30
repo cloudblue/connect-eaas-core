@@ -23,6 +23,8 @@ TASK_DATA = {
         'task_category': 'task_category',
         'correlation_id': 'correlation_id',
         'reply_to': 'reply_to',
+        'api_key': 'api_key',
+        'installation_id': 'installation_id',
     },
     'input': {
         'event_type': 'task_type',
@@ -36,6 +38,7 @@ TASK_DATA = {
         'message': 'output',
         'data': {'data': 'value'},
     },
+    'model_type': 'task',
 }
 
 
@@ -51,6 +54,7 @@ TASK_INPUT_DATA = {
         'object_id': 'object_id',
         'data': {'data': 'value'},
     },
+    'model_type': 'task',
 }
 
 TASK_INPUT_DATA_V1 = {
@@ -70,6 +74,8 @@ TASK_OUTPUT_DATA = {
         'task_category': 'task_category',
         'correlation_id': 'correlation_id',
         'reply_to': 'reply_to',
+        'api_key': None,
+        'installation_id': None,
     },
     'input': {
         'event_type': 'task_type',
@@ -83,6 +89,7 @@ TASK_OUTPUT_DATA = {
         'message': 'output',
         'data': {'output_data': 'value'},
     },
+    'model_type': 'task',
 }
 
 TASK_OUTPUT_DATA_V1 = {
@@ -101,6 +108,7 @@ TASK_OUTPUT_DATA_V1 = {
 
 
 SETUP_REQUEST_DATA = {
+    'ui_modules': None,
     'event_subscriptions': {'test': 'data'},
     'variables': [{'foo': 'value', 'bar': 'value'}],
     'schedulables': [{'method': 'method_name', 'name': 'Name', 'description': 'Description'}],
@@ -109,6 +117,7 @@ SETUP_REQUEST_DATA = {
         'changelog_url': 'https://change.log',
     },
     'runner_version': '3',
+    'model_type': 'setup_request',
 }
 SETUP_REQUEST_DATA_V1 = {
     'capabilities': {'test': 'data'},
@@ -135,6 +144,7 @@ SETUP_RESPONSE_DATA = {
         },
     },
     'event_definitions': None,
+    'model_type': 'setup_response',
 }
 SETUP_RESPONSE_DATA_V1 = {
     'configuration': {'conf1': 'val1'},
@@ -171,7 +181,6 @@ def test_deserialize_task_message():
     }
 
     message = Message.deserialize(msg_data)
-
     assert isinstance(message, Message)
     assert message.message_type == MessageType.TASK
     assert isinstance(message.data, Task)

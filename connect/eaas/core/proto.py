@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from typing import Any, List, Literal, Optional, Union
 
@@ -6,6 +6,9 @@ from typing import Any, List, Literal, Optional, Union
 class MessageType:
     SETUP_REQUEST = 'setup_request'
     SETUP_RESPONSE = 'setup_response'
+    WEB_SETUP_REQUEST = 'web_setup_request'
+    WEB_SETUP_RESPONSE = 'web_setup_response'
+    WEB_TASK = 'web_task'
     TASK = 'task'
     SHUTDOWN = 'shutdown'
     # delete after stop using version 1
@@ -18,6 +21,8 @@ class TaskOptions(BaseModel):
     task_category: str
     correlation_id: Optional[str]
     reply_to: Optional[str]
+    api_key: Optional[str]
+    installation_id: Optional[str]
 
 
 class TaskOutput(BaseModel):
@@ -38,6 +43,7 @@ class Task(BaseModel):
     options: TaskOptions
     input: TaskInput
     output: Optional[TaskOutput]
+    model_type: Literal['task'] = 'task'
 
 
 class LogMeta(BaseModel):
@@ -69,6 +75,7 @@ class SetupResponse(BaseModel):
     environment_type: Optional[str]
     logging: Optional[Logging]
     event_definitions: Optional[List[EventDefinition]]
+    model_type: Literal['setup_response'] = 'setup_response'
 
 
 class Schedulable(BaseModel):
@@ -84,17 +91,50 @@ class Repository(BaseModel):
 
 class SetupRequest(BaseModel):
     # for version 1 'capabilities' renaming to 'event_subscriptions'
-    event_subscriptions: dict
+    event_subscriptions: Optional[dict]
+    ui_modules: Optional[dict]
     variables: Optional[list]
     schedulables: Optional[List[Schedulable]]
     repository: Optional[Repository]
     runner_version: Optional[str]
+    model_type: Literal['setup_request'] = 'setup_request'
+
+
+class HttpResponse(BaseModel):
+    status: int
+    headers: dict
+    content: Optional[Any]
+
+
+class HttpRequest(BaseModel):
+    method: str
+    url: str
+    headers: dict
+    content: Optional[Any]
+
+
+class WebTaskOptions(BaseModel):
+    correlation_id: str
+    reply_to: str
+    api_key: Optional[str]
+    installation_id: Optional[str]
+
+
+class WebTask(BaseModel):
+    options: WebTaskOptions
+    request: Optional[HttpRequest]
+    response: Optional[HttpResponse]
+    model_type: Literal['web_task'] = 'web_task'
 
 
 class Message(BaseModel):
     version: Literal[1, 2] = 1
     message_type: str
-    data: Union[Task, SetupRequest, SetupResponse, None]
+    data: Union[
+        WebTask, Task,
+        SetupRequest, SetupResponse,
+        None,
+    ] = Field(discriminator='model_type')
 
     def serialize(self, protocol_version=2):
         if protocol_version == 2:
@@ -162,10 +202,13 @@ class Message(BaseModel):
     @classmethod
     def deserialize(cls, raw):
         version = raw.get('version', 1)
-        if version == 2:
-            return cls(**raw)
+
         message_type = raw['message_type']
         raw_data = raw.get('data')
+
+        if version == 2:
+            return cls(**raw)
+
         if message_type == MessageType.CAPABILITIES:
             return cls(
                 version=version,
