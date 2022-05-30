@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "connect-eaas-core"
-version = "1.4.0"
+version = "2.1.0"
 description = "Connect Eaas Core"
 authors = ["CloudBlue LLC"]
 license = "Apache-2.0"
@@ -26,6 +26,8 @@ classifiers = [
 python = "^3.8"
 connect-openapi-client = ">=25"
 pydantic = "^1.9.0"
+fastapi = "^0.78.0"
+fastapi-utils = "^0.2.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.21.0"
@@ -41,6 +43,9 @@ flake8-future-import = "~0.4"
 flake8-import-order = "~0.18"
 flake8-broken-line = "~0.3"
 fs = "^2.4.12"
+responses = "^0.21.0"
+pytest-httpx = "^0.21.0"
+pytest-asyncio = "^0.18.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "setuptools"]
@@ -50,6 +55,7 @@ build-backend = "poetry.core.masonry.api"
 testpaths = "tests"
 log_cli = true
 addopts = "--cov=connect.eaas.core --cov-report=term-missing:skip-covered --cov-report=html --cov-report=xml"
+asyncio_mode = "strict"
 
 [tool.coverage.run]
 branch = true

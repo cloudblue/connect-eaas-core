@@ -1,3 +1,6 @@
+from fastapi_utils.cbv import cbv
+from fastapi_utils.inferring_router import InferringRouter
+
 from connect.eaas.core.constants import (
     EVENT_INFO_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
@@ -40,3 +43,7 @@ def variables(variables):
         setattr(cls, VARIABLES_INFO_ATTR_NAME, variables)
         return cls
     return wrapper
+
+
+router = InferringRouter()
+web_app = cbv
