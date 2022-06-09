@@ -1,11 +1,15 @@
 import os
+from logging import Logger
 
 from fastapi import Depends, Header
 
 from connect.client import AsyncConnectClient
+from connect.eaas.core.inject.common import get_logger
+from connect.eaas.core.logging import RequestLogger
 
 
 def get_installation_client(
+    logger: Logger = Depends(get_logger),
     x_connect_installation_api_key: str = Header(),
     x_connect_api_gateway_url: str = Header(),
     x_connect_user_agent: str = Header(),
@@ -15,10 +19,12 @@ def get_installation_client(
         endpoint=x_connect_api_gateway_url,
         use_specs=False,
         default_headers={'User-Agent': x_connect_user_agent},
+        logger=RequestLogger(logger),
     )
 
 
 def get_extension_client(
+    logger: Logger = Depends(get_logger),
     x_connect_api_gateway_url: str = Header(),
     x_connect_user_agent: str = Header(),
 ):
@@ -27,6 +33,7 @@ def get_extension_client(
         endpoint=x_connect_api_gateway_url,
         use_specs=False,
         default_headers={'User-Agent': x_connect_user_agent},
+        logger=RequestLogger(logger),
     )
 
 
@@ -40,7 +47,7 @@ async def get_installation(
 
 
 async def get_environment(
-    client: AsyncConnectClient = Depends(get_installation_client),
+    client: AsyncConnectClient = Depends(get_extension_client),
     x_connect_extension_id: str = Header(),
     x_connect_environment_id: str = Header(),
 ):
