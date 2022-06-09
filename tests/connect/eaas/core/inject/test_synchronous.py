@@ -1,3 +1,5 @@
+import inspect
+
 from connect.client import ConnectClient
 from connect.eaas.core.inject import synchronous
 
@@ -48,6 +50,11 @@ def test_get_installation(responses):
 
     assert installation['id'] == 'EIN-000-000'
 
+    signature = inspect.signature(synchronous.get_installation)
+    client_param = signature.parameters['client']
+    assert client_param.annotation == ConnectClient
+    assert client_param.default.dependency == synchronous.get_installation_client
+
 
 def test_get_environment(responses):
     variables = [
@@ -77,3 +84,8 @@ def test_get_environment(responses):
     environment = synchronous.get_environment(client, 'extension_id', 'env_id')
 
     assert environment == variables
+
+    signature = inspect.signature(synchronous.get_environment)
+    client_param = signature.parameters['client']
+    assert client_param.annotation == ConnectClient
+    assert client_param.default.dependency == synchronous.get_extension_client

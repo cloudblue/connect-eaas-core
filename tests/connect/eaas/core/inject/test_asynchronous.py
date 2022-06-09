@@ -1,3 +1,5 @@
+import inspect
+
 import pytest
 
 from connect.client import AsyncConnectClient
@@ -50,6 +52,11 @@ async def test_get_installation(httpx_mock):
 
     assert installation['id'] == 'EIN-000-000'
 
+    signature = inspect.signature(asynchronous.get_installation)
+    client_param = signature.parameters['client']
+    assert client_param.annotation == AsyncConnectClient
+    assert client_param.default.dependency == asynchronous.get_installation_client
+
 
 @pytest.mark.asyncio
 async def test_get_environment(httpx_mock):
@@ -79,3 +86,8 @@ async def test_get_environment(httpx_mock):
     environment = await asynchronous.get_environment(client, 'extension_id', 'env_id')
 
     assert environment == variables
+
+    signature = inspect.signature(asynchronous.get_environment)
+    client_param = signature.parameters['client']
+    assert client_param.annotation == AsyncConnectClient
+    assert client_param.default.dependency == asynchronous.get_extension_client
