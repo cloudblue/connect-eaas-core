@@ -27,10 +27,12 @@ class ExtensionBase:
 
 
 class Extension(ExtensionBase):
-    def __init__(self, client, logger, config):
+    def __init__(self, client, logger, config, installation_client=None, installation=None):
         self.client = client
         self.logger = logger
         self.config = config
+        self.installation_client = installation_client
+        self.installation = installation
 
     @classmethod
     def get_events(cls):
