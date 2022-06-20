@@ -2,6 +2,8 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
 from connect.eaas.core.constants import (
+    ANVIL_CALLABLE_ATTR_NAME,
+    ANVIL_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
@@ -42,6 +44,20 @@ def variables(variables):
     def wrapper(cls):
         setattr(cls, VARIABLES_INFO_ATTR_NAME, variables)
         return cls
+    return wrapper
+
+
+def anvil_key_variable(name):
+    def wrapper(cls):
+        setattr(cls, ANVIL_KEY_VAR_ATTR_NAME, name)
+        return cls
+    return wrapper
+
+
+def anvil_callable():
+    def wrapper(func):
+        setattr(func, ANVIL_CALLABLE_ATTR_NAME, True)
+        return func
     return wrapper
 
 

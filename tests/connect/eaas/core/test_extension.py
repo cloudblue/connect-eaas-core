@@ -1,12 +1,14 @@
 import os
 
-from connect.eaas.core.decorators import event, schedulable, variables
-from connect.eaas.core.extension import Extension, UIExtension
+from connect.eaas.core.decorators import (
+    anvil_callable, anvil_key_variable, event, schedulable, variables,
+)
+from connect.eaas.core.extension import _invoke, AnvilExtension, EventsExtension, WebAppExtension
 
 
 def test_get_events():
 
-    class MyExtension(Extension):
+    class MyExtension(EventsExtension):
 
         @event(
             'asset_purchase_request_processing',
@@ -42,7 +44,7 @@ def test_get_events():
 
 def test_get_schedulables():
 
-    class MyExtension(Extension):
+    class MyExtension(EventsExtension):
 
         @schedulable(
             'schedulable1_name',
@@ -91,7 +93,7 @@ def test_get_variables():
     ]
 
     @variables(vars)
-    class MyExtension(Extension):
+    class MyExtension(EventsExtension):
         """this is my extension"""
         pass
 
@@ -104,10 +106,10 @@ def test_get_static_root(mocker):
     mocker.patch('connect.eaas.core.extension.os.path.exists', return_value=True)
     mocker.patch('connect.eaas.core.extension.os.path.isdir', return_value=True)
 
-    class MyUIExtension(UIExtension):
+    class MyWebAppExtension(WebAppExtension):
         pass
 
-    assert MyUIExtension.get_static_root() == os.path.abspath(
+    assert MyWebAppExtension.get_static_root() == os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
             'static_root',
@@ -118,7 +120,50 @@ def test_get_static_root(mocker):
 def test_get_static_root_not_exists(mocker):
     mocker.patch('connect.eaas.core.extension.os.path.exists', return_value=False)
 
-    class MyUIExtension(UIExtension):
+    class MyWebAppExtension(WebAppExtension):
         pass
 
-    assert MyUIExtension.get_static_root() is None
+    assert MyWebAppExtension.get_static_root() is None
+
+
+def test_get_anvil_key_variable():
+
+    @anvil_key_variable('ANVIL_API_KEY')
+    class MyAnvilExtension(AnvilExtension):
+        pass
+
+    assert MyAnvilExtension.get_anvil_key_variable() == 'ANVIL_API_KEY'
+
+
+def test_setup_anvil_callables(mocker):
+
+    mocked_callable = mocker.patch(
+        'connect.eaas.core.extension.anvil.server.callable',
+    )
+
+    class MyAnvilExtension(AnvilExtension):
+
+        @anvil_callable()
+        def my_anvil_callable(self, arg1):
+            pass
+
+    ext = MyAnvilExtension(None, None, None)
+
+    ext.setup_anvil_callables()
+
+    assert callable(mocked_callable.mock_calls[0].args[0])
+    assert mocked_callable.mock_calls[0].args[0].__name__ == 'my_anvil_callable'
+
+
+def test_invoke(mocker):
+
+    kwargs = {
+        'kw1': 'value1',
+        'kw2': 'value2',
+    }
+
+    mocked_method = mocker.MagicMock()
+
+    _invoke(mocked_method, **kwargs)
+
+    mocked_method.assert_called_once_with(**kwargs)

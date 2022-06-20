@@ -1,3 +1,5 @@
 VARIABLES_INFO_ATTR_NAME = '_eaas_variable_info'
 EVENT_INFO_ATTR_NAME = '_eaas_event_info'
 SCHEDULABLE_INFO_ATTR_NAME = '_eaas_schedulable_info'
+ANVIL_KEY_VAR_ATTR_NAME = '_eaas_anvil_key_var'
+ANVIL_CALLABLE_ATTR_NAME = '_eaas_anvil_callable'
