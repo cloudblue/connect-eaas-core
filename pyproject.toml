@@ -29,6 +29,7 @@ pydantic = "^1.9.0"
 fastapi = "^0.78.0"
 fastapi-utils = "^0.2.1"
 logzio-python-handler = "^3.1.1"
+anvil-uplink = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.21.0"

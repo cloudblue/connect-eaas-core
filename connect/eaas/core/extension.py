@@ -1,10 +1,14 @@
+import functools
 import inspect
 import json
 import os
 
+import anvil.server
 import pkg_resources
 
 from connect.eaas.core.constants import (
+    ANVIL_CALLABLE_ATTR_NAME,
+    ANVIL_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
@@ -12,6 +16,7 @@ from connect.eaas.core.constants import (
 
 
 class ExtensionBase:
+
     @classmethod
     def get_descriptor(cls):  # pragma: no cover
         return json.load(
@@ -26,7 +31,7 @@ class ExtensionBase:
         return getattr(cls, VARIABLES_INFO_ATTR_NAME, [])
 
 
-class Extension(ExtensionBase):
+class EventsExtension(ExtensionBase):
     def __init__(self, client, logger, config, installation_client=None, installation=None):
         self.client = client
         self.logger = logger
@@ -54,7 +59,11 @@ class Extension(ExtensionBase):
         return info
 
 
-class UIExtension(ExtensionBase):
+class Extension(EventsExtension):
+    pass
+
+
+class WebAppExtension(ExtensionBase):
 
     @classmethod
     def get_static_root(cls):
@@ -67,3 +76,32 @@ class UIExtension(ExtensionBase):
         if os.path.exists(static_root) and os.path.isdir(static_root):
             return static_root
         return None
+
+
+def _invoke(method, **kwargs):
+    return method(**kwargs)
+
+
+class AnvilExtension(ExtensionBase):
+
+    def __init__(self, client, logger, config, installation_client=None, installation=None):
+        self.client = client
+        self.logger = logger
+        self.config = config
+        self.installation_client = installation_client
+        self.installation = installation
+
+    @classmethod
+    def get_anvil_key_variable(cls):
+        return getattr(cls, ANVIL_KEY_VAR_ATTR_NAME, [])
+
+    def setup_anvil_callables(self):
+        members = inspect.getmembers(self)
+        for _, value in members:
+            if not inspect.ismethod(value):
+                continue
+
+            if getattr(value, ANVIL_CALLABLE_ATTR_NAME, False):
+                fn = functools.partial(_invoke, value)
+                fn.__name__ = value.__name__
+                anvil.server.callable(fn)

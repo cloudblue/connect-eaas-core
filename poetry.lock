@@ -1,4 +1,18 @@
 [[package]]
+name = "anvil-uplink"
+version = "0.4.0"
+description = "The Anvil server uplink library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+argparse = "*"
+future = "*"
+six = "*"
+ws4py = "*"
+
+[[package]]
 name = "anyio"
 version = "3.6.1"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
@@ -28,6 +42,14 @@ name = "appnope"
 version = "0.1.3"
 description = "Disable App Nap on macOS >= 10.9"
 category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "argparse"
+version = "1.4.0"
+description = "Python command-line parsing library"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -296,6 +318,14 @@ six = ">=1.10,<2.0"
 
 [package.extras]
 scandir = ["scandir (>=1.5,<2.0)"]
+
+[[package]]
+name = "future"
+version = "0.18.2"
+description = "Clean single-source support for Python 3 and 2"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "greenlet"
@@ -774,7 +804,7 @@ jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
@@ -881,12 +911,24 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[[package]]
+name = "ws4py"
+version = "0.5.1"
+description = "WebSocket client and server library for Python 2 and 3 as well as PyPy"
+category = "main"
+optional = false
+python-versions = "*"
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e968b0b9b21e47d9bd937497104f0f36070207d017890196fb8b3328dd01e12d"
+content-hash = "51a4c3d4f10258d25551603db4e9b775c4bd461fcd895a5962ead76e1fd99c36"
 
 [metadata.files]
+anvil-uplink = [
+    {file = "anvil-uplink-0.4.0.tar.gz", hash = "sha256:e36b6edb186f02cad4cda2c797d21166af46631aa8a10322216b8212a42656ff"},
+    {file = "anvil_uplink-0.4.0-py2.py3-none-any.whl", hash = "sha256:384664176ec14166a5f19bcb6d5451e2faf0068b46b68714bda908ca8640f2b3"},
+]
 anyio = [
     {file = "anyio-3.6.1-py3-none-any.whl", hash = "sha256:cb29b9c70620506a9a8f87a309591713446953302d7d995344d0d7c6c0c9a7be"},
     {file = "anyio-3.6.1.tar.gz", hash = "sha256:413adf95f93886e442aea925f3ee43baa5a765a64a0f52c6081894f9992fdd0b"},
@@ -898,6 +940,10 @@ appdirs = [
 appnope = [
     {file = "appnope-0.1.3-py2.py3-none-any.whl", hash = "sha256:265a455292d0bd8a72453494fa24df5a11eb18373a60c7c0430889f22548605e"},
     {file = "appnope-0.1.3.tar.gz", hash = "sha256:02bd91c4de869fbb1e1c50aafc4098827a7a54ab2f39d9dcba6c9547ed920e24"},
+]
+argparse = [
+    {file = "argparse-1.4.0-py2.py3-none-any.whl", hash = "sha256:c31647edb69fd3d465a847ea3157d37bed1f95f19760b11a47aa91c04b666314"},
+    {file = "argparse-1.4.0.tar.gz", hash = "sha256:62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4"},
 ]
 asgiref = [
     {file = "asgiref-3.5.2-py3-none-any.whl", hash = "sha256:1d2880b792ae8757289136f1db2b7b99100ce959b2aa57fd69dab783d05afac4"},
@@ -1038,6 +1084,9 @@ flake8-import-order = [
 fs = [
     {file = "fs-2.4.16-py2.py3-none-any.whl", hash = "sha256:660064febbccda264ae0b6bace80a8d1be9e089e0a5eb2427b7d517f9a91545c"},
     {file = "fs-2.4.16.tar.gz", hash = "sha256:ae97c7d51213f4b70b6a958292530289090de3a7e15841e108fbe144f069d313"},
+]
+future = [
+    {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
 ]
 greenlet = [
     {file = "greenlet-1.1.2-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:58df5c2a0e293bf665a51f8a100d3e9956febfbf1d9aaf8c0677cf70218910c6"},
@@ -1374,4 +1423,7 @@ urllib3 = [
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
+]
+ws4py = [
+    {file = "ws4py-0.5.1.tar.gz", hash = "sha256:29d073d7f2e006373e6a848b1d00951a1107eb81f3742952be905429dc5a5483"},
 ]
