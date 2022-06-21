@@ -10,9 +10,9 @@ _LOGGING_HANDLER = None
 
 
 def get_logger(
-    x_connect_logging_api_key: str = Header(),
-    x_connect_logging_metadata: str = Header(),
-    x_connect_logging_level: str = Header(),
+    x_connect_logging_api_key: str = Header(None),
+    x_connect_logging_metadata: str = Header({}),
+    x_connect_logging_level: str = Header('INFO'),
 ):
     global _LOGGING_HANDLER
 
