@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from connect.eaas.core.decorators import (
     anvil_callable, anvil_key_variable, event, schedulable, variables,
 )
@@ -133,6 +135,11 @@ def test_get_anvil_key_variable():
         pass
 
     assert MyAnvilExtension.get_anvil_key_variable() == 'ANVIL_API_KEY'
+    assert MyAnvilExtension.get_variables()[0] == {
+        'name': 'ANVIL_API_KEY',
+        'initial_value': 'changeme!',
+        'secure': True,
+    }
 
 
 def test_setup_anvil_callables(mocker):
@@ -167,3 +174,102 @@ def test_invoke(mocker):
     _invoke(mocked_method, **kwargs)
 
     mocked_method.assert_called_once_with(**kwargs)
+
+
+@pytest.mark.parametrize(
+    'vars',
+    (
+        [
+            {
+                'name': 'MY_VAR',
+                'initial_value': 'my_val',
+            },
+        ],
+        [
+            {
+                'name': 'MY_VAR',
+                'initial_value': 'my_val',
+            },
+            {
+                'name': 'ANVIL_API_KEY',
+                'initial_value': 'changeme!',
+                'secure': True,
+            },
+        ],
+        [
+            {
+                'name': 'MY_VAR',
+                'initial_value': 'my_val',
+            },
+            {
+                'name': 'ANVIL_API_KEY',
+                'initial_value': 'test!',
+                'secure': False,
+            },
+        ],
+    ),
+)
+def test_get_anvil_key_variable_with_variables_after(vars):
+
+    @anvil_key_variable('ANVIL_API_KEY')
+    @variables(vars)
+    class MyAnvilExtension(AnvilExtension):
+        pass
+
+    vars_dict = {v['name']: v for v in MyAnvilExtension.get_variables()}
+
+    for var in vars:
+        assert vars_dict[var['name']] == var
+
+
+@pytest.mark.parametrize(
+    'vars',
+    (
+        [
+            {
+                'name': 'MY_VAR',
+                'initial_value': 'my_val',
+            },
+        ],
+        [
+            {
+                'name': 'MY_VAR',
+                'initial_value': 'my_val',
+            },
+            {
+                'name': 'ANVIL_API_KEY',
+                'initial_value': 'changeme!',
+                'secure': True,
+            },
+        ],
+        [
+            {
+                'name': 'MY_VAR',
+                'initial_value': 'my_val',
+            },
+            {
+                'name': 'ANVIL_API_KEY',
+                'initial_value': 'test!',
+                'secure': False,
+            },
+        ],
+    ),
+)
+def test_get_anvil_key_variable_with_variables_before(vars):
+
+    @variables(vars)
+    @anvil_key_variable('ANVIL_API_KEY')
+    class MyAnvilExtension(AnvilExtension):
+        pass
+
+    vars_dict = {v['name']: v for v in MyAnvilExtension.get_variables()}
+
+    for var in vars:
+        if var['name'] != 'ANVIL_API_KEY':
+            assert vars_dict[var['name']] == var
+
+    assert vars_dict['ANVIL_API_KEY'] == {
+        'name': 'ANVIL_API_KEY',
+        'initial_value': 'changeme!',
+        'secure': True,
+    }

@@ -42,6 +42,13 @@ def schedulable(name, description):
 
 def variables(variables):
     def wrapper(cls):
+        if hasattr(cls, VARIABLES_INFO_ATTR_NAME):
+            declared_vars = getattr(cls, VARIABLES_INFO_ATTR_NAME)
+            for variable in variables:
+                name = variable['name']
+                if len(list(filter(lambda x: x['name'] == name, declared_vars))) == 0:
+                    declared_vars.append(variable)
+            return cls
         setattr(cls, VARIABLES_INFO_ATTR_NAME, variables)
         return cls
     return wrapper
@@ -50,6 +57,13 @@ def variables(variables):
 def anvil_key_variable(name):
     def wrapper(cls):
         setattr(cls, ANVIL_KEY_VAR_ATTR_NAME, name)
+        variables = []
+        if not hasattr(cls, VARIABLES_INFO_ATTR_NAME):
+            setattr(cls, VARIABLES_INFO_ATTR_NAME, variables)
+        else:
+            variables = getattr(cls, VARIABLES_INFO_ATTR_NAME)
+        if len(list(filter(lambda x: x['name'] == name, variables))) == 0:
+            variables.append({'name': name, 'initial_value': 'changeme!', 'secure': True})
         return cls
     return wrapper
 
