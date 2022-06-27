@@ -23,6 +23,7 @@ class TaskOptions(BaseModel):
     reply_to: Optional[str]
     api_key: Optional[str]
     installation_id: Optional[str]
+    connect_correlation_id: Optional[str]
 
 
 class TaskOutput(BaseModel):

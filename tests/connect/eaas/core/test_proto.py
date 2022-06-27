@@ -25,6 +25,7 @@ TASK_DATA = {
         'reply_to': 'reply_to',
         'api_key': 'api_key',
         'installation_id': 'installation_id',
+        'connect_correlation_id': 'connect_correlation_id',
     },
     'input': {
         'event_type': 'task_type',
@@ -48,6 +49,7 @@ TASK_INPUT_DATA = {
         'task_category': 'task_category',
         'correlation_id': 'correlation_id',
         'reply_to': 'reply_to',
+        'connect_correlation_id': 'connect_correlation_id',
     },
     'input': {
         'event_type': 'task_type',
@@ -76,6 +78,7 @@ TASK_OUTPUT_DATA = {
         'reply_to': 'reply_to',
         'api_key': None,
         'installation_id': None,
+        'connect_correlation_id': None,
     },
     'input': {
         'event_type': 'task_type',
