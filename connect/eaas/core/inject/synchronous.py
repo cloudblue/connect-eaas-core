@@ -39,11 +39,9 @@ def get_extension_client(
 
 def get_installation(
     client: ConnectClient = Depends(get_installation_client),
-    x_connect_extension_id: str = Header(),
     x_connect_installation_id: str = Header(),
 ):
-    extension = client('devops').services[x_connect_extension_id]
-    return extension.installations[x_connect_installation_id].get()
+    return client('devops').installations[x_connect_installation_id].get()
 
 
 def get_environment(

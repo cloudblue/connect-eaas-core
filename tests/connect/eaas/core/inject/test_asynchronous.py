@@ -36,7 +36,7 @@ def test_get_extension_client(mocker):
 async def test_get_installation(httpx_mock):
     httpx_mock.add_response(
         method='GET',
-        url='https://localhost/devops/services/extension_id/installations/installation_id',
+        url='https://localhost/devops/installations/installation_id',
         json={
             'id': 'EIN-000-000',
         },
@@ -48,7 +48,7 @@ async def test_get_installation(httpx_mock):
         use_specs=False,
     )
 
-    installation = await asynchronous.get_installation(client, 'extension_id', 'installation_id')
+    installation = await asynchronous.get_installation(client, 'installation_id')
 
     assert installation['id'] == 'EIN-000-000'
 

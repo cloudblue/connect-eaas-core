@@ -39,11 +39,9 @@ def get_extension_client(
 
 async def get_installation(
     client: AsyncConnectClient = Depends(get_installation_client),
-    x_connect_extension_id: str = Header(),
     x_connect_installation_id: str = Header(),
 ):
-    extension = client('devops').services[x_connect_extension_id]
-    return await extension.installations[x_connect_installation_id].get()
+    return await client("devops").installations[x_connect_installation_id].get()
 
 
 async def get_environment(

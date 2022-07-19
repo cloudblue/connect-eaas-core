@@ -33,7 +33,7 @@ def test_get_extension_client(mocker):
 def test_get_installation(responses):
     responses.add(
         'GET',
-        'https://localhost/public/v1/devops/services/extension_id/installations/installation_id',
+        'https://localhost/public/v1/devops/installations/installation_id',
         json={
             'id': 'EIN-000-000',
         },
@@ -46,7 +46,7 @@ def test_get_installation(responses):
         use_specs=False,
     )
 
-    installation = synchronous.get_installation(client, 'extension_id', 'installation_id')
+    installation = synchronous.get_installation(client, 'installation_id')
 
     assert installation['id'] == 'EIN-000-000'
 
