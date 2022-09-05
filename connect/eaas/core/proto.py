@@ -94,6 +94,7 @@ class SetupRequest(BaseModel):
     # for version 1 'capabilities' renaming to 'event_subscriptions'
     event_subscriptions: Optional[dict]
     ui_modules: Optional[dict]
+    icon: Optional[str]
     variables: Optional[list]
     schedulables: Optional[List[Schedulable]]
     repository: Optional[Repository]

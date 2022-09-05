@@ -112,6 +112,7 @@ TASK_OUTPUT_DATA_V1 = {
 
 SETUP_REQUEST_DATA = {
     'ui_modules': None,
+    'icon': None,
     'event_subscriptions': {'test': 'data'},
     'variables': [{'foo': 'value', 'bar': 'value'}],
     'schedulables': [{'method': 'method_name', 'name': 'Name', 'description': 'Description'}],
