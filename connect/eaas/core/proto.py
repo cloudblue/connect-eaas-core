@@ -92,8 +92,10 @@ class Repository(BaseModel):
 
 class SetupRequest(BaseModel):
     # for version 1 'capabilities' renaming to 'event_subscriptions'
+    app_type: Literal['events', 'web', 'anvil'] = 'events'
     event_subscriptions: Optional[dict]
     ui_modules: Optional[dict]
+    openapi_specs: Optional[dict]
     icon: Optional[str]
     variables: Optional[list]
     schedulables: Optional[List[Schedulable]]
@@ -216,6 +218,7 @@ class Message(BaseModel):
                 version=version,
                 message_type=MessageType.SETUP_REQUEST,
                 data=SetupRequest(
+                    app_type='events',
                     event_subscriptions=raw_data['capabilities'],
                     runner_version=raw_data.get('runner_version'),
                     variables=raw_data.get('variables'),
