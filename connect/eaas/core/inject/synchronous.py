@@ -50,4 +50,7 @@ def get_environment(
     x_connect_environment_id: str = Header(),
 ):
     extension = client('devops').services[x_connect_extension_id]
-    return list(extension.environments[x_connect_environment_id].variables.all())
+    return {
+        variable['name']: variable['value']
+        for variable in extension.environments[x_connect_environment_id].variables.all()
+    }
