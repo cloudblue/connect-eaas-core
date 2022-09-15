@@ -85,7 +85,7 @@ async def test_get_environment(httpx_mock):
 
     environment = await asynchronous.get_environment(client, 'extension_id', 'env_id')
 
-    assert environment == variables
+    assert environment == {v['name']: v['value'] for v in variables}
 
     signature = inspect.signature(asynchronous.get_environment)
     client_param = signature.parameters['client']
