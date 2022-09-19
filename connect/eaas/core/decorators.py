@@ -5,6 +5,7 @@ from connect.eaas.core.constants import (
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
+    GUEST_ENDPOINT_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
@@ -71,6 +72,13 @@ def anvil_key_variable(name):
 def anvil_callable():
     def wrapper(func):
         setattr(func, ANVIL_CALLABLE_ATTR_NAME, True)
+        return func
+    return wrapper
+
+
+def guest():
+    def wrapper(func):
+        setattr(func, GUEST_ENDPOINT_ATTR_NAME, True)
         return func
     return wrapper
 

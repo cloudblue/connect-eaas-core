@@ -2,8 +2,9 @@ import os
 
 import pytest
 
+from connect.eaas.core.constants import GUEST_ENDPOINT_ATTR_NAME
 from connect.eaas.core.decorators import (
-    anvil_callable, anvil_key_variable, event, schedulable, variables,
+    anvil_callable, anvil_key_variable, event, guest, schedulable, variables,
 )
 from connect.eaas.core.extension import _invoke, AnvilExtension, EventsExtension, WebAppExtension
 
@@ -273,3 +274,16 @@ def test_get_anvil_key_variable_with_variables_before(vars):
         'initial_value': 'changeme!',
         'secure': True,
     }
+
+
+def test_guest_endpoint(mocker):
+
+    class MyWebAppExtension(WebAppExtension):
+
+        @guest()
+        def my_endpoint(self, arg1):
+            pass
+
+    ext = MyWebAppExtension()
+
+    assert getattr(ext.my_endpoint, GUEST_ENDPOINT_ATTR_NAME, False) is True
