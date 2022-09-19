@@ -3,7 +3,7 @@ import json
 from fastapi import Depends, Request
 
 from connect.client import ConnectClient
-from connect.eaas.core.webapp_client import WebAppTestClient
+from connect.eaas.core.testing import WebAppTestClient
 from connect.eaas.core.decorators import router, web_app
 from connect.eaas.core.extension import WebAppExtension
 from connect.eaas.core.inject.synchronous import get_installation, get_installation_client
@@ -41,7 +41,7 @@ def test_get_settings(responses, mocker):
         return_value='./',
     )
     mocker.patch(
-        'connect.eaas.core.webapp_client.FastAPI.mount',
+        'connect.eaas.core.testing.FastAPI.mount',
     )
 
     responses.add(
