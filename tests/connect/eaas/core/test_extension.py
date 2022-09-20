@@ -1,10 +1,12 @@
 import os
 
 import pytest
+from fastapi_utils.inferring_router import InferringRouter
+from pkg_resources import EntryPoint
 
 from connect.eaas.core.constants import GUEST_ENDPOINT_ATTR_NAME
 from connect.eaas.core.decorators import (
-    anvil_callable, anvil_key_variable, event, guest, schedulable, variables,
+    anvil_callable, anvil_key_variable, event, guest, schedulable, variables, web_app,
 )
 from connect.eaas.core.extension import _invoke, AnvilExtension, EventsExtension, WebAppExtension
 
@@ -287,3 +289,35 @@ def test_guest_endpoint(mocker):
     ext = MyWebAppExtension()
 
     assert getattr(ext.my_endpoint, GUEST_ENDPOINT_ATTR_NAME, False) is True
+
+
+def test_get_routers(mocker):
+
+    router = InferringRouter()
+
+    @web_app(router)
+    class MyExtension(WebAppExtension):
+
+        @router.get('/authenticated')
+        def test_url(self):
+            pass
+
+        @guest()
+        @router.get('/unauthenticated')
+        def test_guest(self):
+            pass
+
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    mocker.patch.object(
+        EntryPoint,
+        'load',
+        return_value=MyExtension,
+    )
+
+    auth_router, no_auth_router = MyExtension.get_routers()
+
+    assert len(auth_router.routes) == 1
+    assert len(no_auth_router.routes) == 1
+    assert auth_router.routes[0].path == '/authenticated'
+    assert no_auth_router.routes[0].path == '/unauthenticated'
