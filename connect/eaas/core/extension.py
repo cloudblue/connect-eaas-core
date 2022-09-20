@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 
+from fastapi import APIRouter
 import anvil.server
 import pkg_resources
 
@@ -10,9 +11,11 @@ from connect.eaas.core.constants import (
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
+    GUEST_ENDPOINT_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
+from connect.eaas.core.decorators import router
 
 
 class ExtensionBase:
@@ -76,6 +79,17 @@ class WebAppExtension(ExtensionBase):
         if os.path.exists(static_root) and os.path.isdir(static_root):
             return static_root
         return None
+
+    @classmethod
+    def get_routers(cls):
+        auth = APIRouter()
+        no_auth = APIRouter()
+        for route in router.routes:
+            if getattr(route.endpoint, GUEST_ENDPOINT_ATTR_NAME, False):
+                no_auth.routes.append(route)
+            else:
+                auth.routes.append(route)
+        return auth, no_auth
 
 
 def _invoke(method, **kwargs):

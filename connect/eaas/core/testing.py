@@ -19,6 +19,11 @@ class WebAppTestClient(TestClient):
     def get_application(self):
         app = FastAPI()
         app.include_router(router)
+
+        auth_router, no_auth_router = self._webapp_class.get_routers()
+        app.add_api_route('/api', auth_router)
+        app.add_api_route('/guest', no_auth_router)
+
         static_root = self._webapp_class.get_static_root()
         if static_root:
             app.mount('/static', StaticFiles(directory=static_root), name='static')
