@@ -3,9 +3,10 @@ import inspect
 import json
 import os
 
-from fastapi import APIRouter
 import anvil.server
 import pkg_resources
+from fastapi import APIRouter
+
 
 from connect.eaas.core.constants import (
     ANVIL_CALLABLE_ATTR_NAME,
