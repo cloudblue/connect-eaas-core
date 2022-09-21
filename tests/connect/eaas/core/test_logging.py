@@ -1,8 +1,8 @@
 import logging
 
 import pytest
-from urllib3.response import HTTPResponse
 from requests.models import Response
+from urllib3.response import HTTPResponse
 
 from connect.eaas.core.logging import ExtensionLogHandler, RequestLogger
 

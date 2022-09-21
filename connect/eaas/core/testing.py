@@ -2,8 +2,6 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.testclient import TestClient
 
-from connect.eaas.core.decorators import router
-
 
 class WebAppTestClient(TestClient):
 
@@ -18,7 +16,11 @@ class WebAppTestClient(TestClient):
 
     def get_application(self):
         app = FastAPI()
-        app.include_router(router)
+
+        auth_router, no_auth_router = self._webapp_class.get_routers()
+        app.include_router(auth_router, prefix='/api')
+        app.include_router(no_auth_router, prefix='/guest')
+
         static_root = self._webapp_class.get_static_root()
         if static_root:
             app.mount('/static', StaticFiles(directory=static_root), name='static')
