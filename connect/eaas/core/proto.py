@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
@@ -276,3 +277,20 @@ class Message(BaseModel):
             )
 
         return cls(version=version, message_type=message_type)
+
+
+@dataclasses.dataclass
+class ValidationItem:
+    level: Literal['WARNING', 'ERROR']
+    message: str
+    file: Optional[str] = None
+    start_line: Optional[int] = None
+    lineno: Optional[int] = None
+    code: Optional[str] = None
+
+
+@dataclasses.dataclass
+class ValidationResult:
+    items: List[ValidationItem]
+    must_exit: bool = False
+    context: Optional[dict] = None
