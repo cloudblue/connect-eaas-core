@@ -1,9 +1,9 @@
-from connect.eaas.core.inject.validators import get_code_context
+from connect.eaas.core.validation.helpers import get_code_context
 
 
 def test_get_code_context_module(mocker, faker):
     mocker.patch(
-        'connect.eaas.core.inject.validators.inspect.getsourcefile',
+        'connect.eaas.core.validation.helpers.inspect.getsourcefile',
         return_value='path/file.py',
     )
 
@@ -12,14 +12,14 @@ def test_get_code_context_module(mocker, faker):
     code = ''.join(code_lines)
 
     mocker.patch(
-        'connect.eaas.core.inject.validators.inspect.getsourcelines',
+        'connect.eaas.core.validation.helpers.inspect.getsourcelines',
         return_value=(
             code_lines,
             1,
         ),
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.inspect.ismodule',
+        'connect.eaas.core.validation.helpers.inspect.ismodule',
         return_value=True,
     )
 
@@ -33,7 +33,7 @@ def test_get_code_context_module(mocker, faker):
 
 def test_get_code_context_function(mocker, faker):
     mocker.patch(
-        'connect.eaas.core.inject.validators.inspect.getsourcefile',
+        'connect.eaas.core.validation.helpers.inspect.getsourcefile',
         return_value='path/file.py',
     )
 
@@ -42,14 +42,14 @@ def test_get_code_context_function(mocker, faker):
     code = ''.join(code_lines)
 
     mocker.patch(
-        'connect.eaas.core.inject.validators.inspect.getsourcelines',
+        'connect.eaas.core.validation.helpers.inspect.getsourcelines',
         return_value=(
             code_lines,
             1,
         ),
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.inspect.ismodule',
+        'connect.eaas.core.validation.helpers.inspect.ismodule',
         return_value=False,
     )
 

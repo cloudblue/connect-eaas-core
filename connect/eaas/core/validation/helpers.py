@@ -2,17 +2,12 @@ import inspect
 import os
 
 import toml
-from click import ClickException
 
-from connect.client import ClientError
-from connect.eaas.core.proto import ValidationItem, ValidationResult
+from connect.eaas.core.validation.proto import ValidationItem, ValidationResult
 
 
-def get_event_definitions(config):
-    try:
-        return list(config.active.client('devops').event_definitions.all())
-    except ClientError as err:
-        raise ClickException(f"Error getting event definitions: {str(err)}")
+def get_event_definitions(client):
+    return list(client('devops').event_definitions.all())
 
 
 def get_code_context(obj, pattern):
@@ -44,12 +39,12 @@ def load_project_toml_file(path):
         return ValidationResult(
             items=[
                 ValidationItem(
-                    'ERROR',
-                    (
+                    level='ERROR',
+                    message=(
                         'The mandatory *pyproject.toml* project '
                         f'descriptor file is not present in the folder {path}.'
                     ),
-                    descriptor_file,
+                    file=descriptor_file,
                 ),
             ],
             must_exit=True,
@@ -60,9 +55,12 @@ def load_project_toml_file(path):
         return ValidationResult(
             items=[
                 ValidationItem(
-                    'ERROR',
-                    'The project descriptor file *pyproject.toml* is not a valid toml file.',
-                    descriptor_file,
+                    level='ERROR',
+                    message=(
+                        'The project descriptor file *pyproject.toml* is '
+                        'not a valid toml file.'
+                    ),
+                    file=descriptor_file,
                 ),
             ],
             must_exit=True,

@@ -1,9 +1,7 @@
 import pytest
 import toml
 import yaml
-from click import ClickException
 
-from connect.client import ClientError
 from connect.eaas.core.extension import EventsExtension, Extension
 from connect.eaas.core.responses import (
     CustomEventResponse,
@@ -11,7 +9,7 @@ from connect.eaas.core.responses import (
     ProductActionResponse,
     ValidationResponse,
 )
-from connect.eaas.core.validations import (
+from connect.eaas.core.validation.extension_validations import (
     validate_anvil_extension,
     validate_docker_compose_yml,
     validate_events,
@@ -43,11 +41,11 @@ def test_validate_pyproject_toml_file_not_found(mocker):
 
 def test_validate_pyproject_toml_invalid_toml(mocker):
     mocker.patch(
-        'connect.eaas.core.inject.validators.os.path.isfile',
+        'connect.eaas.core.validation.helpers.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         side_effect=toml.TomlDecodeError('error', 'error', 0),
     )
 
@@ -65,11 +63,11 @@ def test_validate_pyproject_toml_invalid_toml(mocker):
 
 def test_validate_pyproject_toml_depends_on_runner(mocker):
     mocker.patch(
-        'connect.eaas.core.inject.validators.os.path.isfile',
+        'connect.eaas.core.validation.helpers.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         return_value={
             'tool': {
                 'poetry': {
@@ -85,9 +83,9 @@ def test_validate_pyproject_toml_depends_on_runner(mocker):
             },
         },
     )
-    mocker.patch('connect.eaas.core.validations.importlib.import_module')
+    mocker.patch('connect.eaas.core.validation.extension_validations.importlib.import_module')
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[],
     )
 
@@ -106,11 +104,11 @@ def test_validate_pyproject_toml_depends_on_runner(mocker):
 
 def test_validate_pyproject_toml_missed_eaas_core_dependency(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         return_value={
             'tool': {
                 'poetry': {
@@ -124,9 +122,9 @@ def test_validate_pyproject_toml_missed_eaas_core_dependency(mocker):
             },
         },
     )
-    mocker.patch('connect.eaas.core.validations.importlib.import_module')
+    mocker.patch('connect.eaas.core.validation.extension_validations.importlib.import_module')
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[],
     )
 
@@ -144,11 +142,11 @@ def test_validate_pyproject_toml_missed_eaas_core_dependency(mocker):
 
 def test_validate_pyproject_toml_no_extension_declaration(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         return_value={
             'tool': {
                 'poetry': {
@@ -159,9 +157,9 @@ def test_validate_pyproject_toml_no_extension_declaration(mocker):
             },
         },
     )
-    mocker.patch('connect.eaas.core.validations.importlib.import_module')
+    mocker.patch('connect.eaas.core.validation.extension_validations.importlib.import_module')
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[],
     )
 
@@ -179,11 +177,11 @@ def test_validate_pyproject_toml_no_extension_declaration(mocker):
 
 def test_validate_pyproject_toml_invalid_extension_declaration(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         return_value={
             'tool': {
                 'poetry': {
@@ -199,9 +197,9 @@ def test_validate_pyproject_toml_invalid_extension_declaration(mocker):
             },
         },
     )
-    mocker.patch('connect.eaas.core.validations.importlib.import_module')
+    mocker.patch('connect.eaas.core.validation.extension_validations.importlib.import_module')
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[],
     )
 
@@ -219,11 +217,11 @@ def test_validate_pyproject_toml_invalid_extension_declaration(mocker):
 
 def test_validate_pyproject_toml_import_error(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         return_value={
             'tool': {
                 'poetry': {
@@ -240,7 +238,7 @@ def test_validate_pyproject_toml_import_error(mocker):
         },
     )
     mocker.patch(
-        'connect.eaas.core.validations.importlib.import_module',
+        'connect.eaas.core.validation.extension_validations.importlib.import_module',
         side_effect=ImportError(),
     )
 
@@ -267,11 +265,11 @@ def test_validate_pyproject_toml_import_error(mocker):
 )
 def test_validate_pyproject_toml_deprecated_responses(mocker, deprecated, replacement):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.inject.validators.toml.load',
+        'connect.eaas.core.validation.helpers.toml.load',
         return_value={
             'tool': {
                 'poetry': {
@@ -287,13 +285,13 @@ def test_validate_pyproject_toml_deprecated_responses(mocker, deprecated, replac
             },
         },
     )
-    mocker.patch('connect.eaas.core.validations.importlib.import_module')
+    mocker.patch('connect.eaas.core.validation.extension_validations.importlib.import_module')
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[(deprecated.__name__, deprecated)],
     )
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -322,7 +320,7 @@ def test_validate_pyproject_toml_deprecated_responses(mocker, deprecated, replac
 
 def test_validate_extension_class_invalid_superclass(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
     context = {'extension_classes': {'webapp': KeyError}}
@@ -342,7 +340,7 @@ def test_validate_extension_class_invalid_superclass(mocker):
 
 def test_validate_extension_class_descriptor_not_found(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -373,7 +371,7 @@ def test_validate_extension_class_descriptor_not_found(mocker):
 )
 def test_validate_extension_class_descriptor_with_declarations(mocker, descriptor):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -392,22 +390,6 @@ def test_validate_extension_class_descriptor_with_declarations(mocker, descripto
     assert item.level == 'WARNING'
     assert 'must be declared using' in item.message
     assert item.file == '/dir/extension.json'
-
-
-def test_validate_events_connect_error(mocker):
-    extension_class = mocker.MagicMock()
-    extension_class.get_events.return_value = [{
-        'event_type': 'test_event',
-        'method': 'event_handler',
-    }]
-
-    context = {'extension_classes': {'extension': extension_class}}
-
-    config = mocker.MagicMock()
-    config.active.client = mocker.MagicMock(side_effect=ClientError)
-
-    with pytest.raises(ClickException):
-        validate_events(config, context)
 
 
 def test_validate_events_no_such_extension(mocker):
@@ -430,12 +412,12 @@ def test_validate_events_invalid_event(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_event_definitions',
+        'connect.eaas.core.validation.extension_validations.get_event_definitions',
         return_value=[],
     )
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -482,7 +464,7 @@ def test_validate_events_invalid_status(mocker, object_statuses, event_statuses)
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_event_definitions',
+        'connect.eaas.core.validation.extension_validations.get_event_definitions',
         return_value=[
             {
                 'type': 'test_event',
@@ -492,7 +474,7 @@ def test_validate_events_invalid_status(mocker, object_statuses, event_statuses)
     )
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -532,7 +514,7 @@ def test_validate_events_invalid_signature(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_event_definitions',
+        'connect.eaas.core.validation.extension_validations.get_event_definitions',
         return_value=[
             {
                 'type': 'test_event',
@@ -542,7 +524,7 @@ def test_validate_events_invalid_signature(mocker):
     )
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -591,7 +573,7 @@ def test_validate_schedulables_invalid_signature(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -656,7 +638,7 @@ def test_validate_variables_no_name(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -689,7 +671,7 @@ def test_validate_variables_non_unique(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -724,7 +706,7 @@ def test_validate_variables_invalid_name(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -759,7 +741,7 @@ def test_validate_variables_invalid_initial_value(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -794,7 +776,7 @@ def test_validate_variables_invalid_secure(mocker):
     context = {'extension_classes': {'extension': extension_class}}
 
     mocker.patch(
-        'connect.eaas.core.validations.get_code_context',
+        'connect.eaas.core.validation.extension_validations.get_code_context',
         return_value={
             'file': 'file',
             'start_line': 0,
@@ -833,14 +815,14 @@ def test_validate_docker_compose_yml_not_found(mocker):
 
 def test_validate_docker_compose_yml_invalid_yml(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.validations.open',
+        'connect.eaas.core.validation.extension_validations.open',
     )
     mocker.patch(
-        'connect.eaas.core.validations.yaml.safe_load',
+        'connect.eaas.core.validation.extension_validations.yaml.safe_load',
         side_effect=yaml.YAMLError(),
     )
 
@@ -858,14 +840,14 @@ def test_validate_docker_compose_yml_invalid_yml(mocker):
 
 def test_validate_docker_compose_yml_invalid_image(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.validations.open',
+        'connect.eaas.core.validation.extension_validations.open',
     )
     mocker.patch(
-        'connect.eaas.core.validations.yaml.safe_load',
+        'connect.eaas.core.validation.extension_validations.yaml.safe_load',
         return_value={
             'services': {
                 'dev': {
@@ -892,14 +874,14 @@ def test_validate_docker_compose_yml_invalid_image(mocker):
 
 def test_validate_docker_compose_yml(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.os.path.isfile',
+        'connect.eaas.core.validation.extension_validations.os.path.isfile',
         return_value=True,
     )
     mocker.patch(
-        'connect.eaas.core.validations.open',
+        'connect.eaas.core.validation.extension_validations.open',
     )
     mocker.patch(
-        'connect.eaas.core.validations.yaml.safe_load',
+        'connect.eaas.core.validation.extension_validations.yaml.safe_load',
         return_value={
             'services': {
                 'dev': {
@@ -929,11 +911,11 @@ def test_validate_webapp_extension_no_such_extension(mocker):
 
 def test_validate_webapp_extension_no_class_wrapper(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsource',
+        'connect.eaas.core.validation.extension_validations.inspect.getsource',
         return_value='class E2EWebAppExtension(WebAppExtension):....',
     )
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -950,14 +932,14 @@ def test_validate_webapp_extension_no_class_wrapper(mocker):
 
 def test_validate_webapp_extension_no_router_methods(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsource',
+        'connect.eaas.core.validation.extension_validations.inspect.getsource',
         side_effect=[
             '@web_app(router)\nclass E2EWebAppExtension(WebAppExtension):...',
             'def retrieve_settings(self):...',
         ],
     )
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -965,7 +947,7 @@ def test_validate_webapp_extension_no_router_methods(mocker):
         pass
 
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[('some_func', f)],
     )
 
@@ -983,14 +965,14 @@ def test_validate_webapp_extension_no_router_methods(mocker):
 
 def test_validate_webapp_extension_missing_static_files(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsource',
+        'connect.eaas.core.validation.extension_validations.inspect.getsource',
         side_effect=[
             '@web_app(router)...\nclass E2EWebAppExtension(WebAppExtension):...',
             '@router.get("/settings")\ndef retrieve_settings(self):...',
         ],
     )
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -998,12 +980,12 @@ def test_validate_webapp_extension_missing_static_files(mocker):
         pass
 
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[('some_func', f)],
     )
 
     mocker.patch(
-        'connect.eaas.core.validations.os.path.exists',
+        'connect.eaas.core.validation.extension_validations.os.path.exists',
         return_value=False,
     )
 
@@ -1040,14 +1022,14 @@ def test_validate_webapp_extension_missing_static_files(mocker):
 
 def test_validate_webapp_extension_wrong_ui_setting(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsource',
+        'connect.eaas.core.validation.extension_validations.inspect.getsource',
         side_effect=[
             '@web_app(router)...\nclass E2EWebAppExtension(WebAppExtension):...',
             '@router.get("/settings")\ndef retrieve_settings(self):...',
         ],
     )
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -1055,7 +1037,7 @@ def test_validate_webapp_extension_wrong_ui_setting(mocker):
         pass
 
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[('some_func', f)],
     )
 
@@ -1088,14 +1070,14 @@ def test_validate_webapp_extension_wrong_ui_setting(mocker):
 
 def test_validate_webapp_extension(mocker):
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsource',
+        'connect.eaas.core.validation.extension_validations.inspect.getsource',
         side_effect=[
             '@web_app(router)...\nclass E2EWebAppExtension(WebAppExtension):...',
             '@router.get("/settings")\ndef retrieve_settings(self):...',
         ],
     )
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getsourcefile',
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
         return_value='/dir/file.py',
     )
 
@@ -1103,12 +1085,12 @@ def test_validate_webapp_extension(mocker):
         pass
 
     mocker.patch(
-        'connect.eaas.core.validations.inspect.getmembers',
+        'connect.eaas.core.validation.extension_validations.inspect.getmembers',
         return_value=[('some_func', f)],
     )
 
     mocker.patch(
-        'connect.eaas.core.validations.os.path.exists',
+        'connect.eaas.core.validation.extension_validations.os.path.exists',
         return_value=True,
     )
 
@@ -1175,6 +1157,10 @@ def test_validate_anvil_extension(mocker):
 
 
 def test_validate_anvil_extension_invalid_anvil_api_key(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.extension_validations.inspect.getsourcefile',
+        return_value='/dir/file.py',
+    )
     anvil_extension_class = mocker.MagicMock()
     anvil_extension_class.get_anvil_key_variable.return_value = '1ANVIL1'
     context = {'extension_classes': {'anvil': anvil_extension_class}}

@@ -13,20 +13,20 @@ from connect.eaas.core.extension import (
     Extension,
     WebAppExtension,
 )
-from connect.eaas.core.inject.validators import (
-    get_code_context,
-    get_event_definitions,
-    load_project_toml_file,
-)
-from connect.eaas.core.proto import (
-    ValidationItem,
-    ValidationResult,
-)
 from connect.eaas.core.responses import (
     CustomEventResponse,
     ProcessingResponse,
     ProductActionResponse,
     ValidationResponse,
+)
+from connect.eaas.core.validation.helpers import (
+    get_code_context,
+    get_event_definitions,
+    load_project_toml_file,
+)
+from connect.eaas.core.validation.proto import (
+    ValidationItem,
+    ValidationResult,
 )
 
 
@@ -43,20 +43,19 @@ def validate_pyproject_toml(project_dir, *args, **kwargs):  # noqa: CCR001
     if 'connect-extension-runner' in dependencies:
         messages.append(
             ValidationItem(
-                'WARNING',
-                (
+                message=(
                     'Extensions must depend on *connect-eaas-core* library not '
                     '*connect-extension-runner*.'
                 ),
-                descriptor_file,
+                file=descriptor_file,
             ),
         )
     elif 'connect-eaas-core' not in dependencies:
         messages.append(
             ValidationItem(
-                'ERROR',
-                'No dependency on *connect-eaas-core* has been found.',
-                descriptor_file,
+                level='ERROR',
+                message='No dependency on *connect-eaas-core* has been found.',
+                file=descriptor_file,
             ),
         )
 
@@ -64,16 +63,16 @@ def validate_pyproject_toml(project_dir, *args, **kwargs):  # noqa: CCR001
     if not isinstance(extension_dict, dict):
         messages.append(
             ValidationItem(
-                'ERROR',
-                (
+                level='ERROR',
+                message=(
                     'No extension declaration has been found.'
                     'The extension must be declared in the '
                     '*[tool.poetry.plugins."connect.eaas.ext"]* section.'
                 ),
-                descriptor_file,
+                file=descriptor_file,
             ),
         )
-        return ValidationResult(messages, True)
+        return ValidationResult(items=messages, must_exit=True)
 
     sys.path.append(os.path.join(os.getcwd(), project_dir))
     possible_extensions = ['extension', 'webapp', 'anvil']
@@ -86,13 +85,15 @@ def validate_pyproject_toml(project_dir, *args, **kwargs):  # noqa: CCR001
             except ImportError as err:
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        f'The extension class *{extension_dict[extension_type]}* '
-                        f'cannot be loaded: {err}.',
-                        descriptor_file,
+                        level='ERROR',
+                        message=(
+                            f'The extension class *{extension_dict[extension_type]}* '
+                            f'cannot be loaded: {err}.'
+                        ),
+                        file=descriptor_file,
                     ),
                 )
-                return ValidationResult(messages, True)
+                return ValidationResult(items=messages, must_exit=True)
 
             defined_classes = [
                 member[1]
@@ -108,9 +109,10 @@ def validate_pyproject_toml(project_dir, *args, **kwargs):  # noqa: CCR001
                 if deprecated_cls in defined_classes:
                     messages.append(
                         ValidationItem(
-                            'WARNING',
-                            f'The response class *{deprecated_cls.__name__}* '
-                            f'has been deprecated in favor of *{cls_name}*.',
+                            message=(
+                                f'The response class *{deprecated_cls.__name__}* '
+                                f'has been deprecated in favor of *{cls_name}*.'
+                            ),
                             **get_code_context(extension_module, deprecated_cls.__name__),
                         ),
                     )
@@ -120,8 +122,8 @@ def validate_pyproject_toml(project_dir, *args, **kwargs):  # noqa: CCR001
     if not extensions:
         messages.append(
             ValidationItem(
-                'ERROR',
-                (
+                level='ERROR',
+                message=(
                     'Invalid extension declaration in *[tool.poetry.plugins."connect.eaas.ext"]*: '
                     'The extension must be declared as: *"extension" = '
                     '"your_package.extension:YourExtension"* '
@@ -132,12 +134,12 @@ def validate_pyproject_toml(project_dir, *args, **kwargs):  # noqa: CCR001
                     '*"webapp" = "your_package.webapp:YourWebAppExtension"*, '
                     '*"anvil" = "your_package.anvil:YourAnvilExtension"*.'
                 ),
-                descriptor_file,
+                file=descriptor_file,
             ),
         )
-        return ValidationResult(messages, True)
+        return ValidationResult(items=messages, must_exit=True)
 
-    return ValidationResult(messages, False, {'extension_classes': extensions})
+    return ValidationResult(items=messages, context={'extension_classes': extensions})
 
 
 def validate_extension_class(context, *args, **kwargs):  # noqa: CCR001
@@ -161,13 +163,15 @@ def validate_extension_class(context, *args, **kwargs):  # noqa: CCR001
         ):
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    f'The extension class *{extension_class.__name__}* '
-                    f'is not a subclass of *{class_mapping[extension_type]}*.',
-                    extension_class_file,
+                    level='ERROR',
+                    message=(
+                        f'The extension class *{extension_class.__name__}* '
+                        f'is not a subclass of *{class_mapping[extension_type]}*.'
+                    ),
+                    file=extension_class_file,
                 ),
             )
-            return ValidationResult(messages, True)
+            return ValidationResult(items=messages, must_exit=True)
 
         if not extension_json_file:  # pragma: no branch
             extension_json_file = os.path.join(
@@ -181,26 +185,27 @@ def validate_extension_class(context, *args, **kwargs):  # noqa: CCR001
     except FileNotFoundError:
         messages.append(
             ValidationItem(
-                'ERROR',
-                'The extension descriptor *extension.json* cannot be loaded.',
-                extension_json_file,
+                level='ERROR',
+                message='The extension descriptor *extension.json* cannot be loaded.',
+                file=extension_json_file,
             ),
         )
-        return ValidationResult(messages, True)
+        return ValidationResult(items=messages, must_exit=True)
 
     for description in ['variables', 'capabilities', 'schedulables']:
         if description in descriptor:
             messages.append(
                 ValidationItem(
-                    'WARNING',
-                    f'Extension {description} must be declared using the '
-                    f'*connect.eaas.core.decorators.'
-                    f'{description if description != "schedulables" else "event"}* decorator.',
-                    extension_json_file,
+                    message=(
+                        f'Extension {description} must be declared using the '
+                        f'*connect.eaas.core.decorators.'
+                        f'{description if description != "schedulables" else "event"}* decorator.'
+                    ),
+                    file=extension_json_file,
                 ),
             )
 
-    return ValidationResult(messages, False, {'descriptor': descriptor})
+    return ValidationResult(items=messages, contenxt={'descriptor': descriptor})
 
 
 def validate_events(config, context, *args, **kwargs):
@@ -209,17 +214,21 @@ def validate_events(config, context, *args, **kwargs):
     extension_class = context['extension_classes'].get('extension')
 
     if not extension_class:
-        return ValidationResult(messages, False, context)
+        return ValidationResult()
 
-    definitions = {definition['type']: definition for definition in get_event_definitions(config)}
+    definitions = {
+        definition['type']: definition for definition in get_event_definitions(
+            config.active.client,
+        )
+    }
     events = extension_class.get_events()
     for event in events:
         method = getattr(extension_class, event['method'])
         if event['event_type'] not in definitions:
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    f'The event type *{event["event_type"]}* is not valid.',
+                    level='ERROR',
+                    message=f'The event type *{event["event_type"]}* is not valid.',
                     **get_code_context(method, '@event'),
                 ),
             )
@@ -233,9 +242,11 @@ def validate_events(config, context, *args, **kwargs):
         if invalid_statuses:
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    f'The status/es *{", ".join(invalid_statuses)}* are invalid '
-                    f'for the event *{event["event_type"]}*.',
+                    level='ERROR',
+                    message=(
+                        f'The status/es *{", ".join(invalid_statuses)}* are invalid '
+                        f'for the event *{event["event_type"]}*.'
+                    ),
                     **get_code_context(method, '@event'),
                 ),
             )
@@ -246,15 +257,15 @@ def validate_events(config, context, *args, **kwargs):
 
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    (
+                    level='ERROR',
+                    message=(
                         f'The handler for the event *{event["event_type"]}* '
                         f'has an invalid signature: *{sig_str}*'
                     ),
                     **get_code_context(method, sig_str),
                 ),
             )
-    return ValidationResult(messages, False, context)
+    return ValidationResult(items=messages)
 
 
 def validate_schedulables(context, *args, **kwargs):
@@ -263,7 +274,7 @@ def validate_schedulables(context, *args, **kwargs):
     extension_class = context['extension_classes'].get('extension')
 
     if not extension_class:
-        return ValidationResult(messages, False, context)
+        return ValidationResult()
 
     schedulables = extension_class.get_schedulables()
     for schedulable in schedulables:
@@ -274,15 +285,15 @@ def validate_schedulables(context, *args, **kwargs):
 
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    (
+                    level='ERROR',
+                    message=(
                         f'The schedulable method *{schedulable["method"]}* '
                         f'has an invalid signature: *{sig_str}*'
                     ),
                     **get_code_context(method, sig_str),
                 ),
             )
-    return ValidationResult(messages, False, context)
+    return ValidationResult(items=messages)
 
 
 def validate_variables(context, *args, **kwargs):  # noqa: CCR001
@@ -301,8 +312,8 @@ def validate_variables(context, *args, **kwargs):  # noqa: CCR001
             if 'name' not in variable:
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        'Invalid variable declaration: the *name* attribute is mandatory.',
+                        level='ERROR',
+                        message='Invalid variable declaration: the *name* attribute is mandatory.',
                         **get_code_context(extension_class, '@variables'),
                     ),
                 )
@@ -311,9 +322,11 @@ def validate_variables(context, *args, **kwargs):  # noqa: CCR001
             if variable["name"] in names:
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        f'Duplicate variable name: the variable with name *{variable["name"]}* '
-                        'has already been declared.',
+                        level='ERROR',
+                        message=(
+                            f'Duplicate variable name: the variable with name *{variable["name"]}* '
+                            'has already been declared.'
+                        ),
                         **get_code_context(extension_class, '@variables'),
                     ),
                 )
@@ -323,18 +336,22 @@ def validate_variables(context, *args, **kwargs):  # noqa: CCR001
             if not variable_name_regex.match(variable['name']):
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        f'Invalid variable name: the value *{variable["name"]}* '
-                        f'does not match the pattern *{variable_name_pattern}*.',
+                        level='ERROR',
+                        message=(
+                            f'Invalid variable name: the value *{variable["name"]}* '
+                            f'does not match the pattern *{variable_name_pattern}*.'
+                        ),
                         **get_code_context(extension_class, '@variables'),
                     ),
                 )
             if 'initial_value' in variable and not isinstance(variable['initial_value'], str):
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        f'Invalid *initial_value* attribute for variable *{variable["name"]}*: '
-                        f'must be a non-null string not *{type(variable["initial_value"])}*.',
+                        level='ERROR',
+                        message=(
+                            f'Invalid *initial_value* attribute for variable *{variable["name"]}*: '
+                            f'must be a non-null string not *{type(variable["initial_value"])}*.'
+                        ),
                         **get_code_context(extension_class, '@variables'),
                     ),
                 )
@@ -342,14 +359,16 @@ def validate_variables(context, *args, **kwargs):  # noqa: CCR001
             if 'secure' in variable and not isinstance(variable['secure'], bool):
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        f'Invalid *secure* attribute for variable *{variable["name"]}*: '
-                        f'must be a boolean not *{type(variable["secure"])}*.',
+                        level='ERROR',
+                        message=(
+                            f'Invalid *secure* attribute for variable *{variable["name"]}*: '
+                            f'must be a boolean not *{type(variable["secure"])}*.'
+                        ),
                         **get_code_context(extension_class, '@variables'),
                     ),
                 )
 
-    return ValidationResult(messages, False, context)
+    return ValidationResult(items=messages)
 
 
 def validate_webapp_extension(context, *args, **kwargs):  # noqa: CCR001
@@ -357,7 +376,7 @@ def validate_webapp_extension(context, *args, **kwargs):  # noqa: CCR001
     messages = []
 
     if 'webapp' not in context['extension_classes']:
-        return ValidationResult(messages, False, context)
+        return ValidationResult()
 
     extension_class = context['extension_classes']['webapp']
     extension_class_file = inspect.getsourcefile(extension_class)
@@ -365,12 +384,12 @@ def validate_webapp_extension(context, *args, **kwargs):  # noqa: CCR001
     if not inspect.getsource(extension_class).strip().startswith('@web_app(router)'):
         messages.append(
             ValidationItem(
-                'ERROR',
-                'The Web app extension class must be wrapped in *@web_app(router)*.',
-                extension_class_file,
+                level='ERROR',
+                message='The Web app extension class must be wrapped in *@web_app(router)*.',
+                file=extension_class_file,
             ),
         )
-        return ValidationResult(messages, True)
+        return ValidationResult(items=messages, must_exit=True)
 
     has_router_function = False
     for _, value in inspect.getmembers(extension_class):
@@ -384,13 +403,15 @@ def validate_webapp_extension(context, *args, **kwargs):  # noqa: CCR001
     if not has_router_function:
         messages.append(
             ValidationItem(
-                'ERROR',
-                'The Web app extension class must contain at least one router '
-                'implementation function wrapped in *@router.your_method("/your_path")*.',
-                extension_class_file,
+                level='ERROR',
+                message=(
+                    'The Web app extension class must contain at least one router '
+                    'implementation function wrapped in *@router.your_method("/your_path")*.'
+                ),
+                file=extension_class_file,
             ),
         )
-        return ValidationResult(messages, True)
+        return ValidationResult(items=messages, must_exit=True)
 
     if 'ui' in context['descriptor']:
         extension_json_file = os.path.join(os.path.dirname(extension_class_file), 'extension.json')
@@ -407,13 +428,15 @@ def validate_webapp_extension(context, *args, **kwargs):  # noqa: CCR001
             except KeyError:
                 messages.append(
                     ValidationItem(
-                        'ERROR',
-                        'The extension descriptor contains incorrect ui item'
-                        f'*{ui_item.get("label")}*, url is not presented.',
-                        extension_json_file,
+                        level='ERROR',
+                        message=(
+                            'The extension descriptor contains incorrect ui item'
+                            f'*{ui_item.get("label")}*, url is not presented.'
+                        ),
+                        file=extension_json_file,
                     ),
                 )
-                return ValidationResult(messages, True)
+                return ValidationResult(items=messages, must_exit=True)
 
             path = os.path.join(
                 os.path.dirname(extension_class_file),
@@ -429,15 +452,17 @@ def validate_webapp_extension(context, *args, **kwargs):  # noqa: CCR001
         if missed_files:
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    'The extension descriptor contains missing static files: '
-                    f'{", ".join(missed_files)}.',
-                    extension_json_file,
+                    level='ERROR',
+                    message=(
+                        'The extension descriptor contains missing static files: '
+                        f'{", ".join(missed_files)}.'
+                    ),
+                    file=extension_json_file,
                 ),
             )
-            return ValidationResult(messages, True)
+            return ValidationResult(items=messages, must_exit=True)
 
-    return ValidationResult(messages, False, context)
+    return ValidationResult(items=messages)
 
 
 def validate_anvil_extension(context, *args, **kwargs):
@@ -445,7 +470,7 @@ def validate_anvil_extension(context, *args, **kwargs):
     messages = []
 
     if 'anvil' not in context['extension_classes']:
-        return ValidationResult(messages, False, context)
+        return ValidationResult()
 
     extension_class = context['extension_classes']['anvil']
     anvil_key_var = extension_class.get_anvil_key_variable()
@@ -457,14 +482,16 @@ def validate_anvil_extension(context, *args, **kwargs):
         if not variable_name_regex.match(anvil_key_var):
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    f'Invalid Anvil key variable name: the value *{anvil_key_var}* '
-                    f'does not match the pattern *{variable_name_pattern}*.',
-                    extension_class,
+                    level='ERROR',
+                    message=(
+                        f'Invalid Anvil key variable name: the value *{anvil_key_var}* '
+                        f'does not match the pattern *{variable_name_pattern}*.'
+                    ),
+                    file=inspect.getsourcefile(extension_class),
                 ),
             )
 
-    return ValidationResult(messages, False, context)
+    return ValidationResult(items=messages)
 
 
 def validate_docker_compose_yml(project_dir, context, *args, **kwargs):
@@ -473,26 +500,25 @@ def validate_docker_compose_yml(project_dir, context, *args, **kwargs):
     if not os.path.isfile(compose_file):
         messages.append(
             ValidationItem(
-                'WARNING',
-                (
+                message=(
                     f'The directory *{project_dir}* does not look like an extension project '
                     'directory, the file *docker-compose.yml* is not present.'
                 ),
-                compose_file,
+                file=compose_file,
             ),
         )
-        return ValidationResult(messages, False)
+        return ValidationResult(items=messages)
     try:
         data = yaml.safe_load(open(compose_file, 'r'))
     except yaml.YAMLError:
         messages.append(
             ValidationItem(
-                'ERROR',
-                'The file *docker-compose.yml* is not valid.',
-                compose_file,
+                level='ERROR',
+                message='The file *docker-compose.yml* is not valid.',
+                file=compose_file,
             ),
         )
-        return ValidationResult(messages, False)
+        return ValidationResult(items=messages)
 
     runner_image = f'cloudblueconnect/connect-extension-runner:{context["runner_version"]}'
 
@@ -501,15 +527,15 @@ def validate_docker_compose_yml(project_dir, context, *args, **kwargs):
         if image != runner_image:
             messages.append(
                 ValidationItem(
-                    'ERROR',
-                    (
+                    level='ERROR',
+                    message=(
                         f'Invalid image for service *{service}*: '
                         f'expected *{runner_image}* got *{image}*.'
                     ),
-                    compose_file,
+                    file=compose_file,
                 ),
             )
-    return ValidationResult(messages, False)
+    return ValidationResult(items=messages)
 
 
 extension_validators = [
