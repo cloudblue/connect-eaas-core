@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-connect-openapi-client = ">=25.4"
+connect-openapi-client = ">=25.10"
 pydantic = "^1.9.0"
 fastapi = "^0.78.0"
 fastapi-utils = "^0.2.1"
@@ -45,8 +45,8 @@ flake8-future-import = "~0.4"
 flake8-import-order = "~0.18"
 flake8-broken-line = "~0.3"
 fs = "^2.4.12"
-responses = "^0.21.0"
-pytest-httpx = "^0.21.0"
+responses = ">=0.14.0,<1"
+pytest-httpx = ">=0.20"
 pytest-asyncio = "^0.18.3"
 Faker = "^14.2.0"
 

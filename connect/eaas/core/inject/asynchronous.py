@@ -13,12 +13,19 @@ def get_installation_client(
     x_connect_installation_api_key: str = Header(),
     x_connect_api_gateway_url: str = Header(),
     x_connect_user_agent: str = Header(),
+    x_connect_correlation_id: str = Header(None),
 ):
+    default_headers = {
+        'User-Agent': x_connect_user_agent,
+    }
+    if x_connect_correlation_id:
+        default_headers['traceparent'] = x_connect_correlation_id
+
     return AsyncConnectClient(
         x_connect_installation_api_key,
         endpoint=x_connect_api_gateway_url,
         use_specs=False,
-        default_headers={'User-Agent': x_connect_user_agent},
+        default_headers=default_headers,
         logger=RequestLogger(logger),
     )
 
@@ -27,12 +34,19 @@ def get_extension_client(
     logger: Logger = Depends(get_logger),
     x_connect_api_gateway_url: str = Header(),
     x_connect_user_agent: str = Header(),
+    x_connect_correlation_id: str = Header(None),
 ):
+    default_headers = {
+        'User-Agent': x_connect_user_agent,
+    }
+    if x_connect_correlation_id:
+        default_headers['traceparent'] = x_connect_correlation_id
+
     return AsyncConnectClient(
         os.getenv('API_KEY'),
         endpoint=x_connect_api_gateway_url,
         use_specs=False,
-        default_headers={'User-Agent': x_connect_user_agent},
+        default_headers=default_headers,
         logger=RequestLogger(logger),
     )
 
