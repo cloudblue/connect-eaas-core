@@ -60,13 +60,9 @@ class MyWebExtension(WebAppExtension):
         return None
 
 
-def test_get_settings(responses):
-    responses.add(
-        'GET',
-        'https://localhost/public/v1/devops/installations/installation_id',
-        json={'id': 'EIN-000-000'},
-        status=200,
-    )
+def test_get_settings(client_mocker_factory):
+    mocker = client_mocker_factory('https://localhost/public/v1')
+    mocker('devops').installations['installation_id'].get(return_value={'id': 'EIN-000-000'})
 
     client = WebAppTestClient(
         MyWebExtension,
@@ -81,6 +77,12 @@ def test_get_settings(responses):
         headers={
             'X-Connect-Installation-Api-Key': 'installation_api_key',
             'X-Connect-Installation-Id': 'installation_id',
+            'X-Connect-Account-Id': 'account_id',
+            'X-Connect-Account-Role': 'account_role',
+            'X-Connect-User-Id': 'user_id',
+            'X-Connect-Call-Source': 'ui',
+            'X-Connect-Call-Type': 'user',
+
         },
     )
     data = response.json()
@@ -98,6 +100,11 @@ def test_delete_settings():
             'X-Connect-Installation-Id': 'installation_id',
             'X-Connect-Api-Gateway-Url': 'https://localhost/public/v1',
             'X-Connect-User-Agent': 'user-agent',
+            'X-Connect-Account-Id': 'account_id',
+            'X-Connect-Account-Role': 'account_role',
+            'X-Connect-User-Id': 'user_id',
+            'X-Connect-Call-Source': 'ui',
+            'X-Connect-Call-Type': 'user',
         },
     )
     data = response.json()
@@ -106,24 +113,12 @@ def test_delete_settings():
     assert data == '123'
 
 
-def test_update_settings(responses):
-    responses.add(
-        'GET',
-        'https://localhost/public/v1/devops/installations/installation_id',
-        json={'id': 'EIN-000-000'},
-        status=200,
-    )
-    responses.add(
-        'PUT',
-        'https://localhost/public/v1/devops/installations/EIN-000-000',
-        json={'id': 'EIN-000-000'},
-        status=200,
-    )
-    responses.add(
-        'GET',
-        'https://localhost/public/v1/devops/installations/EIN-000-000',
-        json={'id': 'EIN-000-000', 'settings': {'attr': 'new_value'}},
-        status=200,
+def test_update_settings(client_mocker_factory):
+    mocker = client_mocker_factory('https://localhost/public/v1')
+    mocker('devops').installations['installation_id'].get(return_value={'id': 'EIN-000-000'})
+    mocker('devops').installations['EIN-000-000'].update(return_value={'id': 'EIN-000-000'})
+    mocker('devops').installations['EIN-000-000'].get(
+        return_value={'id': 'EIN-000-000', 'settings': {'attr': 'new_value'}},
     )
 
     client = WebAppTestClient(
@@ -138,6 +133,11 @@ def test_update_settings(responses):
         headers={
             'X-Connect-Installation-Api-Key': 'installation_api_key',
             'X-Connect-Installation-Id': 'installation_id',
+            'X-Connect-Account-Id': 'account_id',
+            'X-Connect-Account-Role': 'account_role',
+            'X-Connect-User-Id': 'user_id',
+            'X-Connect-Call-Source': 'ui',
+            'X-Connect-Call-Type': 'user',
         },
         data=json.dumps({'attr': 'new_value'}).encode('utf-8'),
     )
@@ -145,11 +145,6 @@ def test_update_settings(responses):
 
     assert response.status_code == 200
     assert data == {'id': 'EIN-000-000', 'settings': {'attr': 'new_value'}}
-
-    assert len(responses.calls) == 3
-
-    payload = json.loads(responses.calls[1].request.body)
-    assert payload == {'settings': {'attr': 'new_value'}}
 
 
 def test_whoami():

@@ -120,6 +120,12 @@ class WebTaskOptions(BaseModel):
     reply_to: str
     api_key: Optional[str]
     installation_id: Optional[str]
+    connect_correlation_id: Optional[str]
+    user_id: Optional[str]
+    account_id: Optional[str]
+    account_role: Optional[str]
+    call_type: Optional[Literal['admin', 'user']]
+    call_source: Optional[Literal['ui', 'api']]
 
 
 class WebTask(BaseModel):
