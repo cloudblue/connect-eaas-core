@@ -205,7 +205,7 @@ def validate_extension_class(context, *args, **kwargs):  # noqa: CCR001
                 ),
             )
 
-    return ValidationResult(items=messages, contenxt={'descriptor': descriptor})
+    return ValidationResult(items=messages, context={'descriptor': descriptor})
 
 
 def validate_events(config, context, *args, **kwargs):
