@@ -2,10 +2,13 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
 from connect.eaas.core.constants import (
+    ACCOUNT_SETTINGS_PAGE_ATTR_NAME,
+    ADMIN_PAGES_ATTR_NAME,
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     GUEST_ENDPOINT_ATTR_NAME,
+    MODULE_PAGES_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
@@ -80,6 +83,33 @@ def guest():
     def wrapper(func):
         setattr(func, GUEST_ENDPOINT_ATTR_NAME, True)
         return func
+    return wrapper
+
+
+def account_settings_page(label, url):
+    def wrapper(cls):
+        setattr(cls, ACCOUNT_SETTINGS_PAGE_ATTR_NAME, {'label': label, 'url': url})
+        return cls
+    return wrapper
+
+
+def module_pages(label, url, children=None):
+    def wrapper(cls):
+        data = {
+            'label': label,
+            'url': url,
+        }
+        if children:
+            data['children'] = children
+        setattr(cls, MODULE_PAGES_ATTR_NAME, data)
+        return cls
+    return wrapper
+
+
+def admin_pages(pages):
+    def wrapper(cls):
+        setattr(cls, ADMIN_PAGES_ATTR_NAME, pages)
+        return cls
     return wrapper
 
 
