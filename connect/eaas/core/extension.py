@@ -9,10 +9,13 @@ from fastapi import APIRouter
 
 
 from connect.eaas.core.constants import (
+    ACCOUNT_SETTINGS_PAGE_ATTR_NAME,
+    ADMIN_PAGES_ATTR_NAME,
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     GUEST_ENDPOINT_ATTR_NAME,
+    MODULE_PAGES_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
@@ -91,6 +94,20 @@ class WebAppExtension(ExtensionBase):
             else:
                 auth.routes.append(route)
         return auth, no_auth
+
+    @classmethod
+    def get_ui_modules(cls):
+        ui_modules = {}
+        if hasattr(cls, ACCOUNT_SETTINGS_PAGE_ATTR_NAME):
+            ui_modules['settings'] = getattr(cls, ACCOUNT_SETTINGS_PAGE_ATTR_NAME)
+
+        if hasattr(cls, MODULE_PAGES_ATTR_NAME):
+            ui_modules['modules'] = getattr(cls, MODULE_PAGES_ATTR_NAME)
+
+        if hasattr(cls, ADMIN_PAGES_ATTR_NAME):
+            ui_modules['admins'] = getattr(cls, ADMIN_PAGES_ATTR_NAME)
+
+        return ui_modules
 
 
 def _invoke(method, **kwargs):

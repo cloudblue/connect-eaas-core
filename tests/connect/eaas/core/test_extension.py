@@ -6,7 +6,16 @@ from pkg_resources import EntryPoint
 
 from connect.eaas.core.constants import GUEST_ENDPOINT_ATTR_NAME
 from connect.eaas.core.decorators import (
-    anvil_callable, anvil_key_variable, event, guest, schedulable, variables, web_app,
+    account_settings_page,
+    admin_pages,
+    anvil_callable,
+    anvil_key_variable,
+    event,
+    guest,
+    module_pages,
+    schedulable,
+    variables,
+    web_app,
 )
 from connect.eaas.core.extension import _invoke, AnvilExtension, EventsExtension, WebAppExtension
 
@@ -309,15 +318,94 @@ def test_get_routers(mocker):
 
     mocker.patch('connect.eaas.core.extension.router', router)
 
-    mocker.patch.object(
-        EntryPoint,
-        'load',
-        return_value=MyExtension,
-    )
-
     auth_router, no_auth_router = MyExtension.get_routers()
 
     assert len(auth_router.routes) == 1
     assert len(no_auth_router.routes) == 1
     assert auth_router.routes[0].path == '/authenticated'
     assert no_auth_router.routes[0].path == '/unauthenticated'
+
+
+def test_get_ui_modules(mocker):
+    router = InferringRouter()
+
+    @account_settings_page('Extension settings', '/static/settings.html')
+    @module_pages('Main Page', '/static/main.html')
+    @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
+    @web_app(router)
+    class MyExtension(WebAppExtension):
+
+        @router.get('/authenticated')
+        def test_url(self):
+            pass
+
+        @guest()
+        @router.get('/unauthenticated')
+        def test_guest(self):
+            pass
+
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    mocker.patch.object(
+        EntryPoint,
+        'load',
+        return_value=MyExtension,
+    )
+
+    ui_modules = MyExtension.get_ui_modules()
+    assert ui_modules == {
+        'settings': {
+            'label': 'Extension settings',
+            'url': '/static/settings.html',
+        },
+        'modules': {
+            'label': 'Main Page',
+            'url': '/static/main.html',
+        },
+        'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
+    }
+
+
+def test_get_ui_modules_with_children(mocker):
+    router = InferringRouter()
+
+    @account_settings_page('Extension settings', '/static/settings.html')
+    @module_pages(
+        'Main Page',
+        '/static/main.html',
+        children=[{'label': 'Child page', 'url': '/static/child.html'}],
+    )
+    @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
+    @web_app(router)
+    class MyExtension(WebAppExtension):
+
+        @router.get('/authenticated')
+        def test_url(self):
+            pass
+
+        @guest()
+        @router.get('/unauthenticated')
+        def test_guest(self):
+            pass
+
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    mocker.patch.object(
+        EntryPoint,
+        'load',
+        return_value=MyExtension,
+    )
+
+    ui_modules = MyExtension.get_ui_modules()
+    assert ui_modules == {
+        'settings': {
+            'label': 'Extension settings',
+            'url': '/static/settings.html',
+        },
+        'modules': {
+            'label': 'Main Page',
+            'url': '/static/main.html',
+            'children': [{'label': 'Child page', 'url': '/static/child.html'}],
+        },
+        'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
+    }
