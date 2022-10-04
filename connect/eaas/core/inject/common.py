@@ -50,3 +50,7 @@ def get_logger(
         logger,
         context.dict(),
     )
+
+
+def get_config(x_connect_config: str = Header('{}')):
+    return json.loads(x_connect_config)

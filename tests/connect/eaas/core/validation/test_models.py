@@ -1,4 +1,4 @@
-from connect.eaas.core.validation.proto import (
+from connect.eaas.core.validation.models import (
     ValidationItem,
     ValidationResult,
 )

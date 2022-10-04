@@ -56,38 +56,3 @@ async def test_get_installation(httpx_mock):
     client_param = signature.parameters['client']
     assert client_param.annotation == AsyncConnectClient
     assert client_param.default.dependency == asynchronous.get_installation_client
-
-
-@pytest.mark.asyncio
-async def test_get_environment(httpx_mock):
-    variables = [
-        {
-            'id': 'VAR-001',
-            'name': 'MY_VAR',
-            'value': 'my val',
-        },
-    ]
-    httpx_mock.add_response(
-        method='GET',
-        url=(
-            'https://localhost/devops/services'
-            '/extension_id/environments/env_id/variables?limit=100&offset=0'
-        ),
-        json=variables,
-        headers={'Content-Range': 'items 0-9/10'},
-    )
-
-    client = AsyncConnectClient(
-        'api_key',
-        endpoint='https://localhost',
-        use_specs=False,
-    )
-
-    environment = await asynchronous.get_environment(client, 'extension_id', 'env_id')
-
-    assert environment == {v['name']: v['value'] for v in variables}
-
-    signature = inspect.signature(asynchronous.get_environment)
-    client_param = signature.parameters['client']
-    assert client_param.annotation == AsyncConnectClient
-    assert client_param.default.dependency == asynchronous.get_extension_client

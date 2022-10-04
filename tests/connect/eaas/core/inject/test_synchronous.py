@@ -54,38 +54,3 @@ def test_get_installation(responses):
     client_param = signature.parameters['client']
     assert client_param.annotation == ConnectClient
     assert client_param.default.dependency == synchronous.get_installation_client
-
-
-def test_get_environment(responses):
-    variables = [
-        {
-            'id': 'VAR-001',
-            'name': 'MY_VAR',
-            'value': 'my val',
-        },
-    ]
-    responses.add(
-        'GET',
-        (
-            'https://localhost/public/v1/devops/services'
-            '/extension_id/environments/env_id/variables?limit=100&offset=0'
-        ),
-        json=variables,
-        status=200,
-        headers={'Content-Range': 'items 0-9/10'},
-    )
-
-    client = ConnectClient(
-        'api_key',
-        endpoint='https://localhost/public/v1',
-        use_specs=False,
-    )
-
-    environment = synchronous.get_environment(client, 'extension_id', 'env_id')
-
-    assert environment == {v['name']: v['value'] for v in variables}
-
-    signature = inspect.signature(synchronous.get_environment)
-    client_param = signature.parameters['client']
-    assert client_param.annotation == ConnectClient
-    assert client_param.default.dependency == synchronous.get_extension_client

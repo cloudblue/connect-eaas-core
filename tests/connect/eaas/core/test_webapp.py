@@ -1,71 +1,14 @@
-import inspect
 import json
-import os
 
-from fastapi import Depends, Request
-
-from connect.client import ConnectClient
-from connect.eaas.core.decorators import guest, router, web_app
-from connect.eaas.core.extension import WebAppExtension
-from connect.eaas.core.inject.synchronous import get_installation, get_installation_client
 from connect.eaas.core.testing import WebAppTestClient
 
 
-@web_app(router)
-class MyWebExtension(WebAppExtension):
-
-    @router.get('/settings')
-    def retrieve_settings(self, installation: dict = Depends(get_installation)) -> dict:
-        return installation
-
-    @router.delete('/settings/{item_id}')
-    def delete_settings(
-        self,
-        item_id,
-    ) -> str:
-        return item_id
-
-    @router.post('/settings')
-    async def update_settings(
-        self,
-        request: Request,
-        installation_client: ConnectClient = Depends(get_installation_client),
-        installation: dict = Depends(get_installation),
-    ):
-        settings = await request.json()
-
-        installation_client('devops').installations[installation['id']].update(
-            {'settings': settings},
-        )
-        return installation_client('devops').installations[installation['id']].get()
-
-    @guest()
-    @router.get('/whoami')
-    def whoami(self) -> dict:
-        return {'test': 'client'}
-
-    @classmethod
-    def get_static_root(cls):
-        static_root = os.path.abspath(
-            os.path.join(
-                os.path.dirname(inspect.getfile(cls)),
-                '..',
-                '..',
-                '..',
-                'static_root',
-            ),
-        )
-        if os.path.exists(static_root) and os.path.isdir(static_root):
-            return static_root
-        return None
-
-
-def test_get_settings(client_mocker_factory):
+def test_get_settings(webapp_mock, client_mocker_factory):
     mocker = client_mocker_factory('https://localhost/public/v1')
     mocker('devops').installations['installation_id'].get(return_value={'id': 'EIN-000-000'})
 
     client = WebAppTestClient(
-        MyWebExtension,
+        webapp_mock,
         default_headers={
             'X-Connect-Api-Gateway-Url': 'https://localhost/public/v1',
             'X-Connect-User-Agent': 'user-agent',
@@ -91,8 +34,8 @@ def test_get_settings(client_mocker_factory):
     assert data == {'id': 'EIN-000-000'}
 
 
-def test_delete_settings():
-    client = WebAppTestClient(MyWebExtension)
+def test_delete_settings(webapp_mock):
+    client = WebAppTestClient(webapp_mock)
     response = client.delete(
         '/api/settings/123',
         headers={
@@ -113,7 +56,7 @@ def test_delete_settings():
     assert data == '123'
 
 
-def test_update_settings(client_mocker_factory):
+def test_update_settings(webapp_mock, client_mocker_factory):
     mocker = client_mocker_factory('https://localhost/public/v1')
     mocker('devops').installations['installation_id'].get(return_value={'id': 'EIN-000-000'})
     mocker('devops').installations['EIN-000-000'].update(return_value={'id': 'EIN-000-000'})
@@ -122,7 +65,7 @@ def test_update_settings(client_mocker_factory):
     )
 
     client = WebAppTestClient(
-        MyWebExtension,
+        webapp_mock,
         default_headers={
             'X-Connect-Api-Gateway-Url': 'https://localhost/public/v1',
             'X-Connect-User-Agent': 'user-agent',
@@ -147,9 +90,9 @@ def test_update_settings(client_mocker_factory):
     assert data == {'id': 'EIN-000-000', 'settings': {'attr': 'new_value'}}
 
 
-def test_whoami():
+def test_whoami(webapp_mock):
     client = WebAppTestClient(
-        MyWebExtension,
+        webapp_mock,
         default_headers={
             'X-Connect-Api-Gateway-Url': 'https://localhost/public/v1',
             'X-Connect-User-Agent': 'user-agent',
@@ -160,9 +103,9 @@ def test_whoami():
     assert response.json() == {'test': 'client'}
 
 
-def test_static_files():
+def test_static_files(webapp_mock):
     client = WebAppTestClient(
-        MyWebExtension,
+        webapp_mock,
         default_headers={
             'X-Connect-Api-Gateway-Url': 'https://localhost/public/v1',
             'X-Connect-User-Agent': 'user-agent',

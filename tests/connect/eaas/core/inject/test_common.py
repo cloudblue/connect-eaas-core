@@ -74,3 +74,9 @@ def test_get_call_context():
         call_source='ui',
         call_type='user',
     )
+
+
+def test_get_config():
+    assert common.get_config('{}') == {}
+
+    assert common.get_config('{"VAR": "value"}') == {'VAR': 'value'}
