@@ -1,7 +1,7 @@
 import inspect
 
 from connect.eaas.core.extension import (
-    EventsExtension,
+    EventsApplicationBase,
     Extension,
 )
 from connect.eaas.core.responses import (
@@ -25,13 +25,25 @@ def validate_eventsapp(context):
 
     messages = []
 
-    if not issubclass(extension_class, (Extension, EventsExtension)):
+    if issubclass(extension_class, Extension):
+        messages.append(
+            ValidationItem(
+                level='WARNING',
+                message=(
+                    f'The application class *{extension_class.__name__}* inherits from '
+                    '*connect.eaas.extension.Extension* that has been deprecated in favor of '
+                    '*connect.eaas.core.extension.EventsApplicationBase*.'
+                ),
+                file=extension_class_file,
+            ),
+        )
+    elif not issubclass(extension_class, (Extension, EventsApplicationBase)):
         messages.append(
             ValidationItem(
                 level='ERROR',
                 message=(
-                    f'The extension class *{extension_class.__name__}* '
-                    f'is not a subclass of *connect.eaas.core.extension.[Events]Extension*.'
+                    f'The application class *{extension_class.__name__}* '
+                    'is not a subclass of *connect.eaas.core.extension.EventsApplicationBase*.'
                 ),
                 file=extension_class_file,
             ),
@@ -44,10 +56,10 @@ def validate_eventsapp(context):
     ]
 
     for deprecated_cls, cls_name in (
-        (CustomEventResponse, 'InteractiveResponse'),
-        (ProcessingResponse, 'BackgroundResponse'),
-        (ProductActionResponse, 'InteractiveResponse'),
-        (ValidationResponse, 'InteractiveResponse'),
+        (CustomEventResponse, 'connect.eaas.core.responses.InteractiveResponse'),
+        (ProcessingResponse, 'connect.eaas.core.responses.BackgroundResponse'),
+        (ProductActionResponse, 'connect.eaas.core.responses.InteractiveResponse'),
+        (ValidationResponse, 'connect.eaas.core.responses.InteractiveResponse'),
     ):
         if deprecated_cls in defined_classes:
             messages.append(

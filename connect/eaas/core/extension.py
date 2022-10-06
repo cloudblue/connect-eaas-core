@@ -22,7 +22,7 @@ from connect.eaas.core.constants import (
 from connect.eaas.core.decorators import router
 
 
-class ExtensionBase:
+class ApplicationBase:
 
     @classmethod
     def get_descriptor(cls):  # pragma: no cover
@@ -38,7 +38,7 @@ class ExtensionBase:
         return getattr(cls, VARIABLES_INFO_ATTR_NAME, [])
 
 
-class EventsExtension(ExtensionBase):
+class EventsApplicationBase(ApplicationBase):
     def __init__(self, client, logger, config, installation_client=None, installation=None):
         self.client = client
         self.logger = logger
@@ -66,18 +66,18 @@ class EventsExtension(ExtensionBase):
         return info
 
 
-class Extension(EventsExtension):
+class Extension(EventsApplicationBase):
     pass
 
 
-class WebAppExtension(ExtensionBase):
+class WebApplicationBase(ApplicationBase):
 
     @classmethod
     def get_static_root(cls):
         static_root = os.path.abspath(
             os.path.join(
                 os.path.dirname(inspect.getfile(cls)),
-                'static_root',
+                'static',
             ),
         )
         if os.path.exists(static_root) and os.path.isdir(static_root):
@@ -114,7 +114,7 @@ def _invoke(method, **kwargs):
     return method(**kwargs)
 
 
-class AnvilExtension(ExtensionBase):
+class AnvilApplicationBase(ApplicationBase):
 
     def __init__(self, client, logger, config, installation_client=None, installation=None):
         self.client = client
@@ -126,6 +126,18 @@ class AnvilExtension(ExtensionBase):
     @classmethod
     def get_anvil_key_variable(cls):
         return getattr(cls, ANVIL_KEY_VAR_ATTR_NAME, [])
+
+    @classmethod
+    def get_anvil_callables(cls):
+        callables = []
+        members = inspect.getmembers(cls)
+        for _, value in members:
+            if not inspect.isfunction(value):
+                continue
+
+            if hasattr(value, ANVIL_CALLABLE_ATTR_NAME):
+                callables.append(getattr(value, ANVIL_CALLABLE_ATTR_NAME))
+        return callables
 
     def setup_anvil_callables(self):
         members = inspect.getmembers(self)

@@ -2,7 +2,7 @@ import inspect
 import re
 
 from connect.eaas.core.constants import ANVIL_CALLABLE_ATTR_NAME
-from connect.eaas.core.extension import AnvilExtension
+from connect.eaas.core.extension import AnvilApplicationBase
 from connect.eaas.core.validation.models import ValidationItem, ValidationResult
 
 
@@ -16,13 +16,13 @@ def validate_anvilapp(context):
     extension_class = context['extension_classes']['anvil']
     extension_class_file = inspect.getsourcefile(extension_class)
 
-    if not issubclass(extension_class, AnvilExtension):
+    if not issubclass(extension_class, AnvilApplicationBase):
         messages.append(
             ValidationItem(
                 level='ERROR',
                 message=(
-                    f'The extension class *{extension_class.__name__}* '
-                    f'is not a subclass of *connect.eaas.core.extension.AnvilExtension*.'
+                    f'The application class *{extension_class.__name__}* '
+                    f'is not a subclass of *connect.eaas.core.extension.AnvilApplicationBase*.'
                 ),
                 file=extension_class_file,
             ),
@@ -58,7 +58,7 @@ def validate_anvilapp(context):
             ValidationItem(
                 level='ERROR',
                 message=(
-                    'The Anvil app extension class must contain at least one callable '
+                    'The Anvil application class must contain at least one callable '
                     'marked with the *@anvil_callable* decorator.'
                 ),
                 file=extension_class_file,

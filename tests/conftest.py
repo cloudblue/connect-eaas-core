@@ -8,7 +8,7 @@ from fastapi.routing import APIRouter
 
 from connect.client import ConnectClient
 from connect.eaas.core.decorators import guest, web_app
-from connect.eaas.core.extension import WebAppExtension
+from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.inject.synchronous import get_installation, get_installation_client
 
 
@@ -25,7 +25,7 @@ def webapp_mock(mocker):
     mocker.patch('connect.eaas.core.extension.router', router)
 
     @web_app(router)
-    class MyWebExtension(WebAppExtension):
+    class MyWebExtension(WebApplicationBase):
 
         @router.get('/settings')
         def retrieve_settings(self, installation: dict = Depends(get_installation)) -> dict:

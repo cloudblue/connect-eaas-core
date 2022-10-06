@@ -154,7 +154,7 @@ rich = ">=12.4.1,<13.0.0"
 
 [[package]]
 name = "connect-openapi-client"
-version = "25.10"
+version = "25.11"
 description = "Connect Python OpenAPI Client"
 category = "main"
 optional = false
@@ -736,7 +736,7 @@ testing = ["pytest-asyncio (>=0.17.0,<0.18.0)", "pytest-cov (>=3.0.0,<4.0.0)"]
 
 [[package]]
 name = "pytest-mock"
-version = "3.8.2"
+version = "3.10.0"
 description = "Thin-wrapper around the mock package for easier use with pytest"
 category = "dev"
 optional = false
@@ -816,7 +816,7 @@ idna2008 = ["idna"]
 
 [[package]]
 name = "rich"
-version = "12.5.1"
+version = "12.6.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 category = "main"
 optional = false
@@ -952,7 +952,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "64057534dda855ed283ed9da047f44eb38aac2da79982ccb4631fb6c4124a398"
+content-hash = "27a4a42463719c79857afc0aca210815591e838b09ed99ea555ef68c3e9fd5cc"
 
 [metadata.files]
 anvil-uplink = [
@@ -1014,8 +1014,8 @@ connect-markdown-renderer = [
     {file = "connect_markdown_renderer-2.0.1-py3-none-any.whl", hash = "sha256:8d726b947d877697a42f528799908481685bf0db6a17b4e6d715389bfae9cccd"},
 ]
 connect-openapi-client = [
-    {file = "connect-openapi-client-25.10.tar.gz", hash = "sha256:c2dd7b6ea89b31d909a50381597a6a9297c67d62dfcfa35f29009d98d222a6d1"},
-    {file = "connect_openapi_client-25.10-py3-none-any.whl", hash = "sha256:9cba139ea2c06358a2f3922a83faa437e6b1f70f367d1bf216085e2adf77d4a6"},
+    {file = "connect-openapi-client-25.11.tar.gz", hash = "sha256:0ada257ccc325531f184b4b6590c36d3199cd039b16a41338075c9ef86abe9b2"},
+    {file = "connect_openapi_client-25.11-py3-none-any.whl", hash = "sha256:79f16470726ceebb5142c57cf9986d671275bbd9dd62128ab74ee0f1c4abb04a"},
 ]
 coverage = [
     {file = "coverage-5.5-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:b6d534e4b2ab35c9f93f46229363e17f63c53ad01330df9f2d6bd1187e5eaacf"},
@@ -1333,8 +1333,8 @@ pytest-httpx = [
     {file = "pytest_httpx-0.21.0.tar.gz", hash = "sha256:00a007bd9c0928b30259a046a0ba21316ab5f444842a5bfc4f277c47f88b452f"},
 ]
 pytest-mock = [
-    {file = "pytest-mock-3.8.2.tar.gz", hash = "sha256:77f03f4554392558700295e05aed0b1096a20d4a60a4f3ddcde58b0c31c8fca2"},
-    {file = "pytest_mock-3.8.2-py3-none-any.whl", hash = "sha256:8a9e226d6c0ef09fcf20c94eb3405c388af438a90f3e39687f84166da82d5948"},
+    {file = "pytest-mock-3.10.0.tar.gz", hash = "sha256:fbbdb085ef7c252a326fd8cdcac0aa3b1333d8811f131bdcc701002e1be7ed4f"},
+    {file = "pytest_mock-3.10.0-py3-none-any.whl", hash = "sha256:f4c973eeae0282963eb293eb173ce91b091a79c1334455acfac9ddee8a1c784b"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
@@ -1388,8 +1388,8 @@ rfc3986 = [
     {file = "rfc3986-1.5.0.tar.gz", hash = "sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835"},
 ]
 rich = [
-    {file = "rich-12.5.1-py3-none-any.whl", hash = "sha256:2eb4e6894cde1e017976d2975ac210ef515d7548bc595ba20e195fb9628acdeb"},
-    {file = "rich-12.5.1.tar.gz", hash = "sha256:63a5c5ce3673d3d5fbbf23cd87e11ab84b6b451436f1b7f19ec54b6bc36ed7ca"},
+    {file = "rich-12.6.0-py3-none-any.whl", hash = "sha256:a4eb26484f2c82589bd9a17c73d32a010b1e29d89f1604cd9bf3a2097b81bb5e"},
+    {file = "rich-12.6.0.tar.gz", hash = "sha256:ba3a3775974105c221d31141f2c116f4fd65c5ceb0698657a11e9f295ec93fd0"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

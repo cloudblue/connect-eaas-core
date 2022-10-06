@@ -1,7 +1,7 @@
 import pytest
 
 from connect.eaas.core.decorators import event, schedulable
-from connect.eaas.core.extension import EventsExtension
+from connect.eaas.core.extension import EventsApplicationBase, Extension
 from connect.eaas.core.responses import (
     CustomEventResponse,
     ProcessingResponse,
@@ -22,6 +22,42 @@ def test_validate_eventsapp_no_such_extension(mocker):
     assert len(result.items) == 0
 
 
+def test_validate_eventsapp_deprecated_superclass(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.eventsapp.inspect.getsourcefile',
+        return_value='/dir/file.py',
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.eventsapp._validate_events',
+        return_value=[],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.eventsapp._validate_schedulables',
+        return_value=[],
+    )
+
+    class MyExt(Extension):
+        pass
+
+    context = {
+        'extension_classes': {'extension': MyExt},
+        'descriptor': {},
+        'extension_json_file': 'extension.json',
+    }
+    result = validate_eventsapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'WARNING'
+    assert (
+        'The application class *MyExt* inherits from *connect.eaas.extension.Extension* '
+        'that has been deprecated in favor of *connect.eaas.core.extension.EventsApplicationBase*.'
+    ) in item.message
+    assert item.file == '/dir/file.py'
+
+
 def test_validate_eventsapp_invalid_superclass(mocker):
     mocker.patch(
         'connect.eaas.core.validation.validators.eventsapp.inspect.getsourcefile',
@@ -36,8 +72,8 @@ def test_validate_eventsapp_invalid_superclass(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The extension class *KeyError* '
-        'is not a subclass of *connect.eaas.core.extension.[Events]Extension*.'
+        'The application class *KeyError* '
+        'is not a subclass of *connect.eaas.core.extension.EventsApplicationBase*.'
     ) in item.message
     assert item.file == '/dir/file.py'
 
@@ -45,15 +81,15 @@ def test_validate_eventsapp_invalid_superclass(mocker):
 @pytest.mark.parametrize(
     ('deprecated', 'replacement'),
     (
-        (CustomEventResponse, 'InteractiveResponse'),
-        (ProcessingResponse, 'BackgroundResponse'),
-        (ProductActionResponse, 'InteractiveResponse'),
-        (ValidationResponse, 'InteractiveResponse'),
+        (CustomEventResponse, 'connect.eaas.core.responses.InteractiveResponse'),
+        (ProcessingResponse, 'connect.eaas.core.responses.BackgroundResponse'),
+        (ProductActionResponse, 'connect.eaas.core.responses.InteractiveResponse'),
+        (ValidationResponse, 'connect.eaas.core.responses.InteractiveResponse'),
     ),
 )
 def test_validate_eventsapp_deprecated_responses(mocker, deprecated, replacement):
 
-    class MyEvtExt(EventsExtension):
+    class MyEvtExt(EventsApplicationBase):
         pass
 
     mocker.patch(
@@ -124,7 +160,7 @@ def test_validate_eventsapp_descriptor_with_declarations(mocker, descriptor):
         return_value=[],
     )
 
-    class MyExt(EventsExtension):
+    class MyExt(EventsApplicationBase):
         pass
 
     context = {
@@ -144,7 +180,7 @@ def test_validate_eventsapp_descriptor_with_declarations(mocker, descriptor):
 
 
 def test_validate_eventsapp_invalid_event(mocker):
-    class MyExt(EventsExtension):
+    class MyExt(EventsApplicationBase):
         @event('my_awesome_event', statuses=['pending', 'accepted'])
         def handle_event(self, request):
             pass
@@ -188,7 +224,7 @@ def test_validate_eventsapp_invalid_event(mocker):
     ),
 )
 def test_validate_eventsapp_invalid_status(mocker, object_statuses, event_statuses):
-    class MyExt(EventsExtension):
+    class MyExt(EventsApplicationBase):
         @event('test_event', statuses=event_statuses)
         def handle_event(self, request):
             pass
@@ -226,7 +262,7 @@ def test_validate_eventsapp_invalid_status(mocker, object_statuses, event_status
 
 
 def test_validate_eventsapp_invalid_signature(mocker):
-    class MyExt(EventsExtension):
+    class MyExt(EventsApplicationBase):
         @event('test_event', statuses=['status'])
         def handle_event(self, request, another_arg):
             pass
@@ -264,7 +300,7 @@ def test_validate_eventsapp_invalid_signature(mocker):
 
 
 def test_validate_eventsapp_schedulables_invalid_signature(mocker):
-    class MyExt(EventsExtension):
+    class MyExt(EventsApplicationBase):
         @schedulable('name', 'description')
         def handle_event(self, request, another_arg):
             pass
