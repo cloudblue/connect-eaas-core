@@ -72,9 +72,17 @@ def anvil_key_variable(name):
     return wrapper
 
 
-def anvil_callable():
+def anvil_callable(summary=None, description=None):
     def wrapper(func):
-        setattr(func, ANVIL_CALLABLE_ATTR_NAME, True)
+        setattr(
+            func,
+            ANVIL_CALLABLE_ATTR_NAME,
+            {
+                'method': func.__name__,
+                'summary': summary or func.__name__.replace('_', ' ').title(),
+                'description': description or func.__doc__ or '',
+            },
+        )
         return func
     return wrapper
 

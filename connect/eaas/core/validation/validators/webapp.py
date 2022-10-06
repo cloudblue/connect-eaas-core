@@ -3,7 +3,7 @@ import os
 
 from fastapi_utils.cbv import CBV_CLASS_KEY
 
-from connect.eaas.core.extension import WebAppExtension
+from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.validation.helpers import get_code_context
 from connect.eaas.core.validation.models import ValidationItem, ValidationResult
 
@@ -19,13 +19,13 @@ def validate_webapp(context):  # noqa: CCR001
 
     extension_class_file = inspect.getsourcefile(extension_class)
 
-    if not issubclass(extension_class, WebAppExtension):
+    if not issubclass(extension_class, WebApplicationBase):
         messages.append(
             ValidationItem(
                 level='ERROR',
                 message=(
-                    f'The extension class *{extension_class.__name__}* '
-                    f'is not a subclass of *connect.eaas.core.extension.WebAppExtension*.'
+                    f'The application class *{extension_class.__name__}* '
+                    f'is not a subclass of *connect.eaas.core.extension.WebApplicationBase*.'
                 ),
                 file=extension_class_file,
             ),
@@ -36,7 +36,7 @@ def validate_webapp(context):  # noqa: CCR001
         messages.append(
             ValidationItem(
                 level='ERROR',
-                message='The Web app extension class must be wrapped in *@web_app(router)*.',
+                message='The Web application class must be wrapped in *@web_app(router)*.',
                 file=extension_class_file,
             ),
         )
@@ -60,7 +60,7 @@ def _validate_webapp_routes(context):
             ValidationItem(
                 level='ERROR',
                 message=(
-                    'The Web app extension class must contain at least one route '
+                    'The Web application class must contain at least one route '
                     'implementation function wrapped in *@router.your_method("/your_path")*.'
                 ),
                 file=extension_class_file,

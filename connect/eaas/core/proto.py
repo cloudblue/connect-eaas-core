@@ -97,6 +97,7 @@ class SetupRequest(BaseModel):
     icon: Optional[str]
     variables: Optional[list]
     schedulables: Optional[List[Schedulable]]
+    anvil_callables: Optional[list]
     repository: Optional[Repository]
     runner_version: Optional[str]
     model_type: Literal['setup_request'] = 'setup_request'

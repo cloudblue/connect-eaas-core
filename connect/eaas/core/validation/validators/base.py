@@ -98,7 +98,7 @@ def validate_pyproject_toml(context):  # noqa: CCR001
                     ValidationItem(
                         level='ERROR',
                         message=(
-                            f'The extension class *{extension_dict[extension_type]}* '
+                            f'The application class *{extension_dict[extension_type]}* '
                             f'cannot be loaded: {err}.'
                         ),
                         file=descriptor_file,
@@ -115,13 +115,13 @@ def validate_pyproject_toml(context):  # noqa: CCR001
                 message=(
                     'Invalid extension declaration in *[tool.poetry.plugins."connect.eaas.ext"]*: '
                     'The extension must be declared as: *"extension" = '
-                    '"your_package.extension:YourExtension"* '
+                    '"your_package.extension:YourApplication"* '
                     'for Fulfillment automation or Hub integration. '
                     'For Multi account installation must be '
                     'declared at least one the following: *"extension" = '
-                    '"your_package.events:YourEventsExtension"*, '
-                    '*"webapp" = "your_package.webapp:YourWebAppExtension"*, '
-                    '*"anvil" = "your_package.anvil:YourAnvilExtension"*.'
+                    '"your_package.events:YourEventsApplication"*, '
+                    '*"webapp" = "your_package.webapp:YourWebApplication"*, '
+                    '*"anvil" = "your_package.anvil:YourAnvilApplication"*.'
                 ),
                 file=descriptor_file,
             ),

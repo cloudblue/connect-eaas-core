@@ -17,12 +17,17 @@ from connect.eaas.core.decorators import (
     variables,
     web_app,
 )
-from connect.eaas.core.extension import _invoke, AnvilExtension, EventsExtension, WebAppExtension
+from connect.eaas.core.extension import (
+    _invoke,
+    AnvilApplicationBase,
+    EventsApplicationBase,
+    WebApplicationBase,
+)
 
 
 def test_get_events():
 
-    class MyExtension(EventsExtension):
+    class MyExtension(EventsApplicationBase):
 
         @event(
             'asset_purchase_request_processing',
@@ -58,7 +63,7 @@ def test_get_events():
 
 def test_get_schedulables():
 
-    class MyExtension(EventsExtension):
+    class MyExtension(EventsApplicationBase):
 
         @schedulable(
             'schedulable1_name',
@@ -107,7 +112,7 @@ def test_get_variables():
     ]
 
     @variables(vars)
-    class MyExtension(EventsExtension):
+    class MyExtension(EventsApplicationBase):
         """this is my extension"""
         pass
 
@@ -120,13 +125,13 @@ def test_get_static_root(mocker):
     mocker.patch('connect.eaas.core.extension.os.path.exists', return_value=True)
     mocker.patch('connect.eaas.core.extension.os.path.isdir', return_value=True)
 
-    class MyWebAppExtension(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         pass
 
-    assert MyWebAppExtension.get_static_root() == os.path.abspath(
+    assert MyWebApp.get_static_root() == os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
-            'static_root',
+            'static',
         ),
     )
 
@@ -134,20 +139,20 @@ def test_get_static_root(mocker):
 def test_get_static_root_not_exists(mocker):
     mocker.patch('connect.eaas.core.extension.os.path.exists', return_value=False)
 
-    class MyWebAppExtension(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         pass
 
-    assert MyWebAppExtension.get_static_root() is None
+    assert MyWebApp.get_static_root() is None
 
 
 def test_get_anvil_key_variable():
 
     @anvil_key_variable('ANVIL_API_KEY')
-    class MyAnvilExtension(AnvilExtension):
+    class MyAnvilApp(AnvilApplicationBase):
         pass
 
-    assert MyAnvilExtension.get_anvil_key_variable() == 'ANVIL_API_KEY'
-    assert MyAnvilExtension.get_variables()[0] == {
+    assert MyAnvilApp.get_anvil_key_variable() == 'ANVIL_API_KEY'
+    assert MyAnvilApp.get_variables()[0] == {
         'name': 'ANVIL_API_KEY',
         'initial_value': 'changeme!',
         'secure': True,
@@ -160,18 +165,87 @@ def test_setup_anvil_callables(mocker):
         'connect.eaas.core.extension.anvil.server.callable',
     )
 
-    class MyAnvilExtension(AnvilExtension):
+    class MyAnvilApp(AnvilApplicationBase):
 
         @anvil_callable()
         def my_anvil_callable(self, arg1):
             pass
 
-    ext = MyAnvilExtension(None, None, None)
+    ext = MyAnvilApp(None, None, None)
 
     ext.setup_anvil_callables()
 
     assert callable(mocked_callable.mock_calls[0].args[0])
     assert mocked_callable.mock_calls[0].args[0].__name__ == 'my_anvil_callable'
+
+
+def test_get_anvil_callables(mocker):
+
+    mocker.patch(
+        'connect.eaas.core.extension.anvil.server.callable',
+    )
+
+    class MyAnvilApp(AnvilApplicationBase):
+
+        @anvil_callable()
+        def my_anvil_callable(self, arg1):
+            pass
+
+    callables = MyAnvilApp.get_anvil_callables()
+
+    assert callables == [
+        {
+            'method': 'my_anvil_callable',
+            'summary': 'My Anvil Callable',
+            'description': '',
+        },
+    ]
+
+
+def test_get_anvil_callables_with_summary_and_description(mocker):
+
+    mocker.patch(
+        'connect.eaas.core.extension.anvil.server.callable',
+    )
+
+    class MyAnvilApp(AnvilApplicationBase):
+
+        @anvil_callable(summary='summary', description='description')
+        def my_anvil_callable(self, arg1):
+            pass
+
+    callables = MyAnvilApp.get_anvil_callables()
+
+    assert callables == [
+        {
+            'method': 'my_anvil_callable',
+            'summary': 'summary',
+            'description': 'description',
+        },
+    ]
+
+
+def test_get_anvil_callables_description_from_docstring(mocker):
+
+    mocker.patch(
+        'connect.eaas.core.extension.anvil.server.callable',
+    )
+
+    class MyAnvilApp(AnvilApplicationBase):
+
+        @anvil_callable()
+        def my_anvil_callable(self, arg1):
+            """This is the description."""
+
+    callables = MyAnvilApp.get_anvil_callables()
+
+    assert callables == [
+        {
+            'method': 'my_anvil_callable',
+            'summary': 'My Anvil Callable',
+            'description': 'This is the description.',
+        },
+    ]
 
 
 def test_invoke(mocker):
@@ -225,10 +299,10 @@ def test_get_anvil_key_variable_with_variables_after(vars):
 
     @anvil_key_variable('ANVIL_API_KEY')
     @variables(vars)
-    class MyAnvilExtension(AnvilExtension):
+    class MyAnvilApp(AnvilApplicationBase):
         pass
 
-    vars_dict = {v['name']: v for v in MyAnvilExtension.get_variables()}
+    vars_dict = {v['name']: v for v in MyAnvilApp.get_variables()}
 
     for var in vars:
         assert vars_dict[var['name']] == var
@@ -271,10 +345,10 @@ def test_get_anvil_key_variable_with_variables_before(vars):
 
     @variables(vars)
     @anvil_key_variable('ANVIL_API_KEY')
-    class MyAnvilExtension(AnvilExtension):
+    class MyAnvilApp(AnvilApplicationBase):
         pass
 
-    vars_dict = {v['name']: v for v in MyAnvilExtension.get_variables()}
+    vars_dict = {v['name']: v for v in MyAnvilApp.get_variables()}
 
     for var in vars:
         if var['name'] != 'ANVIL_API_KEY':
@@ -289,13 +363,13 @@ def test_get_anvil_key_variable_with_variables_before(vars):
 
 def test_guest_endpoint(mocker):
 
-    class MyWebAppExtension(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
 
         @guest()
         def my_endpoint(self, arg1):
             pass
 
-    ext = MyWebAppExtension()
+    ext = MyWebApp()
 
     assert getattr(ext.my_endpoint, GUEST_ENDPOINT_ATTR_NAME, False) is True
 
@@ -305,7 +379,7 @@ def test_get_routers(mocker):
     router = InferringRouter()
 
     @web_app(router)
-    class MyExtension(WebAppExtension):
+    class MyExtension(WebApplicationBase):
 
         @router.get('/authenticated')
         def test_url(self):
@@ -333,7 +407,7 @@ def test_get_ui_modules(mocker):
     @module_pages('Main Page', '/static/main.html')
     @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
     @web_app(router)
-    class MyExtension(WebAppExtension):
+    class MyExtension(WebApplicationBase):
 
         @router.get('/authenticated')
         def test_url(self):
@@ -377,7 +451,7 @@ def test_get_ui_modules_with_children(mocker):
     )
     @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
     @web_app(router)
-    class MyExtension(WebAppExtension):
+    class MyExtension(WebApplicationBase):
 
         @router.get('/authenticated')
         def test_url(self):

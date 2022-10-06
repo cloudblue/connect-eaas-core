@@ -6,7 +6,7 @@ from connect.eaas.core.decorators import (
     module_pages,
     web_app,
 )
-from connect.eaas.core.extension import WebAppExtension
+from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.validation.models import ValidationItem, ValidationResult
 from connect.eaas.core.validation.validators.webapp import validate_webapp
 
@@ -24,12 +24,12 @@ def test_validate_webapp_no_such_extension(mocker):
 
 def test_validate_webapp_no_web_app_decorator(mocker):
 
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         pass
 
     mocker.patch(
         'connect.eaas.core.validation.validators.webapp.inspect.getsource',
-        return_value='class E2EWebAppExtension(WebAppExtension):....',
+        return_value='class E2EWebApp(WebApplicationBase):....',
     )
     mocker.patch(
         'connect.eaas.core.validation.validators.webapp.inspect.getsourcefile',
@@ -44,7 +44,7 @@ def test_validate_webapp_no_web_app_decorator(mocker):
     item = result.items[0]
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
-    assert 'The Web app extension class must be wrapped in *@web_app(router)*.' in item.message
+    assert 'The Web application class must be wrapped in *@web_app(router)*.' in item.message
 
 
 def test_validate_webapp_extension_no_router_methods(mocker):
@@ -52,13 +52,13 @@ def test_validate_webapp_extension_no_router_methods(mocker):
     router = APIRouter()
 
     @web_app(router)
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         pass
 
     mocker.patch(
         'connect.eaas.core.validation.validators.webapp.inspect.getsource',
         side_effect=[
-            '@web_app(router)\nclass E2EWebAppExtension(WebAppExtension):...',
+            '@web_app(router)\nclass E2EWebApp(WebApplicationBase):...',
             'def retrieve_settings(self):...',
         ],
     )
@@ -76,7 +76,7 @@ def test_validate_webapp_extension_no_router_methods(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The Web app extension class must contain at least one route implementation '
+        'The Web application class must contain at least one route implementation '
         'function wrapped in *@router.your_method("/your_path")*.'
     ) in item.message
 
@@ -88,7 +88,7 @@ def test_validate_webapp_page_doesnt_exist(mocker):
 
     @web_app(router)
     @account_settings_page('Settings', '/static/settings.html')
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -130,7 +130,7 @@ def test_validate_webapp_wrong_page_label(mocker):
 
     @web_app(router)
     @account_settings_page(None, '/static/settings.html')
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -170,7 +170,7 @@ def test_validate_webapp_wrong_page_url_format(mocker):
 
     @web_app(router)
     @account_settings_page('Settings', 'settings.html')
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -212,7 +212,7 @@ def test_validate_webapp_wrong_page_url_type(mocker):
 
     @web_app(router)
     @account_settings_page('Settings', None)
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -258,7 +258,7 @@ def test_validate_webapp_wrong_module_children_pages_type(mocker):
         '/static/main.html',
         children='hello',
     )
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -304,7 +304,7 @@ def test_validate_webapp_wrong_module_children_pages_object(mocker):
         '/static/main.html',
         children=[{'hello': 'world'}],
     )
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -346,7 +346,7 @@ def test_validate_webapp_wrong_admin_pages_type(mocker):
 
     @web_app(router)
     @admin_pages('hello')
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -385,7 +385,7 @@ def test_validate_webapp_wrong_admin_pages_object(mocker):
 
     @web_app(router)
     @admin_pages([{'hello': 'world'}])
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -445,7 +445,7 @@ def test_validate_webapp(mocker):
             },
         ],
     )
-    class MyWebApp(WebAppExtension):
+    class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
             pass
@@ -486,6 +486,6 @@ def test_validate_webapp_invalid_superclass(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The extension class *MyWebApp* is not a subclass of '
-        '*connect.eaas.core.extension.WebAppExtension*.'
+        'The application class *MyWebApp* is not a subclass of '
+        '*connect.eaas.core.extension.WebApplicationBase*.'
     ) in item.message

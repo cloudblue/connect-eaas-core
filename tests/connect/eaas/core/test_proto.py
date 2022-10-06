@@ -116,6 +116,9 @@ SETUP_REQUEST_DATA = {
     'event_subscriptions': {'test': 'data'},
     'variables': [{'foo': 'value', 'bar': 'value'}],
     'schedulables': [{'method': 'method_name', 'name': 'Name', 'description': 'Description'}],
+    'anvil_callables': [
+        {'method': 'method_name', 'summary': 'Summary', 'description': 'Description'},
+    ],
     'repository': {
         'readme_url': 'https://read.me',
         'changelog_url': 'https://change.log',
@@ -307,12 +310,15 @@ def test_deserialize_v1_setup_request_data():
 
     message = Message.deserialize(msg_data_v1)
 
+    expected_data = copy.deepcopy(SETUP_REQUEST_DATA)
+    expected_data['anvil_callables'] = None
+
     assert isinstance(message, Message)
     assert message.version == 1
     assert message.message_type == MessageType.SETUP_REQUEST
     assert isinstance(message.data, SetupRequest)
 
-    assert message.dict()['data'] == SETUP_REQUEST_DATA
+    assert message.dict()['data'] == expected_data
 
 
 def test_serialize_setup_request_data_to_v1():

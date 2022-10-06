@@ -237,7 +237,7 @@ def test_validate_pyproject_toml_import_error(mocker):
     item = result.items[0]
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
-    assert 'The extension class *root_pkg.extension:MyExtension* cannot be loaded' in item.message
+    assert 'The application class *root_pkg.extension:MyExtension* cannot be loaded' in item.message
     assert item.file == 'fake_dir/pyproject.toml'
 
 
