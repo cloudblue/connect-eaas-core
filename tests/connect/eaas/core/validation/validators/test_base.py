@@ -462,7 +462,7 @@ def test_validate_docker_compose_yml_invalid_image(mocker):
         return_value={
             'services': {
                 'dev': {
-                    'image': 'invalid:image',
+                    'image': 'cloudblueconnect/connect-extension-runner:0.3',
                 },
             },
         },
@@ -478,7 +478,8 @@ def test_validate_docker_compose_yml_invalid_image(mocker):
     assert item.level == 'ERROR'
     assert (
         'Invalid image for service *dev*: expected '
-        '*cloudblueconnect/connect-extension-runner:1.0* got *invalid:image*.'
+        '*cloudblueconnect/connect-extension-runner:1.0* '
+        'got *cloudblueconnect/connect-extension-runner:0.3*.'
     ) in item.message
     assert item.file == 'fake_dir/docker-compose.yml'
 
