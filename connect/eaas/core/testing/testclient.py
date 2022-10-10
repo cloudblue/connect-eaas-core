@@ -14,7 +14,38 @@ from connect.eaas.core.utils import client_error_exception_handler
 
 
 class WebAppTestClient(TestClient):
+    """
+    Create a new instance of the WebAppTestClient.
+    The WebAppTestClient is based on the python requests library
+    and will internally create a requests.Session.
+    Each interface method (get, post, ...) accepts the following extra
+    keyword arguments:
 
+    * **context**: an instance of connect.eaas.core.inject.models.Context
+        to provide the endpoint with a specific call context.
+        If this kwarg is omitted a default context is provided.
+    * **installation**: an installation object to receive inside the called endpoint,
+        defaults to None.
+    * **config**: a dictionary with key/value pairs representing environment variables.
+    * **log_level**: allow to simulate a specific log level for such endpoint call
+        default to INFO.
+
+
+    Usage:
+
+    ```python
+    from connect.eaas.core.testing.testclient import WebAppTestClient
+
+    from myext.webapp import MyWebApplication
+
+    client = WebAppTestClient(MyWebApplication)
+    response = client.get('/my/endpoint')
+    ```
+
+    **Parameters:**
+
+    * **webapp** - The web application class.
+    """
     def __init__(self, webapp, base_url='https://example.org/public/v1'):
         self._webapp_class = webapp
         self._app = self._get_application()

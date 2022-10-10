@@ -27,6 +27,23 @@ class ApplicationBase:
 
     @classmethod
     def get_descriptor(cls):  # pragma: no cover
+        """
+        Returns the **extension.json** extension descriptor.
+
+        !!! example
+
+            ``` python
+            {
+                'name': 'My extension',
+                'description': 'This extension My Extension',
+                'version': '1.0.0',
+                'audience': ['distributor', 'vendor', 'reseller'],
+                'readme_url': 'https://example.org/README.md',
+                'changelog_url': 'https://example.org/CHANGELOG.md',
+                'icon': 'bar_chart',
+            }
+            ```
+        """
         return json.load(
             pkg_resources.resource_stream(
                 cls.__module__,
@@ -36,10 +53,33 @@ class ApplicationBase:
 
     @classmethod
     def get_variables(cls):
+        """
+        Inspects the Events Application class returning the list of environment
+        variables declared using the `@variables` class decorator.
+
+        !!! example
+
+            ``` python
+            [
+                {
+                    'name': 'MY_ENV_VAR',
+                    'initial_value': '<<change me>>',
+                    'secure': False,
+                },
+                {
+                    'name': 'MY_SECURE_ENV_VAR',
+                    'initial_value': '<<change me>>',
+                    'secure': True,
+                },
+            ]
+            ```
+        """
         return getattr(cls, VARIABLES_INFO_ATTR_NAME, [])
 
 
 class EventsApplicationBase(ApplicationBase):
+    """Base class to implements an Events Application."""
+
     def __init__(self, client, logger, config, installation_client=None, installation=None):
         self.client = client
         self.logger = logger
@@ -49,10 +89,44 @@ class EventsApplicationBase(ApplicationBase):
 
     @classmethod
     def get_events(cls):
+        """
+        Inspects the Events Application class for methods
+        decorated with the `@event` decorator and return a list of
+        objects like in the following example:
+
+        !!! example
+
+            ``` python
+            [
+                {
+                    'method': 'handle_purchase_request',
+                    'event_type': 'asset_purchase_request_processing',
+                    'statuses': ['pending', 'approved'],
+                },
+            ]
+            ```
+        """
         return cls._get_methods_info(EVENT_INFO_ATTR_NAME)
 
     @classmethod
     def get_schedulables(cls):
+        """
+        Inspects the Events Application class for methods
+        decorated with the `@schedulable` decorator and return a list of
+        objects like in the following example:
+
+        !!! example
+
+            ``` python
+            [
+                {
+                    'method': 'refresh_oauth_token',
+                    'name': 'Refresh OAuth Token',
+                    'description': 'This schedulable refresh the GCP OAuth toke',
+                },
+            ]
+            ```
+        """
         return cls._get_methods_info(SCHEDULABLE_INFO_ATTR_NAME)
 
     @classmethod
@@ -72,9 +146,10 @@ class Extension(EventsApplicationBase):
 
 
 class WebApplicationBase(ApplicationBase):
-
+    """Base class to implements an Events Application."""
     @classmethod
     def get_static_root(cls):
+        """Returns the absolute path to the `static` root folder."""
         static_root = os.path.abspath(
             os.path.join(
                 os.path.dirname(inspect.getfile(cls)),
@@ -87,6 +162,16 @@ class WebApplicationBase(ApplicationBase):
 
     @classmethod
     def get_routers(cls):
+        """
+        Inspect the Web Application class for routes and return a tuple
+        or two routers, the first one contains authenticated API routes,
+        the second the non-authenticated ones.
+
+        !!! warning
+            Non authenticated endpoints must be authorized by CloudBlue.
+            If your extension need to expose some, please contact the
+            CloudBlue support.
+        """
         auth = APIRouter()
         no_auth = APIRouter()
         for route in router.routes:
@@ -116,7 +201,7 @@ def _invoke(method, **kwargs):
 
 
 class AnvilApplicationBase(ApplicationBase):
-
+    """Base class to implements an Anvil Application."""
     def __init__(self, client, logger, config, installation_client=None, installation=None):
         self.client = client
         self.logger = logger
@@ -126,10 +211,32 @@ class AnvilApplicationBase(ApplicationBase):
 
     @classmethod
     def get_anvil_key_variable(cls):
+        """
+        Returns the name of the environment variable that
+        stores the Anvil Server Uplink key.
+        """
         return getattr(cls, ANVIL_KEY_VAR_ATTR_NAME, [])
 
     @classmethod
     def get_anvil_callables(cls):
+        """
+        Inspect the Anvil Application class to searching for
+        method decorated with the `@anvil_callable` decorator and
+        return a list of discovered anvil callable like in the following
+        example:
+
+        !!! example
+
+            ``` python
+            [
+                {
+                    'method': 'my_anvil_callable',
+                    'summary': 'This callable sum two integer.',
+                    'description': 'Example anvil callable.',
+                },
+            ]
+            ```
+        """
         callables = []
         members = inspect.getmembers(cls)
         for _, value in members:
@@ -141,6 +248,10 @@ class AnvilApplicationBase(ApplicationBase):
         return callables
 
     def setup_anvil_callables(self):
+        """
+        Setup the Anvil Server Uplink instance with the discovered
+        Anvil callables.
+        """
         members = inspect.getmembers(self)
         for _, value in members:
             if not inspect.ismethod(value):

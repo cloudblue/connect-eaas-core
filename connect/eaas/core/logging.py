@@ -1,4 +1,5 @@
 import json
+import logging
 
 from logzio.handler import LogzioHandler
 
@@ -17,8 +18,9 @@ class ExtensionLogHandler(LogzioHandler):
 
 
 class RequestLogger:
-    def __init__(self, logger):
+    def __init__(self, logger, level=logging.DEBUG):
         self.logger = logger
+        self.level = level
 
     def obfuscate(self, key, value):
         return obfuscate_header(key, value)
@@ -45,7 +47,7 @@ class RequestLogger:
             lines.append(json.dumps(kwargs['json'], indent=4))
 
         lines.append('')
-        self.logger.debug('\n'.join(lines))
+        self.logger.log(self.level, '\n'.join(lines))
 
     def log_response(self, response):
         reason = response.raw.reason if getattr(response, 'raw', None) else response.reason_phrase
@@ -64,4 +66,4 @@ class RequestLogger:
 
         lines.append('')
 
-        self.logger.debug('\n'.join(lines))
+        self.logger.log(self.level, '\n'.join(lines))
