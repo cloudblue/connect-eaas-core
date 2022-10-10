@@ -110,7 +110,7 @@ def _check_ui_component_url(extension_class, page_name, value, code_pattern):
     page_path = value[8:]
     full_path = os.path.join(
         os.path.dirname(inspect.getsourcefile(extension_class)),
-        'static_root',
+        'static',
         page_path,
     )
     if not os.path.exists(full_path):

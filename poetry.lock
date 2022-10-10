@@ -952,7 +952,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "27a4a42463719c79857afc0aca210815591e838b09ed99ea555ef68c3e9fd5cc"
+content-hash = "1c768a9361c54ec75b79031c86cd4a98c54d6c4cca77a62e39b4daa04d53fc23"
 
 [metadata.files]
 anvil-uplink = [

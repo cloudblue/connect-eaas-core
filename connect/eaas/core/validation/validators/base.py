@@ -163,7 +163,7 @@ def validate_docker_compose_yml(context):
 
     for service in data['services']:
         image = data['services'][service].get('image')
-        if image != runner_image:
+        if image.startswith('cloudblueconnect/connect-extension-runner') and image != runner_image:
             messages.append(
                 ValidationItem(
                     level='ERROR',
