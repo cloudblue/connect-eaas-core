@@ -452,52 +452,30 @@ def test_obfuscate_task_options():
         task_category='task_category',
         api_key='This is my API key',
     )
-
-    fields = {}
-    representation = str(task_options).split(' ')
-    for field in representation:
-        k, v = field.split('=')
-        fields[k] = v[1:-1] if isinstance(v, str) else v
-
-    assert fields['api_key'] == 'Th******ey'
+    assert next(filter(
+        lambda x: x[0] == 'api_key', task_options.__repr_args__(),
+    ))[1] == 'Th******ey'
 
 
 def test_obfuscate_logging():
     logging = Logging(
         logging_api_key='This is my API key',
     )
-
-    fields = {}
-    representation = str(logging).split(' ')
-    for field in representation:
-        k, v = field.split('=')
-        fields[k] = v[1:-1] if isinstance(v, str) else v
-
-    assert fields['logging_api_key'] == 'Th******ey'
+    assert next(filter(
+        lambda x: x[0] == 'logging_api_key', logging.__repr_args__(),
+    ))[1] == 'Th******ey'
 
 
 def test_obfuscate_setup_response():
     setup_response = SetupResponse(variables={'VAR1': 'VAL1'})
-
-    fields = {}
-    representation = str(setup_response).split(' ')
-    for field in representation:
-        k, v = field.split('=')
-        fields[k] = v[1:-1] if isinstance(v, str) else v
-
-    assert fields['variables'] == '******'
+    assert next(filter(
+        lambda x: x[0] == 'variables', setup_response.__repr_args__(),
+    ))[1] == '******'
 
 
 def test_obfuscate_setup_request():
     setup_request = SetupRequest(variables=[{'VAR1': 'VAL1'}])
-
-    fields = {}
-    representation = str(setup_request).split(' ')
-    for field in representation:
-        k, v = field.split('=')
-        fields[k] = v[1:-1] if isinstance(v, str) else v
-
-    assert fields['variables'] == '******'
+    assert next(filter(lambda x: x[0] == 'variables', setup_request.__repr_args__()))[1] == '******'
 
 
 def test_obfuscate_http_request():
@@ -506,14 +484,7 @@ def test_obfuscate_http_request():
         url='url',
         headers={'Authorization': 'My Api Key'},
     )
-
-    fields = {}
-    representation = str(http_request).split(' ')
-    for field in representation:
-        k, v = field.split('=')
-        fields[k] = v[1:-1] if isinstance(v, str) else v
-
-    assert fields['headers'] == '******'
+    assert next(filter(lambda x: x[0] == 'headers', http_request.__repr_args__()))[1] == '******'
 
 
 def test_obfuscate_webtask_options():
@@ -522,10 +493,6 @@ def test_obfuscate_webtask_options():
         reply_to='reply_to',
         api_key='This is my API key',
     )
-    fields = {}
-    representation = str(webtask_options).split(' ')
-    for field in representation:
-        k, v = field.split('=')
-        fields[k] = v[1:-1] if isinstance(v, str) else v
-
-    assert fields['api_key'] == 'Th******ey'
+    assert next(filter(
+        lambda x: x[0] == 'api_key', webtask_options.__repr_args__(),
+    ))[1] == 'Th******ey'

@@ -7,13 +7,13 @@ from pydantic.utils import DUNDER_ATTRIBUTES
 class BaseModel(PydanticBaseModel):
 
     def get_sensitive_fields(self):
-        return []
+        return []  # pragma: no cover
 
     def __obfuscate_args__(self, k, v):
         if isinstance(v, str) and v and k in self.get_sensitive_fields():
             return k, f'{v[0:2]}******{v[-2:]}'
 
-        if isinstance(v, (list, dict)) and v:
+        if isinstance(v, (list, dict)) and v and k in self.get_sensitive_fields():
             return k, '******'
 
         return k, v
@@ -109,6 +109,9 @@ class SetupResponse(BaseModel):
     logging: Optional[Logging]
     event_definitions: Optional[List[EventDefinition]]
     model_type: Literal['setup_response'] = 'setup_response'
+
+    def get_sensitive_fields(self):
+        return ['variables']
 
 
 class Schedulable(BaseModel):
