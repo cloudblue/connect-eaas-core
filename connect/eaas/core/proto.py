@@ -1,6 +1,32 @@
 from typing import Any, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel as PydanticBaseModel, Field
+from pydantic.utils import DUNDER_ATTRIBUTES
+
+
+class BaseModel(PydanticBaseModel):
+
+    def get_sensitive_fields(self):
+        return []
+
+    def __obfuscate_args__(self, k, v):
+        if isinstance(v, str) and v and k in self.get_sensitive_fields():
+            return k, f'{v[0:2]}******{v[-2:]}'
+
+        if isinstance(v, (list, dict)) and v:
+            return k, '******'
+
+        return k, v
+
+    def __repr_args__(self):
+        return [
+            self.__obfuscate_args__(k, v)
+            for k, v in self.__dict__.items()
+            if (
+                k not in DUNDER_ATTRIBUTES
+                and (k not in self.__fields__ or self.__fields__[k].field_info.repr)
+            )
+        ]
 
 
 class MessageType:
@@ -24,6 +50,9 @@ class TaskOptions(BaseModel):
     api_key: Optional[str]
     installation_id: Optional[str]
     connect_correlation_id: Optional[str]
+
+    def get_sensitive_fields(self):
+        return ['api_key']
 
 
 class TaskOutput(BaseModel):
@@ -61,6 +90,9 @@ class Logging(BaseModel):
     log_level: Optional[str]
     runner_log_level: Optional[str]
     meta: Optional[LogMeta]
+
+    def get_sensitive_fields(self):
+        return ['logging_api_key']
 
 
 class EventDefinition(BaseModel):
@@ -102,6 +134,9 @@ class SetupRequest(BaseModel):
     runner_version: Optional[str]
     model_type: Literal['setup_request'] = 'setup_request'
 
+    def get_sensitive_fields(self):
+        return ['variables']
+
 
 class HttpResponse(BaseModel):
     status: int
@@ -115,6 +150,9 @@ class HttpRequest(BaseModel):
     headers: dict
     content: Optional[Any]
 
+    def get_sensitive_fields(self):
+        return ['headers']
+
 
 class WebTaskOptions(BaseModel):
     correlation_id: str
@@ -127,6 +165,9 @@ class WebTaskOptions(BaseModel):
     account_role: Optional[str]
     call_type: Optional[Literal['admin', 'user']]
     call_source: Optional[Literal['ui', 'api']]
+
+    def get_sensitive_fields(self):
+        return ['api_key']
 
 
 class WebTask(BaseModel):
