@@ -4,6 +4,7 @@ import pytest
 
 from connect.eaas.core.proto import (
     EventDefinition,
+    HttpRequest,
     Logging,
     LogMeta,
     Message,
@@ -15,6 +16,7 @@ from connect.eaas.core.proto import (
     Task,
     TaskInput,
     TaskOptions,
+    WebTaskOptions,
 )
 
 TASK_DATA = {
@@ -442,3 +444,88 @@ def test_serialize_setup_response_with_events_definitions():
     assert serialized['version'] == 2
     assert serialized['message_type'] == MessageType.SETUP_RESPONSE
     assert serialized['data'] == data
+
+
+def test_obfuscate_task_options():
+    task_options = TaskOptions(
+        task_id='task_id',
+        task_category='task_category',
+        api_key='This is my API key',
+    )
+
+    fields = {}
+    representation = str(task_options).split(' ')
+    for field in representation:
+        k, v = field.split('=')
+        fields[k] = v[1:-1] if isinstance(v, str) else v
+
+    assert fields['api_key'] == 'Th******ey'
+
+
+def test_obfuscate_logging():
+    logging = Logging(
+        logging_api_key='This is my API key',
+    )
+
+    fields = {}
+    representation = str(logging).split(' ')
+    for field in representation:
+        k, v = field.split('=')
+        fields[k] = v[1:-1] if isinstance(v, str) else v
+
+    assert fields['logging_api_key'] == 'Th******ey'
+
+
+def test_obfuscate_setup_response():
+    setup_response = SetupResponse(variables={'VAR1': 'VAL1'})
+
+    fields = {}
+    representation = str(setup_response).split(' ')
+    for field in representation:
+        k, v = field.split('=')
+        fields[k] = v[1:-1] if isinstance(v, str) else v
+
+    assert fields['variables'] == '******'
+
+
+def test_obfuscate_setup_request():
+    setup_request = SetupRequest(variables=[{'VAR1': 'VAL1'}])
+
+    fields = {}
+    representation = str(setup_request).split(' ')
+    for field in representation:
+        k, v = field.split('=')
+        fields[k] = v[1:-1] if isinstance(v, str) else v
+
+    assert fields['variables'] == '******'
+
+
+def test_obfuscate_http_request():
+    http_request = HttpRequest(
+        method='method',
+        url='url',
+        headers={'Authorization': 'My Api Key'},
+    )
+
+    fields = {}
+    representation = str(http_request).split(' ')
+    for field in representation:
+        k, v = field.split('=')
+        fields[k] = v[1:-1] if isinstance(v, str) else v
+
+    assert fields['headers'] == '******'
+
+
+def test_obfuscate_webtask_options():
+    webtask_options = WebTaskOptions(
+        correlation_id='correlation_id',
+        reply_to='reply_to',
+        api_key='This is my API key',
+    )
+    fields = {}
+    representation = str(webtask_options).split(' ')
+    for field in representation:
+        k, v = field.split('=')
+        fields[k] = v[1:-1] if isinstance(v, str) else v
+
+    assert fields['api_key'] == 'Th******ey'
