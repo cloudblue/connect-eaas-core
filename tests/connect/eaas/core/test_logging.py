@@ -95,6 +95,39 @@ def test_request_logger_request_with_headers(caplog, authorization, expected_aut
     ) == caplog.records[0].message
 
 
+@pytest.mark.parametrize(
+    ('cookie', 'expected_cookie'),
+    (
+        (
+            '_ga=wathever; api_key="test@example.com:abcdefg"; _gid=whatever',
+            '_ga=wathever; api_key="te******fg"; _gid=whatever',
+        ),
+        (
+            '_ga=wathever; _gid=whatever',
+            '_ga=wathever; _gid=whatever',
+        ),
+    ),
+)
+def test_request_logger_request_with_cookie(caplog, cookie, expected_cookie):
+    rl = RequestLogger(logging.getLogger('eaas.runner.extension'))
+
+    headers = {
+        'Cookie': cookie,
+    }
+
+    with caplog.at_level(logging.DEBUG):
+        rl.log_request('GET', 'https://example.com', {'headers': headers})
+
+    assert '\n'.join(
+        [
+            '--- HTTP Request ---',
+            "GET https://example.com ",
+            f'Cookie: {expected_cookie}',
+            '',
+        ],
+    ) == caplog.records[0].message
+
+
 def test_request_logger_request_with_json_body(caplog):
     rl = RequestLogger(logging.getLogger('eaas.runner.extension'))
 
@@ -161,7 +194,13 @@ def test_request_logger_response_json(mocker, caplog):
 
     rsp = Response()
     rsp.raw = HTTPResponse()
-    rsp.headers = {'Content-Type': 'application/json'}
+    rsp.headers = {
+        'Content-Type': 'application/json',
+        'Set-Cookie': (
+            'api_key="test@example.com:abcdefg"; '
+            'expires=Wed, 19 Oct 2022 06:56:08 GMT; HttpOnly;'
+        ),
+    }
     rsp.status_code = 200
     rsp.raw.reason = 'OK'
 
@@ -172,6 +211,7 @@ def test_request_logger_response_json(mocker, caplog):
             '--- HTTP Response ---',
             '200 OK',
             'Content-Type: application/json',
+            'Set-Cookie: api_key="te******fg"; expires=Wed, 19 Oct 2022 06:56:08 GMT; HttpOnly;',
             '{',
             '    "id": "XX-1234",',
             '    "name": "XXX"',
