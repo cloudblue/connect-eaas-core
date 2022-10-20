@@ -138,7 +138,7 @@ SETUP_REQUEST_DATA_V1 = {
 }
 
 SETUP_RESPONSE_DATA = {
-    'variables': {'conf1': 'val1'},
+    'variables': [{'name': 'conf1', 'value': 'val1', 'secure': False}],
     'environment_type': 'environ-type',
     'logging': {
         'logging_api_key': 'logging-token',
@@ -467,10 +467,34 @@ def test_obfuscate_logging():
 
 
 def test_obfuscate_setup_response():
-    setup_response = SetupResponse(variables={'VAR1': 'VAL1'})
+    setup_response = SetupResponse(
+        variables=[
+            {
+                'name': 'SECURE_VAR',
+                'value': 'abcdefgh',
+                'secure': True,
+            },
+            {
+                'name': 'UNSECURE_VAR',
+                'value': 'qwerty',
+                'secure': False,
+            },
+        ],
+    )
     assert next(filter(
         lambda x: x[0] == 'variables', setup_response.__repr_args__(),
-    ))[1] == '******'
+    ))[1] == [
+        {
+            'name': 'SECURE_VAR',
+            'value': 'ab******gh',
+            'secure': True,
+        },
+        {
+            'name': 'UNSECURE_VAR',
+            'value': 'qwerty',
+            'secure': False,
+        },
+    ]
 
 
 def test_obfuscate_setup_request():
@@ -482,9 +506,11 @@ def test_obfuscate_http_request():
     http_request = HttpRequest(
         method='method',
         url='url',
-        headers={'Authorization': 'My Api Key'},
+        headers={'Authorization': 'ApiKey SU-0000:abcdef'},
     )
-    assert next(filter(lambda x: x[0] == 'headers', http_request.__repr_args__()))[1] == '******'
+    assert next(filter(lambda x: x[0] == 'headers', http_request.__repr_args__()))[1] == {
+        'Authorization': 'ApiKey SU-0000:**********',
+    }
 
 
 def test_obfuscate_webtask_options():
