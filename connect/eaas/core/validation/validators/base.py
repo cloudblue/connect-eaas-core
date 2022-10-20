@@ -86,7 +86,7 @@ def validate_pyproject_toml(context):  # noqa: CCR001
         return ValidationResult(items=messages, must_exit=True)
 
     sys.path.append(os.path.join(os.getcwd(), project_dir))
-    possible_extensions = ['extension', 'webapp', 'anvil']
+    possible_extensions = ['extension', 'webapp', 'anvilapp', 'eventsapp']
     extensions = {}
     for extension_type in possible_extensions:
         if extension_type in extension_dict.keys():
@@ -108,20 +108,33 @@ def validate_pyproject_toml(context):  # noqa: CCR001
 
             extensions[extension_type] = getattr(extension_module, class_name)
 
+    if 'extension' in extension_dict:
+        messages.append(
+            ValidationItem(
+                level='WARNING',
+                message=(
+                    'Declaring an events application using the *extension* entrypoint name is '
+                    'deprecated in favor of *eventsapp*.'
+                ),
+                file=descriptor_file,
+            ),
+        )
+
     if not extensions:
         messages.append(
             ValidationItem(
                 level='ERROR',
                 message=(
-                    'Invalid extension declaration in *[tool.poetry.plugins."connect.eaas.ext"]*: '
-                    'The extension must be declared as: *"extension" = '
+                    'Invalid application declaration in '
+                    '*[tool.poetry.plugins."connect.eaas.ext"]*: '
+                    'The application must be declared as: *"eventsapp" = '
                     '"your_package.extension:YourApplication"* '
                     'for Fulfillment automation or Hub integration. '
                     'For Multi account installation must be '
-                    'declared at least one the following: *"extension" = '
+                    'declared at least one the following: *"eventsapp" = '
                     '"your_package.events:YourEventsApplication"*, '
                     '*"webapp" = "your_package.webapp:YourWebApplication"*, '
-                    '*"anvil" = "your_package.anvil:YourAnvilApplication"*.'
+                    '*"anvilapp" = "your_package.anvil:YourAnvilApplication"*.'
                 ),
                 file=descriptor_file,
             ),

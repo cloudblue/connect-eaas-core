@@ -53,11 +53,14 @@ pytest-asyncio = "^0.18.3"
 Faker = "^14.2.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "setuptools"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.plugins.pytest11]
+"pytest_eaas_core" = "connect.eaas.core.testing.fixtures"
+
 [tool.pytest.ini_options]
-testpaths = "tests"
+testpaths = ["tests"]
 log_cli = true
 addopts = "--cov=connect.eaas.core --cov-report=term-missing:skip-covered --cov-report=html --cov-report=xml"
 asyncio_mode = "strict"

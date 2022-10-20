@@ -63,7 +63,7 @@ def test_validate_pyproject_toml_depends_on_runner(mocker):
                     },
                     'plugins': {
                         'connect.eaas.ext': {
-                            'extension': 'root_pkg.extension:MyExtension',
+                            'eventsapp': 'root_pkg.extension:MyExtension',
                         },
                     },
                 },
@@ -102,7 +102,7 @@ def test_validate_pyproject_toml_missed_eaas_core_dependency(mocker):
                     'dependencies': {},
                     'plugins': {
                         'connect.eaas.ext': {
-                            'extension': 'root_pkg.extension:MyExtension',
+                            'eventsapp': 'root_pkg.extension:MyExtension',
                         },
                     },
                 },
@@ -198,7 +198,50 @@ def test_validate_pyproject_toml_invalid_extension_declaration(mocker):
     item = result.items[0]
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
-    assert 'Invalid extension declaration in' in item.message
+    assert 'Invalid application declaration in' in item.message
+    assert item.file == 'fake_dir/pyproject.toml'
+
+
+def test_validate_pyproject_toml_deprecated_extension_declaration(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        return_value=True,
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.toml.load',
+        return_value={
+            'tool': {
+                'poetry': {
+                    'dependencies': {
+                        'connect-eaas-core': '1.0.0',
+                    },
+                    'plugins': {
+                        'connect.eaas.ext': {
+                            'extension': 'root_pkg.extension:MyExtension',
+                        },
+                    },
+                },
+            },
+        },
+    )
+    mocker.patch('connect.eaas.core.validation.validators.base.importlib.import_module')
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.inspect.getmembers',
+        return_value=[],
+    )
+
+    result = validate_pyproject_toml({'project_dir': 'fake_dir'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'WARNING'
+    assert item.message == (
+        'Declaring an events application using the *extension* entrypoint name is '
+        'deprecated in favor of *eventsapp*.'
+    )
     assert item.file == 'fake_dir/pyproject.toml'
 
 
@@ -217,7 +260,7 @@ def test_validate_pyproject_toml_import_error(mocker):
                     },
                     'plugins': {
                         'connect.eaas.ext': {
-                            'extension': 'root_pkg.extension:MyExtension',
+                            'eventsapp': 'root_pkg.extension:MyExtension',
                         },
                     },
                 },

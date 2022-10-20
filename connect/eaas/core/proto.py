@@ -3,6 +3,8 @@ from typing import Any, List, Literal, Optional, Union
 from pydantic import BaseModel as PydanticBaseModel, Field
 from pydantic.utils import DUNDER_ATTRIBUTES
 
+from connect.eaas.core.utils import obfuscate_header
+
 
 class BaseModel(PydanticBaseModel):
 
@@ -10,13 +12,19 @@ class BaseModel(PydanticBaseModel):
         return []  # pragma: no cover
 
     def __obfuscate_args__(self, k, v):
-        if isinstance(v, str) and v and k in self.get_sensitive_fields():
+        if k not in self.get_sensitive_fields() or not v:
+            return k, v
+
+        if hasattr(self, f'obfuscate_{k}'):
+            return getattr(self, f'obfuscate_{k}')(k, v)
+
+        if isinstance(v, str):
             return k, f'{v[0:2]}******{v[-2:]}'
 
-        if isinstance(v, (list, dict)) and v and k in self.get_sensitive_fields():
+        if isinstance(v, (list, dict)):
             return k, '******'
 
-        return k, v
+        return k, v  # pragma: no cover
 
     def __repr_args__(self):
         return [
@@ -103,7 +111,7 @@ class EventDefinition(BaseModel):
 
 
 class SetupResponse(BaseModel):
-    variables: Optional[dict]
+    variables: Optional[list]
     # delete after stop using version 1
     environment_type: Optional[str]
     logging: Optional[Logging]
@@ -112,6 +120,19 @@ class SetupResponse(BaseModel):
 
     def get_sensitive_fields(self):
         return ['variables']
+
+    def obfuscate_variables(self, k, v):
+        return k, [
+            {
+                'name': item['name'],
+                'value': (
+                    f'{item["value"][0:2]}******{item["value"][-2:]}'
+                    if item['secure'] else item['value']
+                ),
+                'secure': item['secure'],
+            }
+            for item in v
+        ]
 
 
 class Schedulable(BaseModel):
@@ -155,6 +176,9 @@ class HttpRequest(BaseModel):
 
     def get_sensitive_fields(self):
         return ['headers']
+
+    def obfuscate_headers(self, k, v):
+        return k, {key: obfuscate_header(key.lower(), value) for key, value in v.items()}
 
 
 class WebTaskOptions(BaseModel):
@@ -218,7 +242,7 @@ class Message(BaseModel):
             return {
                 'message_type': MessageType.CONFIGURATION,
                 'data': {
-                    'configuration': self.data.variables,
+                    'configuration': {item['name']: item['value'] for item in self.data.variables},
                     'environment_type': self.data.environment_type,
                     'logging_api_key': self.data.logging.logging_api_key,
                     'log_level': self.data.logging.log_level,
@@ -286,7 +310,10 @@ class Message(BaseModel):
                 message_type=MessageType.SETUP_RESPONSE,
                 data=SetupResponse(
                     environment_type=raw_data.get('environment_type'),
-                    variables=raw_data.get('configuration'),
+                    variables=[
+                        {'name': name, 'value': value, 'secure': False}
+                        for name, value in raw_data.get('configuration', {}).items()
+                    ],
                     logging=Logging(
                         logging_api_key=raw_data.get('logging_api_key'),
                         log_level=raw_data.get('log_level'),
