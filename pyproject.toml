@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-connect-openapi-client = ">=25.11"
+connect-openapi-client = ">=25.14"
 pydantic = "^1.9.0"
 fastapi = "^0.78.0"
 fastapi-utils = "^0.2.1"

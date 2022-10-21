@@ -105,3 +105,27 @@ def test_static(webapp_mock):
     client = WebAppTestClient(webapp_mock)
     resp = client.get('/static/example.html')
     assert resp.status_code == 200
+
+
+def test_client_error_unexpected(webapp_mock):
+    client = WebAppTestClient(webapp_mock)
+    resp = client.get('/api/errors/unexpected')
+    assert resp.status_code == 500
+    assert resp.content == b'Unexpected error'
+
+
+def test_client_error_no_json_body(webapp_mock):
+    client = WebAppTestClient(webapp_mock)
+    resp = client.get('/api/errors/no_json_body')
+    assert resp.status_code == 401
+    assert resp.content == b'401 Unauthorized'
+
+
+def test_client_error_json_body(webapp_mock):
+    client = WebAppTestClient(webapp_mock)
+    resp = client.get('/api/errors/json_body')
+    assert resp.status_code == 400
+    assert resp.json() == {
+        'error_code': 'ERR-000',
+        'errors': ['this is an error'],
+    }
