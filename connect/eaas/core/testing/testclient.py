@@ -7,17 +7,19 @@ from fastapi.staticfiles import StaticFiles
 from starlette.routing import Match
 from starlette.testclient import TestClient
 
+from connect.client import ClientError
 from connect.client.testing import AsyncConnectClientMocker, ConnectClientMocker
 from connect.eaas.core.inject.models import Context
+from connect.eaas.core.utils import client_error_exception_handler
 
 
 class WebAppTestClient(TestClient):
 
-    def __init__(self, webapp):
+    def __init__(self, webapp, base_url='https://example.org/public/v1'):
         self._webapp_class = webapp
         self._app = self._get_application()
 
-        super().__init__(app=self._app, base_url='https://localhost/public/v1')
+        super().__init__(app=self._app, base_url=base_url)
 
         self.headers = {
             'X-Connect-Api-Gateway-Url': self.base_url,
@@ -139,8 +141,11 @@ class WebAppTestClient(TestClient):
         return headers
 
     def _get_application(self):
-        app = FastAPI()
-
+        app = FastAPI(
+            exception_handlers={
+                ClientError: client_error_exception_handler,
+            },
+        )
         auth_router, no_auth_router = self._webapp_class.get_routers()
         app.include_router(auth_router, prefix='/api')
         app.include_router(no_auth_router, prefix='/guest')

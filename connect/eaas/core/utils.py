@@ -1,3 +1,9 @@
+from fastapi import Request
+from fastapi.responses import JSONResponse, PlainTextResponse
+
+from connect.client import ClientError
+
+
 def obfuscate_header(key, value):
     if key in ('authorization', 'authentication'):
         if value.startswith('ApiKey '):
@@ -9,3 +15,17 @@ def obfuscate_header(key, value):
         end_idx = value.index('"', start_idx)
         return f'{value[0:start_idx + 2]}******{value[end_idx - 2:]}'
     return value
+
+
+def client_error_exception_handler(request: Request, exc: ClientError):
+    status_code = exc.status_code or 500
+    if not exc.error_code:
+        return PlainTextResponse(status_code=status_code, content=str(exc))
+    else:
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                'error_code': exc.error_code,
+                'errors': exc.errors,
+            },
+        )

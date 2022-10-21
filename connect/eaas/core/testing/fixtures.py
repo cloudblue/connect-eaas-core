@@ -10,7 +10,7 @@ def test_client_factory():
     given a webapp class.
     """
 
-    def _get_client(webapp):
-        return WebAppTestClient(webapp)
+    def _get_client(webapp, base_url='https://example.org/public/v1'):
+        return WebAppTestClient(webapp, base_url=base_url)
 
     return _get_client

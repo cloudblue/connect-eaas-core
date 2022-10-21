@@ -3,6 +3,7 @@ import responses as sentry_responses
 from fastapi import Depends
 from fastapi.routing import APIRouter
 
+from connect.client import ClientError
 from connect.eaas.core.decorators import web_app
 from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.inject import asynchronous, common, synchronous
@@ -44,5 +45,23 @@ def webapp_mock(mocker):
         @router.get('/context')
         def context(self, context: Context = Depends(common.get_call_context)):
             return context
+
+        @router.get('/errors/unexpected')
+        def client_error_unexpected(self):
+            raise ClientError()
+
+        @router.get('/errors/no_json_body')
+        def client_error_no_json_body(self):
+            raise ClientError(
+                status_code=401,
+            )
+
+        @router.get('/errors/json_body')
+        def client_error_json_body(self):
+            raise ClientError(
+                status_code=400,
+                error_code='ERR-000',
+                errors=['this is an error'],
+            )
 
     return MyWebApplication
