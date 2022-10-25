@@ -27,6 +27,36 @@ def test_get_installation(webapp_mock, url):
     assert resp.json() == installation
 
 
+def test_get_installation_and_call_sync(webapp_mock, client_mocker_factory):
+    client = WebAppTestClient(webapp_mock)
+
+    installation = {
+        'id': 'EIN-012',
+        'settings': {'test': 'settings'},
+    }
+    mocker = client_mocker_factory()
+    mocker.products.all().mock(return_value=[])
+    resp = client.get('/api/sync/installation_and_call', installation=installation)
+
+    assert resp.status_code == 200
+    assert resp.json() == installation
+
+
+def test_get_installation_and_call_async(webapp_mock, async_client_mocker_factory):
+    client = WebAppTestClient(webapp_mock)
+
+    installation = {
+        'id': 'EIN-012',
+        'settings': {'test': 'settings'},
+    }
+    mocker = async_client_mocker_factory()
+    mocker.products.all().mock(return_value=[])
+    resp = client.get('/api/async/installation_and_call', installation=installation)
+
+    assert resp.status_code == 200
+    assert resp.json() == installation
+
+
 def test_get_config_default(webapp_mock):
     client = WebAppTestClient(webapp_mock)
     resp = client.get('/api/config')
