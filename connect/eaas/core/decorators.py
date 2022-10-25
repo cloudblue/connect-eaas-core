@@ -50,7 +50,7 @@ def variables(variables):
             declared_vars = getattr(cls, VARIABLES_INFO_ATTR_NAME)
             for variable in variables:
                 name = variable['name']
-                if len(list(filter(lambda x: x['name'] == name, declared_vars))) == 0:
+                if len(list(filter(lambda x: x['name'] == name, declared_vars))) == 0:  # noqa: B023
                     declared_vars.append(variable)
             return cls
         setattr(cls, VARIABLES_INFO_ATTR_NAME, variables)

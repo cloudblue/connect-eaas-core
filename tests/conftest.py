@@ -3,7 +3,7 @@ import responses as sentry_responses
 from fastapi import Depends
 from fastapi.routing import APIRouter
 
-from connect.client import ClientError
+from connect.client import AsyncConnectClient, ClientError, ConnectClient
 from connect.eaas.core.decorators import web_app
 from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.inject import asynchronous, common, synchronous
@@ -36,6 +36,24 @@ def webapp_mock(mocker):
         async def async_installation(
             self, installation: dict = Depends(asynchronous.get_installation),
         ) -> dict:
+            return installation
+
+        @router.get('/sync/installation_and_call')
+        def sync_installation_and_call(
+            self,
+            installation: dict = Depends(synchronous.get_installation),
+            client: ConnectClient = Depends(synchronous.get_installation_client),
+        ) -> dict:
+            list(client.products.all())
+            return installation
+
+        @router.get('/async/installation_and_call')
+        async def async_installation_and_call(
+            self,
+            installation: dict = Depends(asynchronous.get_installation),
+            client: AsyncConnectClient = Depends(asynchronous.get_installation_client),
+        ) -> dict:
+            [item async for item in client.products.all()]
             return installation
 
         @router.get('/config')
