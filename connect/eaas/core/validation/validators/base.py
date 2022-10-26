@@ -286,7 +286,23 @@ def validate_extension_json(context):
         )
         return ValidationResult(items=messages, must_exit=True)
 
-    # validate required fields
+    roles = ['distributor', 'reseller', 'vendor']
+    if (
+            not descriptor.get('audience')
+            or any(role not in roles for role in descriptor['audience'])
+    ):
+        messages.append(
+            ValidationItem(
+                level='ERROR',
+                message=(
+                    'For Multi account extensions the attribute *audience* that list '
+                    'the target account types for this extension is mandatory in the '
+                    '*extension.json* descriptor file. '
+                    'Valid values are: *vendor*, *distributor*, *reseller*.'
+                ),
+                file=extension_json_file,
+            ),
+        )
 
     return ValidationResult(items=messages, context={
         'descriptor': descriptor,
