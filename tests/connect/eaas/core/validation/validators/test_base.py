@@ -565,7 +565,7 @@ def test_validate_extension_json(mocker):
     )
 
     extension_class = mocker.MagicMock()
-    extension_class.get_descriptor.return_value = {'name': 'my extension'}
+    extension_class.get_descriptor.return_value = {'name': 'my extension', 'audience': ['vendor']}
 
     result = validate_extension_json(
         {
@@ -574,11 +574,11 @@ def test_validate_extension_json(mocker):
     )
     assert isinstance(result, ValidationResult)
     assert len(result.items) == 0
-    assert result.context['descriptor'] == {'name': 'my extension'}
+    assert result.context['descriptor'] == {'name': 'my extension', 'audience': ['vendor']}
     assert result.context['extension_json_file'] == '/myextprj/extension.json'
 
 
-def test_validate_extension_json_file_not_fould(mocker):
+def test_validate_extension_json_file_not_found(mocker):
     mocker.patch(
         'connect.eaas.core.validation.validators.base.inspect.getsourcefile',
         return_value='/extension.py',
@@ -601,4 +601,31 @@ def test_validate_extension_json_file_not_fould(mocker):
     assert len(result.items) == 1
     assert result.items[0].level == 'ERROR'
     assert result.items[0].message == 'The extension descriptor *extension.json* cannot be loaded.'
+    assert result.items[0].file == '/myextprj/extension.json'
+
+
+def test_validate_extension_json_file_typo_in_roles(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.inspect.getsourcefile',
+        return_value='/extension.py',
+    )
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.dirname',
+        return_value='/myextprj',
+    )
+
+    extension_class = mocker.MagicMock()
+    extension_class.get_descriptor.return_value = {'name': 'my extension', 'audience': ['vandor']}
+
+    result = validate_extension_json(
+        {
+            'extension_classes': {'extension': extension_class},
+        },
+    )
+
+    assert isinstance(result, ValidationResult)
+    assert len(result.items) == 1
+    assert result.items[0].level == 'ERROR'
+    assert 'Valid values are: *vendor*, *distributor*, *reseller*.' in result.items[0].message
     assert result.items[0].file == '/myextprj/extension.json'
