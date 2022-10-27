@@ -532,9 +532,11 @@ def test_validate_docker_compose_yml_invalid_image_dockerfile(mocker):
         'connect.eaas.core.validation.validators.base.os.path.isfile',
         return_value=True,
     )
+    mocked_open = mocker.MagicMock()
+    mocked_open.read.return_value = 'FROM cloudblueconnect/connect-extension-runner:0.3\n'
     mocker.patch(
         'connect.eaas.core.validation.validators.base.open',
-        side_effect=['', 'FROM cloudblueconnect/connect-extension-runner:0.3\n'],
+        side_effect=[None, mocked_open],
     )
     mocker.patch(
         'connect.eaas.core.validation.validators.base.yaml.safe_load',
@@ -602,9 +604,11 @@ def test_validate_docker_compose_yml_invalid_image_invalid_dockerfile(mocker):
         'connect.eaas.core.validation.validators.base.os.path.isfile',
         side_effect=[True, True],
     )
+    mocked_open = mocker.MagicMock()
+    mocked_open.read.return_value = ''
     mocker.patch(
         'connect.eaas.core.validation.validators.base.open',
-        side_effect=['', ''],
+        side_effect=[None, mocked_open],
     )
     mocker.patch(
         'connect.eaas.core.validation.validators.base.yaml.safe_load',

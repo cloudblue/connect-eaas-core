@@ -16,8 +16,10 @@ from connect.eaas.core.validation.models import ValidationItem, ValidationResult
 
 def validate_eventsapp(context):
 
-    extension_class = context['extension_classes'].get('extension')
-    extension_class = extension_class or context['extension_classes'].get('eventsapp')
+    extension_class = context['extension_classes'].get(
+        'eventsapp',
+        context['extension_classes'].get('extension'),
+    )
 
     if not extension_class:
         return ValidationResult()
@@ -98,7 +100,10 @@ def validate_eventsapp(context):
 def _validate_events(context):
     messages = []
 
-    extension_class = context['extension_classes']['extension']
+    extension_class = context['extension_classes'].get(
+        'eventsapp',
+        context['extension_classes'].get('extension'),
+    )
 
     definitions = context['event_definitions']
     events = extension_class.get_events()
@@ -151,7 +156,10 @@ def _validate_events(context):
 def _validate_schedulables(context):
     messages = []
 
-    extension_class = context['extension_classes'].get('extension')
+    extension_class = context['extension_classes'].get(
+        'eventsapp',
+        context['extension_classes'].get('extension'),
+    )
 
     schedulables = extension_class.get_schedulables()
     for schedulable in schedulables:

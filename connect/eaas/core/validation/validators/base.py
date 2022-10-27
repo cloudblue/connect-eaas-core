@@ -208,8 +208,8 @@ def validate_docker_compose_yml(context):  # noqa: CCR001
                     ),
                 )
                 continue
-            data = open(dockerfile, 'r').splitlines()
-            from_cmd = next(filter(lambda x: x.startswith('FROM'), data), None)
+            content = open(dockerfile, 'r').read().splitlines()
+            from_cmd = next(filter(lambda x: x.startswith('FROM'), content), None)
             if not from_cmd:
                 messages.append(
                     ValidationItem(
