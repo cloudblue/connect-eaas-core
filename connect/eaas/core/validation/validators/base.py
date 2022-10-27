@@ -145,7 +145,7 @@ def validate_pyproject_toml(context):  # noqa: CCR001
     return ValidationResult(items=messages, context=context)
 
 
-def validate_docker_compose_yml(context):
+def validate_docker_compose_yml(context):  # noqa: CCR001
     project_dir = context['project_dir']
     messages = []
     compose_file = os.path.join(project_dir, 'docker-compose.yml')
@@ -176,17 +176,65 @@ def validate_docker_compose_yml(context):
 
     for service in data['services']:
         image = data['services'][service].get('image')
-        if image.startswith('cloudblueconnect/connect-extension-runner') and image != runner_image:
-            messages.append(
-                ValidationItem(
-                    level='ERROR',
-                    message=(
-                        f'Invalid image for service *{service}*: '
-                        f'expected *{runner_image}* got *{image}*.'
+        if image:
+            if (
+                image.startswith('cloudblueconnect/connect-extension-runner')
+                and image != runner_image
+            ):
+                messages.append(
+                    ValidationItem(
+                        level='ERROR',
+                        message=(
+                            f'Invalid image for service *{service}*: '
+                            f'expected *{runner_image}* got *{image}*.'
+                        ),
+                        file=compose_file,
                     ),
-                    file=compose_file,
-                ),
+                )
+        else:
+            dockerfile = os.path.join(
+                project_dir,
+                data['services'][service]['build'].get('dockerfile', 'Dockerfile'),
             )
+            if not os.path.isfile(dockerfile):
+                messages.append(
+                    ValidationItem(
+                        level='ERROR',
+                        message=(
+                            f'The service *{service}* of *docker-compose.yml* points to a '
+                            'Dockerfile that does not exist.'
+                        ),
+                        file=dockerfile,
+                    ),
+                )
+                continue
+            data = open(dockerfile, 'r').splitlines()
+            from_cmd = next(filter(lambda x: x.startswith('FROM'), data), None)
+            if not from_cmd:
+                messages.append(
+                    ValidationItem(
+                        level='ERROR',
+                        message=(
+                            f'Invalid *Dockerfile* for service *{service}*, no '
+                            'FROM statement has been found.'
+                        ),
+                        file=dockerfile,
+                    ),
+                )
+                continue
+            image = from_cmd[4:].strip()
+            if image != runner_image:
+                messages.append(
+                    ValidationItem(
+                        level='ERROR',
+                        message=(
+                            f'Invalid base image in Dockerfile of service *{service}*: '
+                            f'expected *{runner_image}* got *{image}*.'
+                        ),
+                        file=dockerfile,
+                    ),
+                )
+
     return ValidationResult(items=messages)
 
 

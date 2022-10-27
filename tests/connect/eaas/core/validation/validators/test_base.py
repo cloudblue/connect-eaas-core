@@ -527,6 +527,110 @@ def test_validate_docker_compose_yml_invalid_image(mocker):
     assert item.file == 'fake_dir/docker-compose.yml'
 
 
+def test_validate_docker_compose_yml_invalid_image_dockerfile(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        return_value=True,
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.open',
+        side_effect=['', 'FROM cloudblueconnect/connect-extension-runner:0.3\n'],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.yaml.safe_load',
+        return_value={
+            'services': {
+                'dev': {
+                    'build': {'dockerfile': 'Dockerfile'},
+                },
+            },
+        },
+    )
+
+    result = validate_docker_compose_yml({'project_dir': 'fake_dir', 'runner_version': '1.0'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'Invalid base image in Dockerfile of service *dev*: expected '
+        '*cloudblueconnect/connect-extension-runner:1.0* '
+        'got *cloudblueconnect/connect-extension-runner:0.3*.'
+    ) in item.message
+    assert item.file == 'fake_dir/Dockerfile'
+
+
+def test_validate_docker_compose_yml_invalid_image_no_dockerfile(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        side_effect=[True, False],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.open',
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.yaml.safe_load',
+        return_value={
+            'services': {
+                'dev': {
+                    'build': {'dockerfile': 'Dockerfile'},
+                },
+            },
+        },
+    )
+
+    result = validate_docker_compose_yml({'project_dir': 'fake_dir', 'runner_version': '1.0'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'The service *dev* of *docker-compose.yml* points to a '
+        'Dockerfile that does not exist.'
+    ) == item.message
+    assert item.file == 'fake_dir/Dockerfile'
+
+
+def test_validate_docker_compose_yml_invalid_image_invalid_dockerfile(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        side_effect=[True, True],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.open',
+        side_effect=['', ''],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.yaml.safe_load',
+        return_value={
+            'services': {
+                'dev': {
+                    'build': {'dockerfile': 'Dockerfile'},
+                },
+            },
+        },
+    )
+
+    result = validate_docker_compose_yml({'project_dir': 'fake_dir', 'runner_version': '1.0'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'Invalid *Dockerfile* for service *dev*, no FROM statement has been found.'
+    ) == item.message
+    assert item.file == 'fake_dir/Dockerfile'
+
+
 def test_validate_docker_compose_yml(mocker):
     mocker.patch(
         'connect.eaas.core.validation.validators.base.os.path.isfile',
