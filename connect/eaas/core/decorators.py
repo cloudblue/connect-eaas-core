@@ -10,6 +10,7 @@ from connect.eaas.core.constants import (
     GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
+    TRANSFORMATION_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
 
@@ -117,6 +118,18 @@ def module_pages(label, url, children=None):
 def admin_pages(pages):
     def wrapper(cls):
         setattr(cls, ADMIN_PAGES_ATTR_NAME, pages)
+        return cls
+    return wrapper
+
+
+def transformation(name, description, edit_dialog_ui):
+    def wrapper(cls):
+        setattr(cls, TRANSFORMATION_ATTR_NAME, {
+            'name': name,
+            'description': description,
+            'edit_dialog_ui': edit_dialog_ui,
+            'class_fqn': f'{cls.__module__}.{cls.__name__}',
+        })
         return cls
     return wrapper
 

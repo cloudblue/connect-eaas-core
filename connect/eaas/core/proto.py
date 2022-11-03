@@ -141,6 +141,13 @@ class Schedulable(BaseModel):
     description: str
 
 
+class Transformation(BaseModel):
+    class_fqn: str
+    name: str
+    description: str
+    edit_dialog_ui: str
+
+
 class Repository(BaseModel):
     readme_url: Optional[str]
     changelog_url: Optional[str]
@@ -154,6 +161,7 @@ class SetupRequest(BaseModel):
     variables: Optional[list]
     schedulables: Optional[List[Schedulable]]
     anvil_callables: Optional[list]
+    transformations: Optional[List[Transformation]]
     audience: Optional[List[Literal['vendor', 'distributor', 'reseller']]]
     repository: Optional[Repository]
     runner_version: Optional[str]
