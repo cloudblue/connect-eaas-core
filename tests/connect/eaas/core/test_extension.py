@@ -14,6 +14,7 @@ from connect.eaas.core.decorators import (
     guest,
     module_pages,
     schedulable,
+    transformation,
     variables,
     web_app,
 )
@@ -21,6 +22,7 @@ from connect.eaas.core.extension import (
     _invoke,
     AnvilApplicationBase,
     EventsApplicationBase,
+    TransformationBase,
     WebApplicationBase,
 )
 
@@ -483,3 +485,29 @@ def test_get_ui_modules_with_children(mocker):
         },
         'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
     }
+
+
+def test_get_transformation_info():
+
+    @transformation(
+        name='my transformation',
+        description='The my transformation',
+        edit_dialog_ui='/static/my_settings.html',
+    )
+    class MyExtension(TransformationBase):
+        pass
+
+    ext = MyExtension(
+        input_columns=['one', 'two'],
+        output_columns=['one_dot', 'two_dot'],
+        stream={},
+        client=None,
+        config=None,
+        logger=None,
+    )
+
+    transformations = ext.get_transformation_info()
+    assert transformations['name'] == 'my transformation'
+    assert transformations['description'] == 'The my transformation'
+    assert transformations['edit_dialog_ui'] == '/static/my_settings.html'
+    assert 'MyExtension' in transformations['class_fqn']

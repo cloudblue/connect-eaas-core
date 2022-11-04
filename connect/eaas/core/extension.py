@@ -17,6 +17,7 @@ from connect.eaas.core.constants import (
     GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
+    TRANSFORMATION_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
 from connect.eaas.core.decorators import router
@@ -149,3 +150,37 @@ class AnvilApplicationBase(ApplicationBase):
                 fn = functools.partial(_invoke, value)
                 fn.__name__ = value.__name__
                 anvil.server.callable(fn)
+
+
+class TransformationBase:
+
+    def __init__(
+            self,
+            input_columns,
+            output_columns,
+            stream,
+            client,
+            config,
+            logger,
+            transformation_settings=None,
+            installation_client=None,
+            installation=None,
+            cache=None,
+    ):
+        self.client = client
+        self.config = config
+        self.logger = logger
+
+        self.installation_client = installation_client
+        self.installation = installation
+
+        self.input_columns = input_columns
+        self.output_columns = output_columns
+        self.stream = stream
+
+        self.transformation_settings = transformation_settings
+        self.cache = cache
+
+    @classmethod
+    def get_transformation_info(cls):
+        return getattr(cls, TRANSFORMATION_ATTR_NAME, None)

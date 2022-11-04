@@ -16,6 +16,7 @@ from connect.eaas.core.proto import (
     Task,
     TaskInput,
     TaskOptions,
+    Transformation,
     WebTaskOptions,
 )
 
@@ -122,6 +123,12 @@ SETUP_REQUEST_DATA = {
     'anvil_callables': [
         {'method': 'method_name', 'summary': 'Summary', 'description': 'Description'},
     ],
+    'transformations': [{
+        'name': 'Name',
+        'description': 'Description',
+        'edit_dialog_ui': '/static/edit.html',
+        'class_fqn': 'package.ABC',
+    }],
     'repository': {
         'readme_url': 'https://read.me',
         'changelog_url': 'https://change.log',
@@ -252,6 +259,8 @@ def test_deserialize_setup_request_message_with_vars_and_schedulables():
     assert isinstance(message.data.schedulables[0], Schedulable)
     assert message.data.variables[0]['foo'] == msg_data['data']['variables'][0]['foo']
     assert message.data.variables[0]['bar'] == msg_data['data']['variables'][0]['bar']
+    assert message.data.transformations == msg_data['data']['transformations']
+    assert isinstance(message.data.transformations[0], Transformation)
 
 
 def test_deserialize_v1_shutdown():
@@ -315,6 +324,7 @@ def test_deserialize_v1_setup_request_data():
 
     expected_data = copy.deepcopy(SETUP_REQUEST_DATA)
     expected_data['anvil_callables'] = None
+    expected_data['transformations'] = None
 
     assert isinstance(message, Message)
     assert message.version == 1
