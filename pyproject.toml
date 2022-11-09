@@ -35,7 +35,7 @@ PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=6.1.2,<8"
-pytest-cov = ">=2.10.1,<4"
+pytest-cov = ">=2.10.1,<5"
 pytest-mock = "^3.3.1"
 coverage = {extras = ["toml"], version = ">=5.3,<7"}
 flake8 = ">=3.8,<6"
@@ -45,7 +45,7 @@ flake8-commas = "~2.0"
 flake8-future-import = "~0.4"
 flake8-import-order = "~0.18"
 flake8-broken-line = ">=0.3,<0.7"
-pytest-asyncio = "^0.15.1"
+pytest-asyncio = "^0.20.1"
 mock = { version = "^4.0.3", markers = "python_version < '3.8'" }
 fs = "^2.4.12"
 responses = ">=0.14.0,<1"

@@ -341,7 +341,7 @@ def validate_extension_json(context):
     ):
         messages.append(
             ValidationItem(
-                level='ERROR',
+                level='ERROR' if 'webapp' in context['extension_classes'] else 'WARNING',
                 message=(
                     'For Multi account extensions the attribute *audience* that list '
                     'the target account types for this extension is mandatory in the '
