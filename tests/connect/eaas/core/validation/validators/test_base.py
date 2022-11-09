@@ -1,3 +1,4 @@
+import pytest
 import toml
 import yaml
 
@@ -712,7 +713,16 @@ def test_validate_extension_json_file_not_found(mocker):
     assert result.items[0].file == '/myextprj/extension.json'
 
 
-def test_validate_extension_json_file_typo_in_roles(mocker):
+@pytest.mark.parametrize(
+    ('app_type', 'expected_level'),
+    (
+        ('extension', 'WARNING'),
+        ('eventsapp', 'WARNING'),
+        ('anvilapp', 'WARNING'),
+        ('webapp', 'ERROR'),
+    ),
+)
+def test_validate_extension_json_file_typo_in_roles(mocker, app_type, expected_level):
     mocker.patch(
         'connect.eaas.core.validation.validators.base.inspect.getsourcefile',
         return_value='/extension.py',
@@ -728,12 +738,12 @@ def test_validate_extension_json_file_typo_in_roles(mocker):
 
     result = validate_extension_json(
         {
-            'extension_classes': {'extension': extension_class},
+            'extension_classes': {app_type: extension_class},
         },
     )
 
     assert isinstance(result, ValidationResult)
     assert len(result.items) == 1
-    assert result.items[0].level == 'ERROR'
+    assert result.items[0].level == expected_level
     assert 'Valid values are: *vendor*, *distributor*, *reseller*.' in result.items[0].message
     assert result.items[0].file == '/myextprj/extension.json'
