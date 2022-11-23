@@ -1,30 +1,38 @@
-## What is an extension
+An extension represents a python package with a predefined structure. 
+Depending on the type of the extension, it may also include one or multiple applications. 
 
-An extension is a python package with a predefined structure.
-
-Depending on the type of the extension, it may contain one or more application inside it.
+In turn, your deployed applications can provide a set of different features depending on your 
+selected application type. The following describes application types that can be incorporated 
+by your extension:
 
 ## Types of applications
 
-### Events Application
+### Events Applications
 
-An Events Application is an application that reacts to two types of events:
+Events applications, as the name implies, are used to work with various events on the CloudBlue 
+Connect platform and your external systems. Such applications respond to two types of events:
 
-* the status changes of the objects managed by the Connect platform
-* the triggering of a scheduled task
+* status changes of any object on the Connect platform
+* trigger activations of a scheduled task
 
-This type of application is supported by any of the types of extensions.
+In addition, note that event applications are supported by all extension types.
 
-### Web Application
+### Web Applications
 
-A Web Application in an application that allow to both extend the API of Connect with
-custom API endpoints and the Connect User Interface creating custom modules.
+Web applications allow extending the functionality of Connect API by adding custom methods and custom endpoints.
+Such applications can also be used to establish new modules on Connect UI. Consequently, this allows users of 
+your extension to access your defined features via extended API or via the provided graphical user interface.     
+  
+Note that web applications are supported only by *Multi-Account* extensions.
 
-Such type of application is only supported by Multi Account extensions.
+### Anvil Applications
 
-### Anvil Application
+These applications enable linking the Connect platform with your web interface built 
+via [Anvil.Works](https://anvil.works). 
 
-TBD
+The functionality of such applications is not limited to a specific 
+extension type. Therefore, your anvil application can represent your commerce system for hub integrations, 
+a fulfillment automation system, or a multi-account extension.
 
 
 ## Supported application types per extension type
