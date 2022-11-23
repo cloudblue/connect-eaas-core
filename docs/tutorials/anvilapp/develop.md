@@ -366,4 +366,4 @@ class TShirtAnvilApplication(AnvilApplicationBase):
 
 
 !!! success "Congratulations"
-    :partying_face: Your `Anvil Application` should ready for the following tests :beers:
+    :partying_face: Your `Anvil Application` should be ready for the following tests :beers:
