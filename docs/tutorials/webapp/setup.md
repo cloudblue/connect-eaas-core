@@ -181,6 +181,3 @@ API_KEY="<< replace with a Connect API key >>"
 ENVIRONMENT_ID="<< replace with your DevOps environment ID >>"
 SERVER_ADDRESS="api.connect.cloudblue.com"
 ```
-!!! info
-    The provided demo web application includes the same structure and functionality of eaas-e2e-ma-mock extension. Refer to the [github.com/cloudblue/eaas-e2e-ma-mock](https://github.com/cloudblue/eaas-e2e-ma-mock) repository for more details.
-
