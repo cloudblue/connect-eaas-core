@@ -1,12 +1,12 @@
 ## Create the Anvil application class
 
-Now it's time to create our python module that will contain our events application:
+Define a python module that includes your application type. The following showcases how to create a module that implements an anvil application:
 
 ```
 $ touch tshirt_extension/anvilapp.py
 ```
 
-Open the `tshirt_extension/anvilapp.py` with your favorite editor and put the following content inside it:
+Open the `tshirt_extension/anvilapp.py` with your code editor and provide the following data:
 
 ```python hl_lines="1 4"
 from connect.eaas.core.extension import AnvilApplicationBase
@@ -16,11 +16,11 @@ class TShirtAnvilApplication(AnvilApplicationBase):
     pass
 ```
 
-## Declare the Anvil application class in your pyproject.toml file
+## Add anvil application class in `pyproject.toml`
 
-Your extension will be executed by the EaaS runtime called [Connect Extension Runner](https://github.com/cloudblue/connect-extension-runner).
+Your hub integration extension will be executed by the EaaS runtime called [Connect Extension Runner](https://github.com/cloudblue/connect-extension-runner).
 
-The runner uses setuptools entrypoints to discover the features that your extensions implements, so we have to modify our **pyproject.toml** add an entrypoint for our Anvil application:
+This runner uses setuptools entrypoints to discover features that are provided by your extensions. Thus, it is required to modify the **pyproject.toml** file and add an entrypoint for your Anvil application:
 
 
 ```toml hl_lines="13 14"
@@ -45,12 +45,13 @@ build-backend = "poetry.core.masonry.api"
 ```
 
 
-## Declare the environment variable that will store the Anvil Uplink key
+## Define Anvil Uplink key variable
 
-The Anvil Uplink Server needs an authentication key to communicate with the Anvil Client Application.
-This key must be stored as a secure environment variable. Using the `@anvil_key_variable` decorator, 
-the variable will be created on the first run of the extension and you have just to edit its value
-and put a valid Anvil Uplink key: 
+The Anvil Uplink Server requires an authentication key to communicate with your Anvil Client application.
+This key must be stored as a secure environment variable. 
+
+By using the `@anvil_key_variable` decorator, this variable will be created during the first launch of your extension. 
+Thereafter, you can edit its value and prove a valid Anvil Uplink key: 
 
 
 
@@ -64,11 +65,10 @@ class TShirtAnvilApplication(AnvilApplicationBase):
     pass
 ```
 
-## Declare environment variables to store the marketplace id and the connection id.
+## Declare Marketplace and Connection variables.
 
-To create a purchase request you will need to specify the marketplace from which
-this purchase request is coming from as long as the connection id of the connection
-between the product and the hub from which the purchase request will come from:
+In order to create a purchase request, it is required declare environment variables for marketplace and connection identifiers from the Connect platform. 
+These identifers are used to select your required marketplace and connection between your product and your hub. Thus, this allows locating the source of your generated purchase requests. Declare these variables as follows:
 
 
 ```python hl_lines="1 5-16"
@@ -95,16 +95,16 @@ class TShirtAnvilApplication(AnvilApplicationBase):
 
 
 
-## Create an Anvil callable to retrieve product information
+## Define Anvil callable for product data
 
-Let's create an Anvil callable that given a product id as the call argument
-it returns the product JSON representation to fill the Anvil Client form:
+Create an Anvil callable to retrieve product information. Specifically, it should receive a product ID as an argument
+and return your product JSON data that is subsequently used to fill the Anvil Client form. Define this callable as follows:
 
 
 ```python hl_lines="1 19-21"
 from connect.eaas.core.decorators import anvil_key_variable, anvil_callable, variables
 from connect.eaas.core.extension import AnvilApplicationBase
-
+an argiment
 
 @variables(
     [
@@ -125,10 +125,10 @@ class TShirtAnvilApplication(AnvilApplicationBase):
         return self.client.products[product_id].get()
 ```
 
-## Add a static method to generate the purchase request payload
+## Add static method for purchase request payload
 
-Now let's create a static method that help in generating the
-purchase request payload:
+Create a static method that will be used to generate a purchase request payload. 
+Declare this method as follows:
 
 ``` python hl_lines="1 25-106"
 from uuid import uuid4
@@ -240,9 +240,10 @@ class TShirtAnvilApplication(AnvilApplicationBase):
 ```
 
 
-## Create an Anvil callable to send the purchase request to Connect
+## Create Anvil callable to send requests
 
-Finally create an Anvil callable that send the purchase to Connect:
+Finally, create an Anvil callable that sends purchase requests to the Connect platform.
+Declare this callable as follows:
 
 ``` python hl_lines="25-33"
 from uuid import uuid4
@@ -365,4 +366,4 @@ class TShirtAnvilApplication(AnvilApplicationBase):
 
 
 !!! success "Congratulations"
-    :partying_face: your first `Anvil Application` is ready to be tested :beers:
+    :partying_face: Your `Anvil Application` should ready for the following tests :beers:
