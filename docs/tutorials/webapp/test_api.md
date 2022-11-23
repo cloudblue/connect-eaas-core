@@ -1,44 +1,42 @@
-Now that your REST API is ready it's time to test it.
+Once your REST API is configured, make sure to test your provided functionality. The following guidelines showcase how to test the demo web application for working with charts.
 
-## Create an extension using the CloudBlue Connect User Interface
+## Define your extension on Connect
 
-To do that you first need to go to the Connect UI to create an Extension of type `Multi Account Installation`.
-From the main menu, navigate to the `DevOps` module and click the `Add extension` button
-Fill the Add extension form like in the following picture:
+To start working with your extension, it is required to add a `Multi Account Installation` extension by using the Connect UI.
+
+Navigate to the `DevOps` module and click the **Add Extension** button.  
+Select the `Multi Account Installation` type and specify your package ID:
 
 ![Add extension](../../images/tutorials/webapp/add_extension.png)
 
-Once created, open the details view of your brand new extension:
+Once your extension object is created, access the extension details screen by clicking on its name:
 
 ![List extensions](../../images/tutorials/webapp/list_extensions.png)
 
-And select the `DEV` environment tab:
+Switch to the `DEV` environment tab that will be used for the following tests:
 
 ![Extension dev environment](../../images/tutorials/webapp/extension_dev.png)
 
-Go to the `Local Access` widget and click on the :material-content-copy: button to copy your environment ID.
-
+Locate the `Local Access` widget and click on the :material-content-copy: button to copy your **environment ID**.
 
 !!! info
-    Once you create an extension of type `Multi Account Installation` an installation owned by your account
-    is automatically created for you pointing to the extension `DEV` environment.
+    Once your a `Multi Account Installation` extension is created, an installation object owned by your account
+    should be automatically created pointing to the `DEV` environment.
 
 
-## Update your `.chart_dev.env` environment file 
+## Update your environment file 
 
-Edit your `.chart_dev.env` file and fill the `ENVIRONMENT_ID` variable with the copied value.
+Edit your `.chart_dev.env` file and provide the `ENVIRONMENT_ID` variable with your copied value.
+Make sure that your `API_KEY` is assigned to your created API token on the Vendor account that includes your configured product.
 
+!!! note
+    Note that your created API key should also include all required module permissions.
+    For more information on how to create an API Key, refer to the
+    [Community Portal](https://connect.cloudblue.com/community/modules/extensions/api-tokens/).
 
-!!! warning
-    This tutorial assume that you know how to create a Connect API key and that the
-    `API_KEY` variable of the `.chart_dev.env` file is set with a valid value.
-    For more information about how to create an API Key visit the
-    [Connect Community Portal](https://connect.cloudblue.com/community/modules/extensions/api-tokens/).
+## Build a Docker Image
 
-
-## Build a Docker image for your extension
-
-To build the Docker image for your extension run:
+Use the following bash command to build a docker image for your extension:
 
 
 ``` bash
@@ -47,21 +45,21 @@ $ docker compose build
 
 ## Run your extension
 
-Once the image is build, to run your container execute:
+Once the image is composed, run your container by executing the following command:
 
 ``` bash
 $ docker compose up chart_dev
 ```
 
-Now go to the Connect UI and check that your extension is connected to the `DEV` environment
+Next, go to the Connect UI and check whether your extension is connected to the `DEV` environment by
 using the :material-refresh: button located in the `Environment` widget.
 
 
 ## Test your `list marketplaces` endpoint
 
-First you need to copy your extension's base url from the `Custom API Methods` widget.
+Copy your extension's base url from the `Custom API Methods` widget.
 
-Then using `curl` execute:
+Thereafter, execute the following `curl` command:
 
 ``` bash
 $ curl \
@@ -70,7 +68,7 @@ $ curl \
     -H 'Authorization: <replace with your API key>'
 ```
 
-And you should receive a JSON similar to the following:
+As a result, you should receive JSON data similar to the following snippet:
 
 ``` json
 [
@@ -103,7 +101,7 @@ And you should receive a JSON similar to the following:
 
 ## Test your `save settings` endpoint
 
-From your terminal execute:
+Execute the following bash command from your terminal:
 
 ``` bash
 $ curl \
@@ -123,7 +121,7 @@ $ curl \
     }'
 ```
 
-You should receive the following response:
+Consequently, you should receive the following response:
 
 ``` json
 {
@@ -139,4 +137,4 @@ You should receive the following response:
 ```
 
 !!! success "Congratulations"
-    :partying_face: your first REST API of a `Web Application` works like a charm :beers:
+    :partying_face: Your configured REST API and `Web Application` work like a charm! :beers:

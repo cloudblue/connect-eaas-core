@@ -1,15 +1,15 @@
 ## Requirements
 
-To complete this tutorial you need:
+Make sure that the following prerequisites are met:
 
-* Python 3.8, 3.9 or 3.10
-* [Docker](https://www.docker.com/)
-* Latest release of [Poetry](https://python-poetry.org/)
+* Python (3.8, 3.9 or 3.10) is installed 
+* [Docker](https://www.docker.com/) is installed
+* The latest release of [Poetry](https://python-poetry.org/) is installed
 
 
-## Bootstrap project
+## Bootstrap a new project
 
-Let's start creating a pyproject.toml file with the base information about your extension project:
+Create a `pyproject.toml` file with general information on your extension project:
 
 
 ```
@@ -18,7 +18,7 @@ $ cd tshirt_extension
 $ poetry init --name tshirt-extension --description "T-Shirt extension" --author "Globex corporation" --python ">=3.8,<3.11" --dependency="connect-eaas-core>={{ core_version() }},<{{ next_major() }}" --no-interaction
 ```
 
-The `poetry init` command will create the following pyproject.toml file:
+Use the `poetry init` command to create a `pyproject.toml` file with the following data:
 
 ```
 [tool.poetry]
@@ -39,7 +39,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 ```
 
-Now let's create the root python package of your project, a readme file and a changelog file:
+Next, create a *root python package* for your project, a *readme* file and a *changelog* file:
 
 ```
 $ mkdir tshirt_extension
@@ -47,19 +47,20 @@ $ touch README.md
 $ touch CHANGELOG.md
 ```
 
-## Create the extension project descriptor file
+## Create a descriptor file
 
-First of all creates an empty descriptor file inside your extension root package:
+Create a descriptor file with essential information on your extension project. Use the following 
+command to create an empty JSON file inside your extension root package:
 
 ```
 $ touch tshirt_extension/extension.json
 ```
 
 !!! note
-    The name of the descriptor file must be **extension.json** and must be located inside the root package of your extension project.
+    The name of your descriptor file must always be **extension.json**. It also must be located 
+    inside the root package of your extension project.
 
-
-Assuming that your extension code will be hosted on **github.com** under the account `myaccount` and the repository name `tshirt_extension`, open the extension.json file using your favorite editor and fill it with:
+Next, open your created extension.json file by using your code editor and provide the following data:
 
 ```
 {
@@ -72,26 +73,25 @@ Assuming that your extension code will be hosted on **github.com** under the acc
 }
 ```
 
-Let's analyze a bit the extension descriptor.
 
 !!! warning
     All the attributes of the **extension.json** descriptor are mandatory.
 
+The provided example assumes that your extension code will be hosted on **github.com** within the `myaccount` account and your repository is called `tshirt_extension`.
 
-The `audience` attribute is a list of account roles to with the extension is addressed. For fulfillment automation extensions it must always be `["distributor"]`.
+The `audience` attribute represents a list of account roles in Connect. Thus, it is required to specify which roles are supported by your extension. For hub integration extensions, it is required to specify `["distributor"]` and/or `["reseller"]` roles.
 
-The `readme_url` and `changelog_url` are shown in the Connect UI DevOps module as a reference for teams that operates the extension.
+The `readme_url` and `changelog_url` will be presented in the Connect UI DevOps module as a reference for teams that will work with your extension.
 
-## Add a Dockerfile and a docker-compose.yml to run your extension locally
+## Dockerfile and `docker-compose.yml`
 
-Add the following docker-compose.yml file to your project root folder:
-
+Create a `dockerfile` and a `docker-compose.yml` and to run your extension locally. First, add a new *docker-compose.yml* file to your project root folder:
 
 ```
 $ touch docker-compose.yml
 ```
 
-Fill docker-compose.yml with the following content:
+Populate your `docker-compose.yml` with necessary data as follows:
 
 
 ```yaml
@@ -135,13 +135,13 @@ services:
 ```
 
 
-and the following Dockerfile:
+Next, create an empty dockerfile by using the following command:
 
 ```
 $ touch Dockerfile
 ```
 
-and fill it with the following:
+Add the following code to your dockerfile:
 
 
 ```dockerfile
@@ -155,15 +155,15 @@ COPY package*.json /install_temp/.
 RUN if [ -f "/install_temp/package.json" ]; then npm install; fi
 ```
 
-## Add a the `.tshirt_dev.env` file with your environment variables
+## Create `.tshirt_dev.env`
 
-Create the env file:
+Make sure to add a new `env file` with your environment variables:
 
 ```
 $ touch .tshirt_dev.env
 ```
 
-and fill it with:
+Enter the following variables within your created env file:
 
 ```
 API_KEY="<< replace with a Connect API key >>"
