@@ -30,6 +30,7 @@ markdown_extensions:
   - admonition
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.keys
   - pymdownx.tabbed:
       alternate_style: true 
   - pymdownx.emoji:
@@ -51,6 +52,10 @@ nav:
         - Types of extensions: intro/types_of_extensions.md
         - Anatomy of an extension: intro/anatomy_of_an_extension.md
     - Tutorials:
+      - Quick start:
+        - Fulfillment Automation: tutorials/quickstart/fulfillment_automation.md
+        - Hub Integration: tutorials/quickstart/hub_integration.md
+        - Multi Account Installation: tutorials/quickstart/multi_account_installation.md
       - Events Application:
         - Overview: tutorials/eventsapp/overview.md
         - Setup: tutorials/eventsapp/setup.md
@@ -68,7 +73,9 @@ nav:
         - Develop: tutorials/anvilapp/develop.md
         - Test: tutorials/anvilapp/test.md
     - Developer guide:
-      - Basic concepts: dev_guide/basics.md
+      - Basic concepts:
+        - Events and Tasks: dev_guide/basics_events_tasks.md
+        - Project structure: dev_guide/basics_project_structure.md
       - Tools: dev_guide/tools.md
       - UI Toolkit: dev_guide/ui_toolkit.md
       - Testing: dev_guide/testing.md

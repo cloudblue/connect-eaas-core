@@ -1,16 +1,15 @@
 ## Requirements
 
-To complete this tutorial you need:
+Make sure that the following prerequisites are met:
 
-* Python 3.8, 3.9 or 3.10
-* [Docker](https://www.docker.com/)
-* Latest release of [Poetry](https://python-poetry.org/)
+* Python (3.8, 3.9 or 3.10) is installed 
+* [Docker](https://www.docker.com/) is installed
+* The latest release of [Poetry](https://python-poetry.org/) is installed
 
 
-## Bootstrap project
+## Bootstrap a new project
 
-Let's start creating a pyproject.toml file with the base information about your extension project:
-
+Create a `pyproject.toml` file with general information on your extension project:
 
 ```
 $ mkdir chart_extension
@@ -18,7 +17,7 @@ $ cd chart_extension
 $ poetry init --name chart-extension --description "Chart extension" --author "Globex corporation" --python ">=3.8,<3.11" --dependency="connect-eaas-core>={{ core_version() }},<{{ next_major() }}" --no-interaction
 ```
 
-The `poetry init` command will create the following pyproject.toml file:
+Use the `poetry init` command to create a `pyproject.toml` file with the following data:
 
 ```
 [tool.poetry]
@@ -39,7 +38,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 ```
 
-Now let's create the root python package of your project, a readme file and a changelog file:
+Next, create a *root python package* for your project, a *readme* file and a *changelog* file:
 
 ```
 $ mkdir chart_extension
@@ -47,19 +46,21 @@ $ touch README.md
 $ touch CHANGELOG.md
 ```
 
-## Create the extension project descriptor file
+## Create a descriptor file
 
-First of all creates an empty descriptor file inside your extension root package:
+Create a descriptor file with essential information on your extension project. Use the following 
+command to create an empty JSON file inside your extension root package:
 
 ```
 $ touch chart_extension/extension.json
 ```
 
 !!! note
-    The name of the descriptor file must be **extension.json** and must be located inside the root package of your extension project.
+    The name of your descriptor file must always be **extension.json**. It also must be located 
+    inside the root package of your extension project.
 
 
-Assuming that your extension code will be hosted on **github.com** under the account `myaccount` and the repository name `chart_extension`, open the extension.json file using your favorite editor and fill it with:
+Next, open your created extension.json file by using your code editor and provide the following data:
 
 ```
 {
@@ -73,37 +74,34 @@ Assuming that your extension code will be hosted on **github.com** under the acc
 }
 ```
 
-Let's analyze a bit the extension descriptor.
-
 !!! warning
-    All the attributes of the **extension.json** descriptor are mandatory.
+    All attributes of the **extension.json** descriptor file are mandatory!
 
+The provided example assumes that your extension code will be hosted on **github.com** within the `myaccount` account and your repository is called `chart_extension`.
 
-The `name`, `description` and `version` attributes are used to generate the [OpenAPI](https://www.openapis.org/) specifications file for your extension's REST API.
+The `name`, `description` and `version` attributes are used to generate the [OpenAPI](https://www.openapis.org/) specifications for your extension's REST API.
 
-The `audience` attribute is a list of account roles to with the extension is addressed. For published extensions, it is used by Connect to filter the extension catalog for a given acount accordingly.
+The `audience` attribute represents a list of account roles in Connect. Thus, it is required to specify which roles are supported by your extension. In case your extension is published, Connect allows filtering out and locating your extension by using your specified  roles on the platform.
 
-The `readme_url` and `changelog_url` are shown in the Connect UI DevOps module as a reference for teams that operates the extension.
-The `changelog_url` is also used to fill the Version History pane of the details of an extension within the public catalog.
+The `readme_url` and `changelog_url` will be presented in the Connect UI DevOps module as a reference for teams that will work with your extension. The `changelog_url` attribute will be used as *Version History* details for your extension once it is published in the Showroom Catalog.
 
 The `icon` attribute allows you to customize the material design icon of your extension for the Connect UI dashboard page.
 
 !!! note
-    The available icons are the one from the connect material icons package. You can see the list of all available icons here:
+    It is required to use icons from the Connect Material Icons package. Use one of the provided folder names as your icon attribute. See the list of all available icons by using this link:
     [https://github.com/cloudblue/material-svg/tree/main/icons/google](https://github.com/cloudblue/material-svg/tree/main/icons/google).
-    The icon name is the name of the folder that contains the icon.
 
 
-## Add a Dockerfile and a docker-compose.yml to run your extension locally
+## Dockerfile and `docker-compose.yml` 
 
-Add the following docker-compose.yml file to your project root folder:
+Create a `dockerfile` and a `docker-compose.yml` and to run your extension locally. First, add a new *docker-compose.yml* file to your project root folder:
 
 
 ```
 $ touch docker-compose.yml
 ```
 
-Fill docker-compose.yml with the following content:
+Populate your `docker-compose.yml` with necessary data as follows:
 
 
 ```yaml
@@ -147,13 +145,14 @@ services:
 ```
 
 
-and the following Dockerfile:
+Next, create an empty dockerfile by using the following command:
+
 
 ```
 $ touch Dockerfile
 ```
 
-and fill it with the following:
+Add the following code to your dockerfile:
 
 
 ```dockerfile
@@ -167,15 +166,15 @@ COPY package*.json /install_temp/.
 RUN if [ -f "/install_temp/package.json" ]; then npm install; fi
 ```
 
-## Add a the `.chart_dev.env` file with your environment variables
+## Create `.chart_dev.env`
 
-Create the env file:
+Make sure to add a new `env file` with your environment variables:
 
 ```
 $ touch .chart_dev.env
 ```
 
-and fill it with:
+Enter the following variables within your created env file:
 
 ```
 API_KEY="<< replace with a Connect API key >>"

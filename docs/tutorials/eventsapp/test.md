@@ -1,59 +1,62 @@
-Now that your `Events Application` is ready it's time to test it.
+Once your `Events Application` is created, it is required to configure a product, define your extension on Connect, and prepare a docker image for the following tests.
 
-## Create a t-shirt product
+## Configure your product
+
+Create a product on the Connect platform that will be used for the following tests.
 
 !!! note
-    If you are not familiar with the `Products` module of Connect you can read the documentation in the Connect
-    [community portal](https://connect.cloudblue.com/community/modules/products/).
+    In case you are not familiar with the `Products` module on Connect, use the documentation that is provided on the Connect
+    [Community Portal](https://connect.cloudblue.com/community/modules/products/).
 
-* As a `vendor` go to the Connect User Interface and create a t-shirt product.
-* Go to the `Product Parameters` view and remove the parameters that have been created by default.
-* Add a product `ordering` parameter with a `subscription` scope of type `choice`.
-* Add the following choices:
+1. Sign into your `vendor` account and create a t-shirt product via the Connect UI.
+2. Go to the **Product Parameters** tab and remove the default parameters.
+3. Add a new `choice` product parameter, assign the `ordering` phase and select the `subscription` scope.
+4. Add the following choices to your list:
     *   label `XS` value `xs`
     *   label `S` value `s`
     *   label `M` value `m`
     *   label `L` value `l`
     *   label `XL` value `xl`
-* Set the parameter ID to `size`.
-* Go to the product settings and enable the subscription purchase request `draft validation` capability.
+5. Set the parameter ID to `size`.
+6. Go to the **product settings** and enable the `draft validation` capability for your subscription purchase requests.
 
 
-## Create a `Fulfillment Automation` extension
+## Create a `fulfillment automation` extension
 
-To do that you first need to go to the Connect UI to create an extension of type `Fulfillment Automation`.
-From the main menu, navigate to the `DevOps` module and click the `Add extension` button
-Fill the Add extension form like in the following picture choosing the product you created in the previous step:
+Use the Connect UI to create a new `Fulfillment Automation` extension and copy its environment identifier:
+
+Navigate to the `DevOps` module and click the **Add Extension** button.  
+Select the `Fulfillment Automation` type and specify your configured product:
 
 ![Add extension](../../images/tutorials/eventsapp/add_extension.png)
 
-Once created, open the details view of your brand new extension:
+Once your extension object is created, access the extension details screen by clicking on its name:
 
 ![List extensions](../../images/tutorials/eventsapp/list_extensions.png)
 
-And select the `DEV` environment tab:
+Switch to the `DEV` environment tab that will be used for the following tests:
 
 ![Extension dev environment](../../images/tutorials/eventsapp/extension_dev.png)
 
-Go to the `Local Access` widget and click on the :material-content-copy: button to copy your environment ID.
+Locate the `Local Access` widget and click on the :material-content-copy: button to copy your **environment ID**.
 
 
 
-## Update your `.tshirt_dev.env` environment file 
+## Update your environment file 
 
-Edit your `.tshirt_dev.env` file and fill the `ENVIRONMENT_ID` variable with the copied value.
-
-
-!!! warning
-    This tutorial assume that you know how to create a Connect API key and that the
-    `API_KEY` variable of the `.tshirt_dev.env` file is set with a valid value.
-    For more information about how to create an API Key visit the
-    [Connect Community Portal](https://connect.cloudblue.com/community/modules/extensions/api-tokens/).
+Edit your `.tshirt_dev.env` file and provide the `ENVIRONMENT_ID` variable with your copied value.
+Make sure that your `API_KEY` is assigned to your created API token on the Vendor account that includes your configured product.
 
 
-## Build a Docker image for your extension
+!!! note
+    Note that your created API key should also include all required module permissions.
+    For more information on how to create an API Key, refer to the
+    [Community Portal](https://connect.cloudblue.com/community/modules/extensions/api-tokens/).
 
-To build the Docker image for your extension run:
+
+## Build a Docker Image
+
+Use the following bash command to build a docker image for your extension:
 
 
 ``` bash
@@ -62,27 +65,22 @@ $ docker compose build
 
 ## Run your extension
 
-Once the image is build, to run your container execute:
+Once your docker image is composed, execute the following command to run your container:
 
 ``` bash
-$ docker compose up tshirt_dev
+$ docker compose up tshiert_dev
 ```
 
-Now go to the Connect UI and check that your extension is connected to the `DEV` environment
+Next, go to the Connect UI and check whether your extension is connected to the `DEV` environment by
 using the :material-refresh: button located in the `Environment` widget.
 
-## Create a `preview` fulfillment request
+## Create a `preview` subscription
 
-Now go back to your t-shirt product and select the `preview` view
+When your extension is deployed, create a new `preview subscription` by using the *Subscriptions* module or via 
+the *Preview* tab within your product profile page.
 
-Follow the wizard to create a preview purchase request.
-
-You will see that when you select the size for your t-shirt it will be validated by your extension.
-If the size you choose is out of stock you will receive an error during the validation.
-
-If the size you choose is available you will se how the new purchase request will be auto-approved
-by your extension.
+Consequently, your selected t-shirt size should be validatied by your deployed extension. In case your selected size is out of stock, you should receive an error during the request validation. If your selected size is available, your new purchase request should be auto-approved by your extension.
 
 
 !!! success "Congratulations"
-    :partying_face: your first `Events Application` works like a charm :beers:
+    :partying_face: Your configured `Events Application` works like a charm :beers:

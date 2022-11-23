@@ -1,18 +1,13 @@
-This tutorial will take you step by step to create a `Fulfillment Automation` extension that implements an events application.
-
-!! note
-    All the concepts you will learn in this tutorial are also applicable to extension types `Hub Integration` and `Multi Account Installation`.
-
-!! warning
-    The purchase request draft validation is only available for `Fulfillment Automation` extensions.
-
-
-You will automate the fulfillment of a t-shirt approving the purchase request automatically using the default approval template.
-You will also implement the purchase request draft validation to check if the choosed size of the t-shirt is in stock or not.
-
-You will create a schedule that once a day invoke a method of your events application to update the stock status with the size that is out of stock.
-
+This tutorial provides step-by-step instructions for creating a `Fulfillment Automation` extension that implements an events application.
 
 !!! note
-    This tutorial assumes that you are using a *nix operating system, if you are on windows you have to convert shell commands to windows.
+    Provided concepts from this tutorial are also applicable to the `Hub Integration` and `Multi Account Installation` extensions configuration. Note, however, that the draft purchase request validation is only available for `Fulfillment Automation` extensions.
 
+
+Use this tutorial to automate your fulfillment processing operations. This tutorial showcases a t-shirt product and its associated purchase request that is approvded automatically using the default subscription approval template.
+This tutorial also showcases how to implement the draft purchase requests validation to check whether the selected t-shirt size is in the stock.
+
+Furthermore, this tutorial demonstrates how to create a schedule for your events applicaiton. Specifically, this schedule invokes a method to update your stock status with all sizes that are out of stock once a day.
+
+!!! warning
+    This tutorial assumes that you are using a *nix operating system. In case of using Windows, it is required to convert all provided commands to Windows Shell commands.

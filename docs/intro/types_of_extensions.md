@@ -1,32 +1,31 @@
-Connect supports three different types of extensions, 
-each of which is intended for a specific type of integration:
+Connect supports three different types of extensions. Each type is implemented for 
+a specific form of integration. The following introduces and describes all available 
+extension types:
 
 ## Fulfillment Automation
 
-This type of extension is aimed at vendor who want to automate the fulfillment flow.
+This type of extension is used by Vendors that want to automate the fulfillment 
+request processing on the CloudBlue Connect platform.
 
-With this type of extension the vendor can listen to the events coming from the fulfillment 
-queue and automate the provision of the services they sell.
-
+Fulfillment automation extension allows listening to events that are coming from the fulfillment 
+queue on the platform and automating the provisioning of your provided service.
 
 ## Hub Integration
 
-This type of extension is aimed at distributors/resellers who want to integrate their
-commerce systems through a Connect Hub.
+This type of extension enables Distributors and Resellers to integrate their
+commerce systems via a hub on the Connect platform.
 
-With such type of extension a distributor/reseller can create for example purchase orders
-in Connect reacting to events triggered by their commerce systems.
+By using such extensions, Distributors and Resellers can transfer their business 
+data between their commerce systems and CloduBlue Connect. Hub integrations are 
+used to automatically create purchase orders within Connect that are triggered by your external system.
 
 ## Multi Account
 
-The Multi Account Installation extension is the most powerful type of extensions.
+The *Multi-Account Installation* extension type allows creating comprehensive 
+applications to automate or streamline various operations. Such extensions react 
+to events within the Connect platform and also extend abilities of the Connect API and provided graphical user interface.
 
-They can react to the events emitted by Connect as well as they can extend the
-Connect API and the Connect User Interface.
-
-This type of extensions runs in the scope of a single Connect account but
-can be installed and used by multiple Connect accounts.
-
-Moreover, the extension developer can certify its extension and publish it
-in the Connect Extensions Catalog.
-
+The multi-account extensions run in the scope of a single account on Connect. 
+However, these extensions can also be installed and used by multiple Connect accounts. 
+Moreover, extension developers can certify their extension and publish it
+within [the Showroom Catalog](https://catalog.cloudblue.com/extensions/).
