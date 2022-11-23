@@ -1,12 +1,12 @@
-## Create the events application class
+## Create an events application class
 
-Now it's time to create our python module that will contain our events application:
+Define a python module that includes your application type. The following showcases how to create a module that implements an events application:
 
 ```
 $ touch tshirt_extension/eventsapp.py
 ```
 
-Open the `tshirt_extension/eventsapp.py` with your favorite editor and put the following content inside it:
+Open `tshirt_extension/eventsapp.py` with your code editor and provide the following specifications:
 
 ```python hl_lines="1 4"
 from connect.eaas.core.extension import EventsApplicationBase
@@ -16,11 +16,11 @@ class TShirtEventsApplication(EventsApplicationBase):
     pass
 ```
 
-## Declare the events application class in your pyproject.toml file
+## Declare events application class in `pyproject.toml`
 
 Your extension will be executed by the EaaS runtime called [Connect Extension Runner](https://github.com/cloudblue/connect-extension-runner).
 
-The runner uses setuptools entrypoints to discover the features that your extensions implements, so we have to modify our **pyproject.toml** add an entrypoint for our events application:
+The extension runner utilizes setup tools entrypoints to discover all features that are provided by your extension. Consequently, it is required to modify **pyproject.toml** and add an entrypoint for your events application as follows:
 
 
 ```toml hl_lines="13 14"
@@ -45,12 +45,9 @@ build-backend = "poetry.core.masonry.api"
 ```
 
 
-## Declare the variable needed to track the out of stock size
+## Track out of stock items
 
-You will track the size that is out of stock using an environment variable.
-
-For that you can declare this variable so when the extension starts for the
-first time this variable will be automatically created with an initial value:
+Track items that are out of stock by declaring corresponding environment variables. The following showcases how to create a variable that will be automatically created and assigned to its initial value once the extension is launched for the first time:
 
 
 ```python hl_lines="1 5-12"
@@ -71,12 +68,11 @@ class TShirtEventsApplication(EventsApplicationBase):
 ```
 
 
-## Create a schedulable method to update the `OUT_OF_STOCK_SIZE` variable
+## Update the `OUT_OF_STOCK_SIZE` variable
 
-Let's add a schedulable method that will be scheduled to run once a day.
-
-This method will get a random size from a list with all the available sizes
-and update the `OUT_OF_STOCK_SIZE` variable:
+Once your variable for tracking out of stock items is defined, create a schedule to automatically update this variable. The 
+following demonstrates how to create a method that will run and check for updates once a day. This method will get a random size
+from the list and update the `OUT_OF_STOCK_SIZE` variable:
 
 
 ```python hl_lines="1 3 20-43"
@@ -125,12 +121,9 @@ class TShirtEventsApplication(EventsApplicationBase):
         return ScheduledExecutionResponse.done()
 ```
 
-## Create an method to handle the draft validation event
+## Method for draft validation events
 
-
-Now let's add the event handler for draft validation that check if the choosed size is out of stock or not.
-
-For draft validation, the event type is `asset_purchase_request_validation` and the status is `draft`:
+The following showcases how to create an event handler for the draft purchase requests validation. This handler will check whether the selected t-shirt size is out of stock. To implement the draft request validation, add the `asset_purchase_request_validation` event type and specify the `draft` status:
 
 
 
@@ -190,11 +183,9 @@ class TShirtEventsApplication(EventsApplicationBase):
         return InteractiveResponse.done(body=request)
 ```
 
-## Create an method to approve the pending purchase requests
+## Method to auto-approve pending requests
 
-To complete this tutorial let's add the event handler for the pending purchase requests to autoapprove them.
-
-For pending purchase, the event type is `asset_purchase_request_processing` and the status is `pending`:
+Add an event handler to automatically approve pending purchase requests. Specifically, add the `asset_purchase_request_processing` event type and the `pending` state:
 
 
 ```python hl_lines="55-67"
@@ -268,4 +259,4 @@ class TShirtEventsApplication(EventsApplicationBase):
 
 
 !!! success "Congratulations"
-    :partying_face: your first `Events Application` is ready to be tested :beers:
+    :partying_face: This concludes your `Events Application` creation and your app should be ready for the following tests! :beers:
