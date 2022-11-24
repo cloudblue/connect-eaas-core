@@ -10,7 +10,7 @@ _LOGGING_HANDLER = None
 
 
 def get_call_context(
-    x_connect_installation_id: str = Header(),
+    x_connect_installation_id: str = Header(None),
     x_connect_user_id: str = Header(),
     x_connect_account_id: str = Header(),
     x_connect_account_role: str = Header(),

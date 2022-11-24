@@ -110,14 +110,14 @@ class WebAppTestClient(TestClient):
                 return ConnectClientMocker
 
     def _generate_call_context(self, installation):
-        return Context(**{
-            'installation_id': installation['id'] if installation else 'EIN-000',
+        return {
+            'installation_id': installation['id'] if installation else None,
             'user_id': 'UR-000',
             'account_id': 'VA-000',
             'account_role': 'vendor',
             'call_source': 'ui',
             'call_type': 'user',
-        })
+        }
 
     def _populate_internal_headers(
         self,
@@ -127,12 +127,19 @@ class WebAppTestClient(TestClient):
         context=None,
         log_level=None,
     ):
+
+        if not context:
+            context = Context(**self._generate_call_context(installation))
+        elif isinstance(context, dict):
+            ctx_data = self._generate_call_context(installation)
+            ctx_data.update(context)
+            context = Context(**ctx_data)
+
         headers['X-Connect-Logging-Level'] = log_level or 'INFO'
         if config:
             headers['X-Connect-Config'] = json.dumps(config)
-
-        context: Context = context or self._generate_call_context(installation)
-        headers['X-Connect-Installation-id'] = context.installation_id
+        if context.installation_id:
+            headers['X-Connect-Installation-id'] = context.installation_id
         headers['X-Connect-User-Id'] = context.user_id
         headers['X-Connect-Account-Id'] = context.account_id
         headers['X-Connect-Account-Role'] = context.account_role

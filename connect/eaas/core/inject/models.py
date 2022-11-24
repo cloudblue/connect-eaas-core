@@ -1,10 +1,10 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
 
 class Context(BaseModel):
-    installation_id: str
+    installation_id: Optional[str] = None
     user_id: str
     account_id: str
     account_role: str
