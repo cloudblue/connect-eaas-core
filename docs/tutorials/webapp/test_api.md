@@ -27,7 +27,7 @@ Locate the `Local Access` widget and click on the :material-content-copy: button
 ## Update your environment file 
 
 Edit your `.chart_dev.env` file and provide the `ENVIRONMENT_ID` variable with your copied value.
-Make sure that your `API_KEY` is assigned to your created API token on the Vendor account that includes your configured product.
+Make sure that your `API_KEY` is assigned to your configured API token.
 
 !!! note
     Note that your created API key should also include all required module permissions.

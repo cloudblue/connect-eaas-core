@@ -110,6 +110,10 @@ def define_env(env):
         return get_pypi_version('connect-eaas-core')
 
     @env.macro
+    def current_major():
+        return get_connect_major_version()
+
+    @env.macro
     def next_major():
         return str(int(get_connect_major_version()) + 1)
 

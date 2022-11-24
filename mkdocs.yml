@@ -9,22 +9,21 @@ extra:
 extra_css:
   - css/custom.css
 theme:
-  name: 'material'
+  name: "material"
   logo: images/logo_full.png
   favicon: images/favicon.ico
   palette:
-    - scheme: 'default'
-      media: '(prefers-color-scheme: light)'
+    - scheme: "default"
+      media: "(prefers-color-scheme: light)"
       toggle:
-        icon: 'material/lightbulb'
+        icon: "material/lightbulb"
         name: "Switch to dark mode"
-    - scheme: 'slate'
-      media: '(prefers-color-scheme: dark)'
-      primary: 'blue'
+    - scheme: "slate"
+      media: "(prefers-color-scheme: dark)"
+      primary: "blue"
       toggle:
-        icon: 'material/lightbulb-outline'
-        name: 'Switch to light mode'
-
+        icon: "material/lightbulb-outline"
+        name: "Switch to light mode"
 markdown_extensions:
   - mkautodoc
   - admonition
@@ -32,58 +31,57 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.keys
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - attr_list
   - toc:
       toc_depth: 3
-
 plugins:
-   - glightbox
-   - macros:
+  - glightbox
+  - macros:
       module_name: docs/macros
-
+  - search:
+      lang: en
 nav:
-    - Home: index.md
-    - Introduction:
-        - Extension as a Service: intro/eaas.md
-        - Types of extensions: intro/types_of_extensions.md
-        - Anatomy of an extension: intro/anatomy_of_an_extension.md
-    - Tutorials:
+  - Home: index.md
+  - Introduction:
+      - Extension as a Service: intro/eaas.md
+      - Types of extensions: intro/types_of_extensions.md
+      - Anatomy of an extension: intro/anatomy_of_an_extension.md
+  - Tutorials:
       - Quick start:
-        - Fulfillment Automation: tutorials/quickstart/fulfillment_automation.md
-        - Hub Integration: tutorials/quickstart/hub_integration.md
-        - Multi Account Installation: tutorials/quickstart/multi_account_installation.md
+          - Fulfillment Automation: tutorials/quickstart/fulfillment_automation.md
+          - Hub Integration: tutorials/quickstart/hub_integration.md
+          - Multi Account Installation: tutorials/quickstart/multi_account_installation.md
       - Events Application:
-        - Overview: tutorials/eventsapp/overview.md
-        - Setup: tutorials/eventsapp/setup.md
-        - Develop: tutorials/eventsapp/develop.md
-        - Test: tutorials/eventsapp/test.md
+          - Overview: tutorials/eventsapp/overview.md
+          - Setup: tutorials/eventsapp/setup.md
+          - Develop: tutorials/eventsapp/develop.md
+          - Test: tutorials/eventsapp/test.md
       - Web Application:
-        - Overview: tutorials/webapp/overview.md
-        - Setup: tutorials/webapp/setup.md
-        - REST API: tutorials/webapp/api.md
-        - Test API: tutorials/webapp/test_api.md
-        - User interface: tutorials/webapp/ui.md
+          - Overview: tutorials/webapp/overview.md
+          - Setup: tutorials/webapp/setup.md
+          - REST API: tutorials/webapp/api.md
+          - Test API: tutorials/webapp/test_api.md
+          - UI: tutorials/webapp/ui.md
+          - Test UI: tutorials/webapp/test_ui.md
       - Anvil Application:
-        - Overview: tutorials/anvilapp/overview.md
-        - Setup: tutorials/anvilapp/setup.md
-        - Develop: tutorials/anvilapp/develop.md
-        - Test: tutorials/anvilapp/test.md
-    - Developer guide:
+          - Overview: tutorials/anvilapp/overview.md
+          - Setup: tutorials/anvilapp/setup.md
+          - Develop: tutorials/anvilapp/develop.md
+          - Test: tutorials/anvilapp/test.md
+  - Developer guide:
       - Basic concepts:
-        - Events and Tasks: dev_guide/basics_events_tasks.md
-        - Project structure: dev_guide/basics_project_structure.md
+          - Events and Tasks: dev_guide/basics_events_tasks.md
+          - Project structure: dev_guide/basics_project_structure.md
       - Tools: dev_guide/tools.md
       - UI Toolkit: dev_guide/ui_toolkit.md
-      - Testing: dev_guide/testing.md
       - Async support: dev_guide/async.md
-      - Advanced usage: dev_guide/advanced.md
-    - Available events: events.md
-    - Migration guide: migration_guide.md
-    - API Reference:
+  - Available events: events.md
+  - Migration guide: migration_guide.md
+  - API Reference:
       - Bases: reference/bases.md
       - Decorators: reference/decorators.md
       - Dependency injection: reference/injection.md

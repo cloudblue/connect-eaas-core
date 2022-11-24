@@ -32,6 +32,7 @@ Once the wizard is finished the following directory structure will be created:
     ├── HOWTO.md
     ├── docker-compose.yml
     ├── Dockerfile
+    ├── .<project_slug>_dev.env
     ├── poetry.toml
     ├── pyproject.toml
     └── ...
@@ -53,6 +54,7 @@ In the project root folder you will find the following files:
     virtual environment is disable by default since the development of the extension will be done inside e docker container.
 * **.gitignore:** A default .gitignore file is provided to avoid commiting file that should not be commited within the git
     repository like `pyc` files, `coverage.xml` and so on.
+* **.&lt;project_slug&gt;_dev.env:** Environment variables file needed to run the extension inside the Docker container. 
 
 The `Connect CLI` will also initialize a git repository for your extension project since to run it in cloud mode it must be
 hosted on a git server accesible through internet, therefore the presence of a `.git` directory.
@@ -135,11 +137,13 @@ created:
 
 ```
 .
-└── ${project_slug}
+└── <project_root>
     ├── ui
     │   ├── pages
     │   │   ├── index.html
     │   │   └── settings.html
+    │   ├── images
+    │   │   └── mkp.svg
     │   ├── src
     │   │   ├── components.js
     │   │   ├── pages
@@ -205,11 +209,6 @@ This file will contain a default configuration for [babel](https://babeljs.io/) 
 
 This file will contain a default configuration for [Jest](https://jestjs.io/) testing framework.
 
-### ui folder
+### ui
 
 The ui folder will contain your UI source files as long as your tests specs.
-
-
-
-* Applications are stateless
-* UI is served by a blob storage for cloud mode

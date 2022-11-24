@@ -1,131 +1,140 @@
-Now that your `Anvil Application` is ready it's time to test it.
+Once your `Anvil Application` is configured, use the guidelines below to test it.
 
-To do that you need:
+Make sure that the following prerequisites are met before inititing your test operations:
 
-* A CloudBlue Connect **vendor** account
-* A CloudBlue Connect **distributor** account
-* An Anvil trial account
+* You have a **vendor** account on the CloudBlue Connect platform
+* Your Connect **distributor** account includes a configured **marketplace** 
+* Your ``Anvil trial account`` is registered
 
 
 ## Create a t-shirt product
 
-!!! note
-    If you are not familiar with the `Products` module of Connect you can read the documentation in the Connect
-    [community portal](https://connect.cloudblue.com/community/modules/products/).
+Sign into your `vendor` account and create a product that will be used for the following tests.
 
-* As a `vendor` go to the Connect User Interface and create a t-shirt product.
-* In the `General` view edit the short description for your t-shirt product.
-* In the `General` view edit the `overview` text for your product.
-* In the `General` view select the `Media` tab and add a primary image for your tshirt.
-* Go to the `Parameters` view and remove the parameters that have been created by default.
-* Add a product `ordering` parameter with a `subscription` scope of type `choice`.
-* Add the following choices:
+!!! info
+    In case you are not familiar with the `Products` module on Connect, use the documentation that is provided on the Connect
+    [Community Portal](https://connect.cloudblue.com/community/modules/products/).
+
+1. Sign into your `vendor` account and create a t-shirt product via the Connect UI.
+2. Go to the **Product Parameters** tab and remove the default parameters.
+3. Add a new `choice` product parameter, assign the `ordering` phase and select the `subscription` scope.
+4. Add the following choices to your list:
     *   label `XS` value `xs`
     *   label `S` value `s`
     *   label `M` value `m`
     *   label `L` value `l`
     *   label `XL` value `xl`
-* Set the parameter ID to `size`.
-* Go to the `Versions` view and create a public version of your t-shirt product.
+5. Set the parameter ID to `size`.
+6. Switch to the `Versions` tab and create a public version of your t-shirt product.
 
 !!! tip
-    Please record the product id since you will need it later in this article.
+    Make sure to copy your **product ID** since it is required for the following operations.
 
-## Create a Listing Request to list your product in your distributor account
+## Create a listing request
 
-!!! note
-    If you are not familiar with the `Listings` module of Connect you can read the documentation in the Connect
-    [community portal](https://connect.cloudblue.com/community/modules/listings/).
+Use your `vendor` account and the **Listing** module to list your created product to your marketplace:
 
-* As the `vendor` go to the `Listings` module and click the button `Manage Listing`.
-* Follow the `Manage Listing` wizard and select a Marketplace and your distributor account.
+!!! info
+    If you are not familiar with the `Listings` module on Connect, refer to the corresponding documentation on
+    [Community Portal](https://connect.cloudblue.com/community/modules/listings/).
 
-!!! tip
-    Please record the marketplace id since you will need it later in this article.
-
-
-## List the t-shirt product
-
-* As the `distributor` go to the `Listings` module and in the `Requests` tab click on
-the request for your t-shirt product.
-* Click on the button `Mark as deploying` than on the button `Mark as completed`
-
-## Connect the t-shirt product with your hub
-
-!!! note
-    If you are not familiar on how to create a product to hub connection read the article on our
-    [community portal](https://connect.cloudblue.com/community/modules/marketplaces/connections/).
-
-* As the `distributor` go to the `Products` module and open your t-shirt product.
-* In the `Connections` view create a new `Connection`.
+1. Proceed to the `Listings` module and click the `Manage Listing` button.
+2. Follow the `Manage Listing` wizard and select your configured marketplace.
 
 !!! tip
-    Please record the connection id since you will need it later in this article.
+    Copy your **marketplace ID** since it is required for the following operations.
 
 
-## Create the Anvil Client Application
+## Accept your request
 
-Once you have created your [Anvil](https://anvil.works) trial account you have to create your Anvil Client Application.
-To do that quickly you can [download a pre-created application from this link](../../assets/anvil_application_tutorial.yml).
+Sign into your `distributor` account and use the `Listing` module to start processing your listing request:
 
-Go to your Anvil account and from the main menu in the header bar choose `My Apps`
-Once on the `My Apps` page click on the link `Import from file`:
+1. Navigate to the `Requests` tab of the Listings module
+2. Access your created listing request with your t-shirt product.
+3. Click on the `Mark as deploying` button at the top-right corner of the interface.
+4. Finalize your product listing operations by using the `Mark as completed` button
+
+## Create a hub connection
+
+Use your `distributor` account and the **Products** module to create a new connection with your hub:
+
+!!! info
+    In case more detailed instructions on how to create a hub connection are required, refer to 
+    [this article](https://connect.cloudblue.com/community/modules/marketplaces/connections/).
+
+* Access your t-shirt product via the `Products` module on Connect.
+* Switch to the `Connections` tab and click the `Create Connection` button.
+
+!!! tip
+    Copy your **connection ID** since it is necessary for the following procedures.
+
+
+## Create Anvil Client Application
+
+Once your [Anvil trail account](https://anvil.works) is registered, you can create a new Anvil Client Application.
+Use the following link to quickly setup your application: [Download a pre-defined Anvil Application](../../assets/anvil_application_tutorial.yml).
+
+Go to your Anvil account and select `My Apps` via the header bar in the main menu.  
+From the `My Apps` page, click on the **`Import from file`** link:
 
 ![Import Anvil Client App](../../images/tutorials/anvilapp/anvil_import_from_file.png)
 
-Once loaded the file, the Anvil editor will be shown. In the left side bar click on the :material-cog: icon and choose `Uplink...`:
+Upload your Anvil Client Application and you will be redirected to the Anvil editor. Open the settings menu on the left side bar (i.e. click on the :material-cog: icon) and choose the **`Uplink...`** option:
 
 ![Setup Anvil 1](../../images/tutorials/anvilapp/anvil_setup_uplink_1.png)
 
-In the `Anvil Uplink` dialog click on the button `Enable the Anvil Server Uplink for this app`:
+Click the `Enable the Anvil Server Uplink for this app` button in the `Anvil Uplink` dialog:
 
 ![Setup Anvil 2](../../images/tutorials/anvilapp/anvil_setup_uplink_2.png)
 
-Once pressed the `Uplink key` will be shown.
+Subsequently, the system will provide your `Uplink key`.
 
 !!! tip
-    Please record the uplink key since you will need it later in this article.
+    Make sure to copy your uplink key since it is required for the following operations.
 
 
-Close the `Anvil Uplink` dialog and in the `Main Form` editor click on the `Code` button.
+Once your uplink key is copied and saved, close the `Anvil Uplink` dialog
 
-Fill the `PRODUCT_ID` constant with the id of your t-shirt product.
+Next, proceed `Main Form` editor and click on the `Code` button.
+
+Locate the `PRODUCT_ID` constant and provide your t-shirt product ID value to this constant.
 
 
-## Create a `Hub Integration` extension
+## Create a `hub integration` extension
 
-To do that you first need to go to the Connect UI to create an extension of type `Hub Integration`.
-As the `distributor` from the main menu, navigate to the `DevOps` module and click the `Add extension` button
-Fill the Add extension form like in the following picture choosing the product you created in the previous step:
+Use the Connect UI to create a new `Hub Integration` extension and copy its environment identifier.
+
+Sign into your `distributor` account and navigate to the `DevOps` module. Start creating a new extension by clicking the **Add Extension** button.  
+Select the `Hub Integration` type and specify your hub that is associated with your configured marketplace and your configured t-shirt product:
 
 ![Add extension](../../images/tutorials/anvilapp/add_extension.png)
 
-Once created, open the details view of your brand new extension:
+Once your extension object is created, access the extension details screen by clicking on its name:
 
 ![List extensions](../../images/tutorials/anvilapp/list_extensions.png)
 
-And select the `DEV` environment tab:
+Switch to the `DEV` environment tab that will be used for the following tests:
 
 ![Extension details](../../images/tutorials/anvilapp/extension_details.png)
 
-Go to the `Local Access` widget and click on the :material-content-copy: button to copy your environment ID.
+Locate the `Local Access` widget and click on the :material-content-copy: button to copy your **environment ID**.
 
 
-## Update your `.tshirt_dev.env` environment file 
+## Update your environment file 
 
-Edit your `.tshirt_dev.env` file and fill the `ENVIRONMENT_ID` variable with the copied value.
-
-
-!!! warning
-    This tutorial assume that you know how to create a Connect API key and that the
-    `API_KEY` variable of the `.tshirt_dev.env` file is set with a valid value.
-    For more information about how to create an API Key visit the
-    [Connect Community Portal](https://connect.cloudblue.com/community/modules/extensions/api-tokens/).
+Edit your `.tshirt_dev.env` file and provide the `ENVIRONMENT_ID` variable with your copied value.
+Furthermore, make sure that your `API_KEY` is assigned to your created API token.
 
 
-## Build a Docker image for your extension
+!!! note
+    Note that your created API key should also include all required module permissions.
+    For more information on how to create an API Key, refer to the
+    [Community Portal](https://connect.cloudblue.com/community/modules/extensions/api-tokens/).
 
-To build the Docker image for your extension run:
+
+## Build a Docker Image
+
+Use the following bash command to build a docker image for your extension:
 
 
 ``` bash
@@ -134,25 +143,24 @@ $ docker compose build
 
 ## Run your extension
 
-Once the image is build, to run your container execute:
+Once your docker image is composed, execute the following command to run your container:
 
 ``` bash
 $ docker compose up tshirt_dev
 ```
-
-Now go to the Connect UI and check that your extension is connected to the `DEV` environment
+Next, go to the Connect UI and check whether your extension is connected to the `DEV` environment by
 using the :material-refresh: button located in the `Environment` widget.
 
-In the `Environment Variables` widget set the right value for each variable with the value
-your recorded during this tutorial, then click the `Apply changes` button.
+Note that the provided `Environment Variables` widget should have assigned values for each of the configured variables demonstrated in this tutorial. Confirm your assigned variables by clicking the **Apply Changes** button.
 
+## Create an order from your Anvil Client Application
 
-## Create a purchase request from your Anvil Client Application
+Go to the Anvil application editor and click the `Run` button via in the header bar.
 
-Go to the Anvil application editor and click the `Run` button placed in the header bar.
+Once your application is loaded, choose a size for a t-shirt by using the `size` dropdown menu.
+Provide an integer value for `quantity` and then press the `Buy Now` button.
 
-Once your application is loaded, choose a size for the t-shirt from `size` the dropdown menu,
-enter an integer value for the `quantity` then press the `Buy Now` button.
+As a result, a new purchase request should be generated on the CloudBlue Connect platform.
 
 !!! success "Congratulations"
-    :partying_face: your first `Anvil Application` works like a charm :beers:
+    :partying_face: Your configured `Anvil Application` works like a charm :beers:

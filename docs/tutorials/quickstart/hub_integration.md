@@ -156,7 +156,7 @@ Select `Hub Integration`:
 
 Choose `Events Processing` to generate a `Events Application` class:
 
-![Wizard extension features](../../images/cli/extension_features_ff.png)
+![Wizard extension features](../../images/cli/extension_features_hi.png)
 
 
 ## Event categories

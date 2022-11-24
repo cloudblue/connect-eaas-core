@@ -22,7 +22,8 @@ class WebAppTestClient(TestClient):
     keyword arguments:
 
     * **context**: an instance of connect.eaas.core.inject.models.Context
-        to provide the endpoint with a specific call context.
+        to provide the endpoint with a specific call context or a dict that will merged
+        with a default context.
         If this kwarg is omitted a default context is provided.
     * **installation**: an installation object to receive inside the called endpoint,
         defaults to None.

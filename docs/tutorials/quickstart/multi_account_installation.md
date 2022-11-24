@@ -148,22 +148,37 @@ Fill the environment ID with the value you copied from the `Local Access` widget
 
 ## Extension type
 
-Select `Hub Integration`:
+Select `Multi-Account Installation`:
 
-![Wizard extension type](../../images/cli/extension_type_distributor.png)
+![Wizard extension type](../../images/cli/extension_type_ma.png)
+
+
+## Extension audience
+
+Select the account roles this extension targets:
+
+![Wizard extension type](../../images/cli/extension_audience.png)
+
 
 ## Extension features
 
-Choose `Events Processing` to generate a `Events Application` class:
+Choose all the application types for your extension:
 
-![Wizard extension features](../../images/cli/extension_features_ff.png)
+![Wizard extension features](../../images/cli/extension_features_ma.png)
 
 
 ## Event categories
 
 Select the categories of events you want to handle:
 
-![Wizard extension events categories](../../images/cli/extension_event_categories_distributor.png)
+![Wizard extension events categories](../../images/cli/extension_event_categories_ma.png)
+
+
+## UI embedding support
+
+Choose yes if you plan to develop a UI for your extension:
+
+![Wizard extension UI](../../images/cli/extension_webapp_support_ui.png)
 
 
 ## Background events
@@ -186,7 +201,7 @@ generate an example of environment variables:
 
 The wizard will show a summary with the answers you provided:
 
-![Wizard summary](../../images/cli/extension_summary_distributor.png)
+![Wizard summary](../../images/cli/extension_summary_ma.png)
 
 Select `Create` then press ++enter++, the extension project will be generated.
 

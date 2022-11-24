@@ -23,7 +23,7 @@ Web applications allow extending the functionality of Connect API by adding cust
 Such applications can also be used to establish new modules on Connect UI. Consequently, this allows users of 
 your extension to access your defined features via extended API or via the provided graphical user interface.     
   
-Note that web applications are supported only by *Multi-Account* extensions.
+Note that web applications are supported only by *Multi-Account* and *Hub Integration* extensions.
 
 ### Anvil Applications
 
@@ -39,8 +39,8 @@ a fulfillment automation system, or a multi-account extension.
 
 In the following table you can see the supported application types given an extension type.
 
-|Extension Type|Events Application|Web Application|Anvil Application|
-|--------------|:----------------:|:-------------:|:---------------:|
-|Fulfillment Automation|:material-check:{ .green }|:material-close:{ .red }|:material-check:{ .green }|
-|Hub Integration|:material-check:{ .green }|:material-close:{ .red }|:material-check:{ .green }|
-|Multi Account Installation|:material-check:{ .green }|:material-check:{ .green }|:material-check:{ .green }|
+|Extension Type|Events Application|Web Application API|Web Application UI|Anvil Application|
+|--------------|:----------------:|:-------------:|:-------------:|:---------------:|
+|Fulfillment Automation|:material-check:{ .green }|:material-close:{ .red }|:material-close:{ .red }|:material-check:{ .green }|
+|Hub Integration|:material-check:{ .green }|:material-check:{ .green }|:material-close:{ .red }|:material-check:{ .green }|
+|Multi Account Installation|:material-check:{ .green }|:material-check:{ .green }|:material-check:{ .green }|:material-check:{ .green }|

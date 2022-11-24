@@ -2,7 +2,8 @@
 
 Make sure that the following prerequisites are met:
 
-* Python (3.8, 3.9 or 3.10) is installed 
+* Python (3.8, 3.9 or 3.10) is installed
+* Node.js (16, 18) is installed
 * [Docker](https://www.docker.com/) is installed
 * The latest release of [Poetry](https://python-poetry.org/) is installed
 
