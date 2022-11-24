@@ -82,7 +82,7 @@ def test_get_call_context_default(webapp_mock):
 
     assert resp.status_code == 200
     assert resp.json() == {
-        'installation_id': 'EIN-000',
+        'installation_id': None,
         'user_id': 'UR-000',
         'account_id': 'VA-000',
         'account_role': 'vendor',
@@ -107,6 +107,27 @@ def test_get_call_context_custom(webapp_mock):
 
     assert resp.status_code == 200
     assert resp.json() == ctx
+
+
+def test_get_call_context_merge(webapp_mock):
+    client = WebAppTestClient(webapp_mock)
+
+    ctx = {
+        'installation_id': 'EIN-111',
+        'call_type': 'admin',
+    }
+
+    resp = client.get('/api/context', context=ctx)
+
+    assert resp.status_code == 200
+    assert resp.json() == {
+        'installation_id': 'EIN-111',
+        'user_id': 'UR-000',
+        'account_id': 'VA-000',
+        'account_role': 'vendor',
+        'call_source': 'ui',
+        'call_type': 'admin',
+    }
 
 
 def test_not_found(webapp_mock):
