@@ -1,13 +1,13 @@
-Connect EaaS Core supports the use of asynchronous I/O to develop events and web applications
-through the [python asyncio module](https://docs.python.org/3/library/asyncio.html).
+Connect EaaS Core supports asynchronous I/O to develop events and web applications
+via [the python asyncio module](https://docs.python.org/3/library/asyncio.html).
 
 ## Events application
 
-If your event handler is declared as `async def` the [Connect Extension Runner](https://github.com/cloudblue/connect-extension-runner)
-will instantiate your application class injecting the [AyncConnectClient](https://connect-openapi-client.readthedocs.io/en/latest/async_client/) client allowing you to make API calls to Connect using asyncio.
+In case your event handler is declared as `async def`, the [Connect Extension Runner](https://github.com/cloudblue/connect-extension-runner)
+will instantiate your application class by injecting [AyncConnectClient](https://connect-openapi-client.readthedocs.io/en/latest/async_client/). This allows making API calls to Connect by using `asyncio`.
 
-For example, the t-shirt application developed in the [Events Application tutorial](../tutorials/eventsapp/develop.md) can be rewritten
-as in the following example:
+For example, the t-shirt application developed in [the Events Application tutorial](../tutorials/eventsapp/develop.md) can be rewritten
+follows:
 
 ```python hl_lines="27 29 49 56 58 63"
 import random
@@ -81,12 +81,12 @@ class TShirtEventsApplication(EventsApplicationBase):
 
 ## Web application
 
-Web applications are based on the [FastAPI](https://fastapi.tiangolo.com/async/) web framework that support writing web application both in a synchronous and asynchronous way.
+Web applications are based on the [FastAPI](https://fastapi.tiangolo.com/async/) web framework that support writing web application both in synchronous and asynchronous way.
 
-`Connect Eaas Core` have the corresponding asynchronous injection function to inject in a asynchronous endpoint both the [AyncConnectClient](https://connect-openapi-client.readthedocs.io/en/latest/async_client/), and the [installation](../reference/injection.md/#asynchronous-web-application) object.
+`Connect Eaas Core` provides the corresponding asynchronous function to inject in a asynchronous endpoint both the [AyncConnectClient](https://connect-openapi-client.readthedocs.io/en/latest/async_client/) and the [installation](../reference/injection.md/#asynchronous-web-application) object.
 
-So the chart REST API developed in the [Web Application tutorial](../tutorials/webapp/api.md) can be rewritten
-as in the following example:
+Thus, the chart REST API developed in [the Web Application tutorial](../tutorials/webapp/api.md) can be rewritten
+as follows:
 
 ```python  hl_lines="1 4 20 31 37 47 53 64 71"
 from connect.client import AsyncConnectClient

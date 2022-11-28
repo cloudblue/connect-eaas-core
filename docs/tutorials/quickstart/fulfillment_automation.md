@@ -1,126 +1,130 @@
-In this tutorial we will create a `Fulfillment Automation` extension project using
-the CloudBlue [Connect CLI](https://github.com/cloudblue/connect-cli).
+This quickstart tutorial demonstrates how to create a `Fulfillment Automation` extension project by using
+[the CloudBlue Connect CLI](https://github.com/cloudblue/connect-cli).
 
 
 ## Requirements
 
-To complete this tutorial you need:
+Make sure that the following prerequisites are met:
 
-* Python 3.8, 3.9 or 3.10
-* [Docker](https://www.docker.com/)
-* Latest release of [Poetry](https://python-poetry.org/)
-* Latest release of [Connect CLI](https://github.com/cloudblue/connect-cli)
-* A CloudBlue Connect **vendor** account
+* Python (3.8, 3.9 or 3.10) is installed
+* [Docker](https://www.docker.com/) is installed
+* The latest release of [Poetry](https://python-poetry.org/) is installed
+* Latest release of [Connect CLI](https://github.com/cloudblue/connect-cli) is installed
+* A CloudBlue Connect **vendor** account is created
 
 
-## Add the vendor account to the Connect CLI configuration
+## Prepare your vendor account
 
-To configure the CLI to use your vendor account you need an API Token.
+First, it is required to generate an API token and add your `vendor` account via the CLI tool
 
-To create the token open the Connect UI portal and:
+Create a new token by using the Connect interface:
 
-* navigate to to `Integrations` -> `Tokens`
-* click on the `+ Create Token` button
-* set a `name`, a `description` and an optional `external id` for the token and click `Next`
-* choose `Custom Integration` from the list of extension then click `Next`
-* in the list of permissions select at least `DevOps` then click `Create`
-* on the summary screen click `Go To Details`
-* on the token detail view click the :material-content-copy: button to copy your token.
+1. Navigate to `Integrations` -> `Tokens`.
+2. Click the `+ Create Token` button.
+3. Proivde a `name`, `description` and an optional `external id` for your token.
+4. Next, choose `Custom Integration` from the extension list.
+5. Select required permissions for your token, at least the `DevOps` option should be selected.
+6. On the summary screen, click `Go To Details` to access your token details.
+7. Click the :material-content-copy: button to copy your token.
 
-Then open your terminal and run:
+Next, open your terminal and run:
 
 ```
 $ ccli account add "<your copied token>"
 ```
 
-where `<your copied token>` must be replaced with the token you generated in the previous step.
+Note that `<your copied token>` must be replaced with your generated API token.
 
 
-## Create an extension in the DevOps module
+## Create an extension in DevOps
 
-To create the `Fullfilment Automation` extension open the Connect UI portal and navigate to the `DevOps` module:
+Use the **DevOps** module on Connect to create a `Fullfilment Automation` extension:
+
+1) Click on the `+ Add Extension` button to start configuring a new extension object.
 
 ![DevOps main](../../images/tutorials/quickstart/ff/devops_main.png)
 
-Click on the `+ Add Extension` button, the add extension dialog will be shown:
+2) Provide your extension name, choose at least one product and then click `Create`.
 
 ![DevOps add extension](../../images/tutorials/quickstart/ff/devops_new_ff.png)
 
-Fill the name, optionally the icon, choose at least one product and then click `Create`. The list of your extension will be shown:
+3) Click the `Open` button to access the details page of your created extension.
 
 ![DevOps extensions](../../images/tutorials/quickstart/ff/devops_list.png)
 
-Click on the `Open` button of your newly created extension, the detail page will be shown:
+4) Locate the `Local Access` widget and click on the :material-content-copy: button to copy your `environment ID`.
 
 ![DevOps details](../../images/tutorials/quickstart/ff/devops_ff_details.png)
 
-In the `Local Access` widget click on the :material-content-copy: button to copy the Environment ID.
 
 
-## Run the `Extension Project Bootstrap` wizard
+## Run `Extension Project Bootstrap` wizard
 
-To run the wizard run in your terminal:
+The CLI tool provides a wizard to bootstrap your extension project.
+
+Use the following command to launch this wizard:
 
 ```
 $ ccli project extension bootstrap
 ```
 
-The welcome screen will be shown:
+The wizard provides the welcome screen and the following options to configure your extension:
 
 ![Wizard welcome](../../images/cli/bootstrap_project.png)
 
 
-## Choose a name for your extension
+## Name your extension
 
 ![Wizard project name](../../images/cli/extension_name.png)
 
-This name will be used for packaging metadata.
+Your provided extension name will be used for packaging metadata.
 
 
-## Choose the name of the project root folder
+## Project root folder name
 
 ![Wizard project root](../../images/cli/extension_folder.png)
 
-This folder will be created at the end of the wizard and will contain
-all the needed file.
+The root folder with all required files will be created once all operations with the wizard are completed.
 
 
-## Briefly describe your extension
+## Describe your extension
 
 ![Wizard project description](../../images/cli/extension_description.png)
 
-This description is used to generate a readme file and for packaging metadata.
+Your provided description will be used to generate a readme file and for packaging metadata.
 
 
-## Set an initial version number for your extension
+## Set initial version number
 
 ![Wizard project version](../../images/cli/extension_version.png)
 
-This version is used for packaging metadata.
+Your provided version is used for packaging metadata.
 
 
-## Set the author name of your extension
+## Provide the author name
 
 ![Wizard project author](../../images/cli/extension_author.png)
 
-The author will be used for packaging metadata and to add a copyright header in each generated file.
+Your provided author name will be used for packaging metadata and to add a copyright header in each generated file.
 
 
-## Choose a name for your extension's python package
+## Choose python package name
 
 ![Wizard project package](../../images/cli/extension_package.png)
 
+Select a package name for your extension. It must be a valid python identifier (e.g., connect_ext). 
 
-## Choose between synchronous and asynchronous programming
 
-If you are familiar with python asyncio programming select `yes` in the following step:
+## Synchronous or asynchronous programming
+
+In case you are familiar with python asyncio programming, select `yes` in the following step:
 
 ![Wizard project asyncio](../../images/cli/extension_asyncio.png)
 
 ## Github actions
 
 If you plan to host your git repository on github.com and you want to automate the
-continuous integration of your project select `yes` in the following step and an actions workflow file
+continuous integration of your project, select `yes` in the following step and an actions workflow file
 will be created for you:
 
 ![Wizard project github](../../images/cli/extension_github.png)
@@ -128,93 +132,91 @@ will be created for you:
 
 ## Api Hostname
 
-The wizard will propose by default the hostname of the Connect production environment:
+The wizard will propose to use a hostname of the Connect production environment by default:
 
 ![Wizard project host](../../images/cli/extension_api_hostname.png)
 
 
 ## Api Key
 
-The wizard will propose to use the same Api Key you used to configure your vendor account in the CLI:
+The wizard will propose to use the same *Api Key* that is configured for your vendor account:
 
 ![Wizard project ApiKey](../../images/cli/extension_api_key.png)
 
 ## Environment ID
 
-Fill the environment ID with the value you copied from the `Local Access` widget of your extension:
+Use your copied `environment ID` value from the `Local Access` widget of the details screen:
 
 ![Wizard project environment](../../images/cli/extension_environment_id.png)
 
 
 ## Extension type
 
-Select `Fulfillment Automation`:
+Select `Fulfillment Automation` for this scenario:
 
 ![Wizard extension type](../../images/cli/extension_type.png)
 
 ## Extension features
 
-Choose `Events Processing` to generate a `Events Application` class:
+Choose `Events Processing` to generate an `Events Application` class:
 
 ![Wizard extension features](../../images/cli/extension_features_ff.png)
 
 
 ## Event categories
 
-Select the categories of events you want to handle:
+Select categories of events you want to handle:
 
 ![Wizard extension events categories](../../images/cli/extension_event_categories.png)
 
 
 ## Background events
 
-Choose the background events you are interested in:
+Choose your required background events:
 
 ![Wizard extension background](../../images/cli/extension_background_events.png)
 
 
 ## Interactive events
 
-Choose the interactive events you are interested in:
+Choose interactive events you are interested in:
 
 ![Wizard extension interactive](../../images/cli/extension_interactive_events.png)
 
 
 ## Environment variables
 
-If your extension will need some configuration in order to run choose `yes` to
-generate an example of environment variables:
-
+In case your extension should use environment variables, choose `yes` to
+generate example environment variables:
 
 ![Wizard extension variables](../../images/cli/extension_variables_example.png)
 
 
 ## Summary
 
-The wizard will show a summary with the answers you provided:
+As a result, the wizard will provide a summary with your selected options:
 
 ![Wizard summary](../../images/cli/extension_summary.png)
 
-Select `Create` then press ++enter++, the extension project will be generated.
+Select `Create` and press ++enter++ to generate your extension project.
 
 
 ## Run your extension locally
 
-To run your extension locally first of all you have to build the docker image for your extension.
+In order to run your extension locally, it is required to build a docker image for your extension.
 
-Go to the project folder the CLI just generated and run:
+Go to your generated project folder and run:
 
 ```
 $ docker compose build
 ```
 
-Then to run your extension execute:
+Thereafter, use the following command to execute your extension:
 
 ```
 $ docker compose up <your_extension_slug>_dev
 ```
 
 !!! success "Congratulations"
-    Go to the Connect UI `DevOps` module details page of your extension,
-    click the :material-refresh: button you will see your extension up and running!
-
+    Go to your extension details page via the Connect UI `DevOps` module and
+    click the :material-refresh: button to see your extension up and running!

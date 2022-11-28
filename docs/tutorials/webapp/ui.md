@@ -1,16 +1,17 @@
+The following demonstrates how to define a user interface for your web application. The provided user interface is used to visualize available subscriptions for specified marketplaces. This demo interface also allows selecting marketplaces for the subsequent visualization via the Settings module on the Connect platform.
 
 ## Setup UI files
 
 ### package.json
 
-Create an initial package.json to handle javascript dependencies in your project root folder:
+Create an initial `package.json` to handle javascript dependencies in your project root folder:
 
 ```
 $ touch package.json
 ```
 
 
-and add the following content:
+Thereafter, add the following data to your created JSON file:
 
 ``` json hl_lines="16"
 {
@@ -46,21 +47,21 @@ and add the following content:
   }
 }
 ```
-
-The `connect-ui-toolkit` module allow your extension UI to communicate with the Connect UI.
-
+!!! info
+  Note that your defined web interface communicates with the Connects UI via
+  rhe `connect-ui-toolkit` module.
 
 
 ### webpack.config.js
 
-To build the final UI artifacts add a [webpack](https://webpack.js.org) configuration file:
+Define your final UI artifacts by adding a [webpack](https://webpack.js.org) configuration file:
 
 
 ```
 $ touch webpack.config.js
 ```
 
-and put the following content:
+Add the following code for configure a demo web interface:
 
 ``` js
 const path = require('path');
@@ -150,21 +151,21 @@ module.exports = {
 }
 ```
 
-This configuration will handle two HTML pages, `settings.html` which will be embedded
-within the `Account Settings` module of Connect UI and `index.html` that will be the
-main page of your extension and will be renderer inside the UI of Connect as a standalone
+This demo configuration file handles two HTML pages: 
+  * **settings.html**: this file is embedded in the `Settings` module of Connect UI and 
+  * **index.html**: represents a main page of the demo extension that is rendered inside the Connect UI as a standalone
 module.
 
 ### babel.config.json
 
-To allow the usage of ECMAScript 6 modules you can use [babel](https://babeljs.io) so a basic
-`babel.config.json` is needed:
+In order to use the `ECMAScript 6` modules, it is required to use [babel](https://babeljs.io). Define a new 
+`babel.config.json` as follows:
 
 ```
 $ touch babel.config.json
 ```
 
-with following content:
+Add the following code to your created JSON file:
 
 ``` json
 {
@@ -174,7 +175,7 @@ with following content:
 
 ### Source files directories
 
-Finally you have to create the following folders for storing the UI source files:
+Next, it is required to create the following folders for storing the UI source files:
 
 ```
 .
@@ -187,7 +188,7 @@ Finally you have to create the following folders for storing the UI source files
     │   └── styles
 ```
 
-So in your project root execute:
+From your project root, execute the following command:
 
 ```
 $ mkdir -p ui/{pages,images,src/pages,styles}
@@ -195,13 +196,13 @@ $ mkdir -p ui/{pages,images,src/pages,styles}
 
 ## Add HTML sources
 
-First create the two pages inside the `ui/pages` folder:
+Create two pages inside the `ui/pages` folder:
 
 ```
 $ touch ui/pages/{index,settings}.html
 ```
 
-Then fill the ui/pages/index.html with:
+Thereafter, fill out `ui/pages/index.html` as follows:
 
 ``` html
 <!DOCTYPE html>
@@ -235,7 +236,7 @@ Then fill the ui/pages/index.html with:
 </html>
 ```
 
-and ui/pages/settings.html with:
+In addition, fill out `ui/pages/settings.html` as follows:
 
 ``` html
 <!DOCTYPE html>
@@ -273,15 +274,15 @@ and ui/pages/settings.html with:
 </html>
 ```
 
-## Add an image to use for missing Marketplace icons
+## Missing marketplace icons
 
-Create the mkp.svg file:
+Add an image for missing marketplace icons. Create a mkp.svg file:
 
 ```
 $ touch ui/images/mkp.svg
 ```
 
-and fill it with:
+Specify your igame as follows:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -292,15 +293,15 @@ and fill it with:
 ```
 
 
-## Add a CSS to style your pages
+## Add your CSS
 
-First create a CSS file in the `styles` directory:
+Provide CSS codes to style your pages. First, create a CSS file in the `styles` directory:
 
 ```
 $ touch ui/styles/index.css
 ```
 
-Then fill it with:
+Next, provide the following code to your `index.css` file:
 
 ``` css
 body {
@@ -627,15 +628,17 @@ h1 {
 }
 ```
 
-## Add a js module with utility functions
+## Add utility functions
 
-Now add a file called `utils.js`:
+The following demonstrates how to define utility JS functions.  The following `utils.js` file provides functions for working with various API calls and data processing.
+
+Add a new `utils.js` file as follows:
 
 ```
 $ touch ui/src/utils.js
 ```
 
-with the following content:
+Provide the following code for your `utils` file:
 
 ``` js
 export const getSettings = () => fetch('/api/settings').then((response) => response.json());
@@ -674,19 +677,17 @@ export const processCheckboxes = (
 ) => Array.from(checkboxes).filter(checkbox => checkbox.checked);
 ```
 
-In this `utils.js` you have functions resposible for API calls as long as for
-data processing.
+## Add UI components
 
-## Add a js module to manipulate UI components
+Provide a js module for working with user interface components. 
 
-
-Create a file called `components.js`:
+Create a file called `components.js` as follows:
 
 ```
 $ touch ui/src/components.js
 ```
 
-with the following content:
+Fill out the components file as follows:
 
 ``` js
 export const prepareMarketplaces = (marketplaces) => {
@@ -768,15 +769,15 @@ export const hideComponent = (id) => {
 };
 ```
 
-## Add the pages.js module
+## Add `pages.js` module
 
-Create a file called `pages.js`:
+Create a file called `pages.js` that defines the application logic:
 
 ```
 $ touch ui/src/pages.js
 ```
 
-with the following content:
+Provide the following code to this module:
 
 ``` js hl_lines="33 35 68"
 import {
@@ -853,26 +854,24 @@ export const settings = async (app) => {
 };
 ```
 
-In this module can be found the functions `index` and `settings` that implement the application 
-logic for the your extension's main module and the `Account Settings` page respectively.
+This module incorporates `index` and `settings` functions that implement the application 
+logic for the your extension's module and the `Settings` configurations.
 
 !!! note
-    This functions receive an `Connect UI Toolkit` application as the argument.
-    Among other functionalities, the `Connect UI Toolkit` allow to send events
-    to the Connect UI.
-    You can see how your extension emit events to make the Connect UI open
-    the snackbar component to notify success and error events to the user.
+    The `index` and `settings` functions receive an `Connect UI Toolkit` application as an argument.
+    Furthermore, note that the `Connect UI Toolkit` allows sending events
+    to the Connect UI. Thus, the demo extension notifies about successful events and errors.
 
 
-## Add entrypoint modules for loading inside the HTML pages
+## Add entrypoint modules
 
-Finally add two js modules:
+Create entrypoint modules for loading the content within the HTML pages:
 
 ```
 $ touch ui/src/pages/{index,settings}.js
 ```
 
-Then, fill the `index.js` page with the following content:
+Provide the following code to `index.js`:
 
 ```js
 import createApp, {
@@ -890,7 +889,7 @@ createApp({ 'main-card': Card })
 ```
 
 
-and `settings.js` with the following:
+Provide the following code to `settings.js`:
 
 ```js
 import createApp, {
@@ -907,31 +906,31 @@ createApp({ 'settings-card': Card })
   .then(settings);
 ```
 
-As you can see this two js files act as the entrypoint for index.html and settings.html respectively.
+As a result, your created js files will act as entrypoints for the `index.html` and the `settings.html` respectively.
 
 !!! note
-    Please also note that in these entrypoint an instance of the `Connect UI Toolkit` application
-    is instantiated and then passed to the `index` and `settings` function described above.
-    The argument of the `createApp` function is an object that tell to the application to
+    The `Connect UI Toolkit` application instantiates the aforementioned entrypoints and then passes to `index` and `settings`.
+    Furthermore, the `createApp` function takes an object as an argument; this object is used by the demo application to
     export a `Card` widget as an HTML custom element.
 
 
 ## Rebuild your Docker image
 
-As you did for testing your extension's API run:
+Once your user interface is defined, compose a docker image by using the following command:
 
 ``` bash
 $ docker compose build
 ```
 
-This time this build installs the Node.js dependencies you declared in your `package.json`.
+As a result, your declared node.js dependencies from `package.json` will be installed.
 
 
 ## Run your extension
+
+Use the following command to launch your extension: 
 
 ``` bash
 $ docker compose up chart_dev
 ```
 
-When the container starts, it will build your UI artifacts.
-
+When your container is launched, it will also build your UI artifacts.
