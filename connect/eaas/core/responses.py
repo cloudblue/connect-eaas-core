@@ -8,14 +8,30 @@ class _Response:
 
     @classmethod
     def done(cls, *args, **kwargs):
+        """
+        Create a new response as the task has been
+        successfully processed.
+        """
         return cls(ResultType.SUCCESS)
 
     @classmethod
     def fail(cls, output=None):
+        """
+        Returns a response as the task has been
+        successfully processed.
+
+        **Parameters:**
+
+        * **output** - Optional output message to set the reason of failure
+            within the task object.
+        """
         return cls(ResultType.FAIL, output=output)
 
 
 class BackgroundResponse(_Response):
+    """
+    Returns the result of a background event processing.
+    """
 
     def __init__(self, status, countdown=30, output=None):
         super().__init__(status, output)
@@ -23,14 +39,43 @@ class BackgroundResponse(_Response):
 
     @classmethod
     def skip(cls, output=None):
+        """
+        Returns a response as the extension wants to skip the processing
+        of the received task.
+
+        **Parameters:**
+
+        * **output** - Optional output message to set the reason of why this
+            task has been skipped.
+        """
         return cls(ResultType.SKIP, output=output)
 
     @classmethod
     def reschedule(cls, countdown=30):
+        """
+        Returns a response as the extension wants to reschedule this task.
+
+        **Parameters:**
+
+        * **countdown** - Optional amount of seconds before next delivery
+        of this task (default to 30 seconds).
+        """
         return cls(ResultType.RESCHEDULE, countdown=countdown)
 
     @classmethod
     def slow_process_reschedule(cls, countdown=300):
+        """
+        Returns a response as the extension wants to reschedule this task.
+
+        **Parameters:**
+
+        * **countdown** - Optional amount of seconds before next delivery
+        of this task (default to 300 seconds).
+
+        !!! note
+            The minumum amount of seconds to wait before this task will
+            be redelivered is 300 seconds (5 minutes).
+        """
         return cls(
             ResultType.RESCHEDULE,
             countdown=300 if countdown < 300 else countdown,
@@ -58,10 +103,35 @@ class InteractiveResponse(_Response):
 
     @classmethod
     def done(cls, http_status=200, headers=None, body=None):
+        """
+        Returns a response as the extension has successfully
+        processed this interactive event.
+
+        **Parameters:**
+
+        * **http_status** - Optional http status to return to the
+            caller (default 200 -> ok).
+        * **headers** - Optional response headers to return to the
+            caller.
+        ** **body** - Optional response body to return to the caller.
+        """
         return cls(ResultType.SUCCESS, http_status, headers, body, None)
 
     @classmethod
     def fail(cls, http_status=400, headers=None, body=None, output=None):
+        """
+        Returns a response as the extension has failed to
+        process this interactive event.
+
+        **Parameters:**
+
+        * **http_status** - Optional http status to return to the
+            caller (default 400 -> bad request).
+        * **headers** - Optional response headers to return to the
+            caller.
+        ** **body** - Optional response body to return to the caller.
+        ** **output** - Optional output message to set within the task.
+        """
         return cls(ResultType.FAIL, http_status, headers, body, output)
 
 
