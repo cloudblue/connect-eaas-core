@@ -6,6 +6,7 @@ from fastapi import Depends, Header
 from connect.client import AsyncConnectClient
 from connect.eaas.core.inject.common import get_logger
 from connect.eaas.core.logging import RequestLogger
+from connect.eaas.core.utils import get_correlation_id
 
 
 def get_installation_client(
@@ -19,7 +20,7 @@ def get_installation_client(
         'User-Agent': x_connect_user_agent,
     }
     if x_connect_correlation_id:
-        default_headers['traceparent'] = x_connect_correlation_id
+        default_headers['ext-traceparent'] = get_correlation_id(x_connect_correlation_id)
 
     return AsyncConnectClient(
         x_connect_installation_api_key,
@@ -40,7 +41,7 @@ def get_extension_client(
         'User-Agent': x_connect_user_agent,
     }
     if x_connect_correlation_id:
-        default_headers['traceparent'] = x_connect_correlation_id
+        default_headers['ext-traceparent'] = get_correlation_id(x_connect_correlation_id)
 
     return AsyncConnectClient(
         os.getenv('API_KEY'),
