@@ -76,6 +76,27 @@ def test_get_call_context():
     )
 
 
+def test_get_call_context_for_guest_eps():
+
+    ctx = common.get_call_context(
+        x_connect_installation_id=None,
+        x_connect_user_id=None,
+        x_connect_account_id=None,
+        x_connect_account_role=None,
+        x_connect_call_source=None,
+        x_connect_call_type=None,
+    )
+
+    assert ctx == models.Context(
+        installation_id=None,
+        user_id=None,
+        account_id=None,
+        account_role=None,
+        call_source=None,
+        call_type=None,
+    )
+
+
 def test_get_config():
     assert common.get_config('{}') == {}
 
