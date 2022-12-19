@@ -20,8 +20,8 @@ class Context(BaseModel):
     """
 
     installation_id: Optional[str] = None
-    user_id: str
-    account_id: str
-    account_role: str
-    call_source: Literal['ui', 'api']
-    call_type: Literal['admin', 'user']
+    user_id: Optional[str]
+    account_id: Optional[str]
+    account_role: Optional[str]
+    call_source: Optional[Literal['ui', 'api']]
+    call_type: Optional[Literal['admin', 'user']]
