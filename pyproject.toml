@@ -18,12 +18,13 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Utilities",
     "Topic :: Software Development :: Libraries",
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<4"
 connect-openapi-client = ">=25.15"
 pydantic = "^1.9.0"
 fastapi = "^0.78.0"
@@ -33,7 +34,7 @@ anvil-uplink = "^0.4.0"
 toml = "^0.10.2"
 PyYAML = "^6.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.test.dependencies]
 pytest = ">=6.1.2,<8"
 pytest-cov = ">=2.10.1,<5"
 pytest-mock = "^3.3.1"
@@ -41,22 +42,26 @@ coverage = {extras = ["toml"], version = ">=5.3,<7"}
 flake8 = ">=3.8,<6"
 flake8-bugbear = ">=20,<23"
 flake8-cognitive-complexity = "^0.1"
-flake8-commas = "~2.0"
+flake8-commas = "~2.1"
 flake8-future-import = "~0.4"
 flake8-import-order = "~0.18"
 flake8-broken-line = ">=0.3,<0.7"
+flake8-pyproject = "^1.2.2"
 pytest-asyncio = "^0.20.1"
 mock = { version = "^4.0.3", markers = "python_version < '3.8'" }
 fs = "^2.4.12"
 responses = ">=0.14.0,<1"
 pytest-httpx = ">=0.20"
 Faker = "^14.2.0"
+
+[tool.poetry.group.docs.dependencies]
 mkdocs = "^1.4.2"
 mkdocs-material = "^8.5.3"
 mkautodoc = "^0.2.0"
 jinja2 = "3.1.0"
 mkdocs-glightbox = "^0.3.0"
 mkdocs-macros-plugin = "^0.5.0"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -91,3 +96,20 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
 ]
+
+[tool.flake8]
+exclude = [
+    ".idea",
+    ".vscode",
+    ".git",
+    "pg_data",
+    "venv",
+    "*/settings/*.py",
+    "*/migrations/*.py"
+]
+show_source = true
+max_line_length = 100
+import_order_style = "smarkets"
+application_import_names = "connect"
+max_cognitive_complexity = 15
+ignore = ["FI1", "W503", "B008"]
