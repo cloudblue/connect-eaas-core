@@ -422,11 +422,11 @@ def test_get_ui_modules(mocker):
 
     mocker.patch('connect.eaas.core.extension.router', router)
 
-    mocker.patch.object(
-        EntryPoint,
-        'load',
-        return_value=MyExtension,
-    )
+    # mocker.patch.object(
+    #     EntryPoint,
+    #     'load',
+    #     return_value=MyExtension,
+    # )
 
     ui_modules = MyExtension.get_ui_modules()
     assert ui_modules == {

@@ -143,6 +143,9 @@ class WebAppTestClient(TestClient):
 
     def _generate_call_context(self, installation):
         return {
+            'extension_id': 'SRVC-0000',
+            'environment_id': 'ENV-0000-03',
+            'environment_type': 'production',
             'installation_id': installation['id'] if installation else None,
             'user_id': 'UR-000',
             'account_id': 'VA-000',
@@ -172,6 +175,9 @@ class WebAppTestClient(TestClient):
             headers['X-Connect-Config'] = json.dumps(config)
         if context.installation_id:
             headers['X-Connect-Installation-id'] = context.installation_id
+        headers['X-Connect-Extension-Id'] = context.extension_id
+        headers['X-Connect-Environment-Id'] = context.environment_id
+        headers['X-Connect-Environment-Type'] = context.environment_type
         headers['X-Connect-User-Id'] = context.user_id
         headers['X-Connect-Account-Id'] = context.account_id
         headers['X-Connect-Account-Role'] = context.account_role
