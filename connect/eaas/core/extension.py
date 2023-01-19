@@ -7,7 +7,7 @@ import anvil.server
 import pkg_resources
 from fastapi import APIRouter
 
-
+from connect.client import AsyncConnectClient, ConnectClient
 from connect.eaas.core.constants import (
     ACCOUNT_SETTINGS_PAGE_ATTR_NAME,
     ADMIN_PAGES_ATTR_NAME,
@@ -80,12 +80,52 @@ class ApplicationBase:
 class EventsApplicationBase(ApplicationBase):
     """Base class to implements an Events Application."""
 
-    def __init__(self, client, logger, config, installation_client=None, installation=None):
+    def __init__(
+        self,
+        client,
+        logger,
+        config,
+        installation_client=None,
+        installation=None,
+        context=None,
+    ):
         self.client = client
         self.logger = logger
         self.config = config
         self.installation_client = installation_client
         self.installation = installation
+        self.context = context
+
+    def get_installation_admin_client(self, installation_id):
+        data = (
+            self.client('devops')
+            .services[self.context.extension_id]
+            .installations[installation_id]
+            .action('impersonate')
+            .post()
+        )
+
+        return ConnectClient(
+            data['installation_api_key'],
+            endpoint=self.client.endpoint,
+            default_headers=self.client.default_headers,
+            logger=self.client.logger,
+        )
+
+    async def get_installation_admin_async_client(self, installation_id):
+        data = (
+            await self.client('devops')
+            .services[self.context.extension_id]
+            .installations[installation_id]
+            .action('impersonate')
+            .post()
+        )
+        return AsyncConnectClient(
+            data['installation_api_key'],
+            endpoint=self.client.endpoint,
+            default_headers=self.client.default_headers,
+            logger=self.client.logger,
+        )
 
     @classmethod
     def get_events(cls):
