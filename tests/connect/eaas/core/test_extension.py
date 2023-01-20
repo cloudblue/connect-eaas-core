@@ -4,6 +4,7 @@ import pytest
 from fastapi_utils.inferring_router import InferringRouter
 from pkg_resources import EntryPoint
 
+from connect.client import AsyncConnectClient, ConnectClient
 from connect.eaas.core.constants import GUEST_ENDPOINT_ATTR_NAME
 from connect.eaas.core.decorators import (
     account_settings_page,
@@ -25,6 +26,7 @@ from connect.eaas.core.extension import (
     TransformationBase,
     WebApplicationBase,
 )
+from connect.eaas.core.models import Context
 
 
 def test_get_events():
@@ -511,3 +513,84 @@ def test_get_transformation_info():
     assert transformations['description'] == 'The my transformation'
     assert transformations['edit_dialog_ui'] == '/static/my_settings.html'
     assert 'MyExtension' in transformations['class_fqn']
+
+
+def test_get_installation_admin_client(mocker, client_mocker_factory):
+    client_mocker = client_mocker_factory(base_url='https://localhost/public/v1')
+
+    ctx = Context(
+        extension_id='SRVC-0000',
+        environment_id='ENV-0000-03',
+        environment_type='production',
+    )
+    client_mocker('devops').services[ctx.extension_id].installations[
+        'EIN-123'
+    ].action('impersonate').post(
+        return_value={'installation_api_key': 'my_inst_api_key'},
+    )
+
+    extension_client = ConnectClient(
+        'api_key',
+        endpoint='https://localhost/public/v1',
+        default_headers={'A': 'B'},
+        logger=mocker.MagicMock(),
+        use_specs=False,
+    )
+
+    app = EventsApplicationBase(
+        extension_client,
+        None,
+        None,
+        None,
+        None,
+        ctx,
+    )
+
+    installation_admin_client = app.get_installation_admin_client('EIN-123')
+
+    assert isinstance(installation_admin_client, ConnectClient)
+    assert installation_admin_client.api_key == 'my_inst_api_key'
+    assert installation_admin_client.endpoint == extension_client.endpoint
+    assert installation_admin_client.default_headers == extension_client.default_headers
+    assert installation_admin_client.logger == extension_client.logger
+
+
+@pytest.mark.asyncio
+async def test_get_installation_admin_async_client(mocker, async_client_mocker_factory):
+    client_mocker = async_client_mocker_factory(base_url='https://localhost/public/v1')
+
+    ctx = Context(
+        extension_id='SRVC-0000',
+        environment_id='ENV-0000-03',
+        environment_type='production',
+    )
+    client_mocker('devops').services[ctx.extension_id].installations[
+        'EIN-123'
+    ].action('impersonate').post(
+        return_value={'installation_api_key': 'my_inst_api_key'},
+    )
+
+    extension_client = AsyncConnectClient(
+        'api_key',
+        endpoint='https://localhost/public/v1',
+        default_headers={'A': 'B'},
+        logger=mocker.MagicMock(),
+        use_specs=False,
+    )
+
+    app = EventsApplicationBase(
+        extension_client,
+        None,
+        None,
+        None,
+        None,
+        ctx,
+    )
+
+    installation_admin_client = await app.get_installation_admin_async_client('EIN-123')
+
+    assert isinstance(installation_admin_client, AsyncConnectClient)
+    assert installation_admin_client.api_key == 'my_inst_api_key'
+    assert installation_admin_client.endpoint == extension_client.endpoint
+    assert installation_admin_client.default_headers == extension_client.default_headers
+    assert installation_admin_client.logger == extension_client.logger
