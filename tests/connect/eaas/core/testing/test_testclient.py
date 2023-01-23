@@ -82,6 +82,9 @@ def test_get_call_context_default(webapp_mock):
 
     assert resp.status_code == 200
     assert resp.json() == {
+        'extension_id': 'SRVC-0000',
+        'environment_id': 'ENV-0000-03',
+        'environment_type': 'production',
         'installation_id': None,
         'user_id': 'UR-000',
         'account_id': 'VA-000',
@@ -95,6 +98,9 @@ def test_get_call_context_custom(webapp_mock):
     client = WebAppTestClient(webapp_mock)
 
     ctx = {
+        'extension_id': 'SRVC-0001',
+        'environment_id': 'ENV-0001-01',
+        'environment_type': 'development',
         'installation_id': 'EIN-111',
         'user_id': 'UR-222',
         'account_id': 'PA-333',
@@ -115,12 +121,16 @@ def test_get_call_context_merge(webapp_mock):
     ctx = {
         'installation_id': 'EIN-111',
         'call_type': 'admin',
+        'environment_id': 'ENV-0001-01',
     }
 
     resp = client.get('/api/context', context=ctx)
 
     assert resp.status_code == 200
     assert resp.json() == {
+        'extension_id': 'SRVC-0000',
+        'environment_id': 'ENV-0001-01',
+        'environment_type': 'production',
         'installation_id': 'EIN-111',
         'user_id': 'UR-000',
         'account_id': 'VA-000',

@@ -64,9 +64,15 @@ def test_get_call_context():
         x_connect_account_role='account_role',
         x_connect_call_source='ui',
         x_connect_call_type='user',
+        x_connect_extension_id='SRVC-0000',
+        x_connect_environment_id='ENV-0000-03',
+        x_connect_environment_type='production',
     )
 
     assert ctx == models.Context(
+        extension_id='SRVC-0000',
+        environment_id='ENV-0000-03',
+        environment_type='production',
         installation_id='installation_id',
         user_id='user_id',
         account_id='account_id',
@@ -85,9 +91,15 @@ def test_get_call_context_for_guest_eps():
         x_connect_account_role=None,
         x_connect_call_source=None,
         x_connect_call_type=None,
+        x_connect_extension_id=None,
+        x_connect_environment_id=None,
+        x_connect_environment_type=None,
     )
 
     assert ctx == models.Context(
+        extension_id=None,
+        environment_id=None,
+        environment_type=None,
         installation_id=None,
         user_id=None,
         account_id=None,
