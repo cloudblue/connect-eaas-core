@@ -1,10 +1,11 @@
 import os
 from logging import Logger
 
-from fastapi import Depends, Header
+from fastapi import Depends, Header, Path
 
 from connect.client import ConnectClient
-from connect.eaas.core.inject.common import get_logger
+from connect.eaas.core.inject.common import get_call_context, get_logger
+from connect.eaas.core.inject.models import Context
 from connect.eaas.core.logging import RequestLogger
 from connect.eaas.core.utils import get_correlation_id
 
@@ -58,3 +59,24 @@ def get_installation(
     x_connect_installation_id: str = Header(),
 ):
     return client('devops').installations[x_connect_installation_id].get()
+
+
+def get_installation_admin_client(
+    installation_id: str = Path(),
+    context: Context = Depends(get_call_context),
+    client: ConnectClient = Depends(get_extension_client),
+):
+    data = (
+        client('devops')
+        .services[context.extension_id]
+        .installations[installation_id]
+        .action('impersonate')
+        .post()
+    )
+
+    return ConnectClient(
+        data['installation_api_key'],
+        endpoint=client.endpoint,
+        default_headers=client.default_headers,
+        logger=client.logger,
+    )
