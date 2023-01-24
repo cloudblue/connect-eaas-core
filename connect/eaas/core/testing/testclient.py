@@ -1,14 +1,18 @@
 import inspect
 import json
+import os
+from unittest.mock import patch
 from urllib.parse import urlparse
 
 from fastapi import FastAPI
+from fastapi.params import Depends
 from fastapi.staticfiles import StaticFiles
 from starlette.routing import Match
 from starlette.testclient import TestClient
 
 from connect.client import ClientError
 from connect.client.testing import AsyncConnectClientMocker, ConnectClientMocker
+from connect.eaas.core.inject import asynchronous, synchronous
 from connect.eaas.core.inject.models import Context
 from connect.eaas.core.utils import client_error_exception_handler
 
@@ -82,6 +86,14 @@ class WebAppTestClient(TestClient):
         config=None,
         log_level=None,
     ):
+
+        if not context:
+            context = Context(**self._generate_call_context(installation))
+        elif isinstance(context, dict):
+            ctx_data = self._generate_call_context(installation)
+            ctx_data.update(context)
+            context = Context(**ctx_data)
+
         headers = self._populate_internal_headers(
             headers or {},
             context=context,
@@ -89,57 +101,122 @@ class WebAppTestClient(TestClient):
             config=config,
             log_level=log_level,
         )
-        mocker = self._get_client_mocker(method, url)
-        if installation and mocker:
-            with mocker(self.base_url) as mocker:
+
+        handler, path_params = self._get_endpoint_handler_and_params(method, url)
+        if not handler:
+            return super().request(
+                method,
+                url,
+                params=params,
+                data=data,
+                headers=headers,
+                cookies=cookies,
+                files=files,
+                auth=auth,
+                timeout=timeout,
+                allow_redirects=allow_redirects,
+                proxies=proxies,
+                hooks=hooks,
+                stream=stream,
+                verify=verify,
+                cert=cert,
+                json=json,
+            )
+
+        injection_info = self._get_endpoint_injection_info(handler)
+
+        need_mocking_calls = (
+            injection_info['installation'] and installation
+            or injection_info['installation_admin_client'] and 'installation_id' in path_params
+        )
+
+        if not need_mocking_calls:
+            return super().request(
+                method,
+                url,
+                params=params,
+                data=data,
+                headers=headers,
+                cookies=cookies,
+                files=files,
+                auth=auth,
+                timeout=timeout,
+                allow_redirects=allow_redirects,
+                proxies=proxies,
+                hooks=hooks,
+                stream=stream,
+                verify=verify,
+                cert=cert,
+                json=json,
+            )
+
+        mocker = self._get_client_mocker(handler)
+
+        with mocker(self.base_url) as mocker, patch.dict(
+            os.environ, {'API_KEY': 'ApiKey SU-000:XXX'},
+        ):
+            if injection_info['installation'] and installation:
                 mocker.ns('devops').collection('installations').resource(
                     installation['id'],
                 ).get(return_value=installation)
-                return super().request(
-                    method,
-                    url,
-                    params=params,
-                    data=data,
-                    headers=headers,
-                    cookies=cookies,
-                    files=files,
-                    auth=auth,
-                    timeout=timeout,
-                    allow_redirects=allow_redirects,
-                    proxies=proxies,
-                    hooks=hooks,
-                    stream=stream,
-                    verify=verify,
-                    cert=cert,
-                    json=json,
+            if injection_info['installation_admin_client'] and 'installation_id' in path_params:
+                mocker('devops').services[
+                    context.extension_id
+                ].installations[
+                    path_params['installation_id']
+                ]('impersonate').post(
+                    return_value={'installation_api_key': 'api-key'},
                 )
-        return super().request(
-            method,
-            url,
-            params=params,
-            data=data,
-            headers=headers,
-            cookies=cookies,
-            files=files,
-            auth=auth,
-            timeout=timeout,
-            allow_redirects=allow_redirects,
-            proxies=proxies,
-            hooks=hooks,
-            stream=stream,
-            verify=verify,
-            cert=cert,
-            json=json,
-        )
+            return super().request(
+                method,
+                url,
+                params=params,
+                data=data,
+                headers=headers,
+                cookies=cookies,
+                files=files,
+                auth=auth,
+                timeout=timeout,
+                allow_redirects=allow_redirects,
+                proxies=proxies,
+                hooks=hooks,
+                stream=stream,
+                verify=verify,
+                cert=cert,
+                json=json,
+            )
 
-    def _get_client_mocker(self, method, url):
+    def _get_client_mocker(self, handler):
+        if inspect.iscoroutinefunction(handler):
+            return AsyncConnectClientMocker
+        return ConnectClientMocker
+
+    def _get_endpoint_injection_info(self, handler):
+        inject_module = asynchronous if inspect.iscoroutinefunction(handler) else synchronous
+        signature = inspect.signature(handler)
+        info = {
+            'extension_client': False,
+            'installation_client': False,
+            'installation_admin_client': False,
+            'installation': False,
+        }
+        for param in signature.parameters.values():
+            if param.default != inspect.Parameter.empty and isinstance(param.default, Depends):
+                if param.default.dependency == inject_module.get_installation_client:
+                    info['installation_client'] = True
+                if param.default.dependency == inject_module.get_installation_admin_client:
+                    info['installation_admin_client'] = True
+                if param.default.dependency == inject_module.get_installation:
+                    info['installation'] = True
+        return info
+
+    def _get_endpoint_handler_and_params(self, method, url):
         path = urlparse(url).path
         for route in self.app.router.routes:
             match, child_scope = route.matches({'type': 'http', 'method': method, 'path': path})
             if match == Match.FULL:
-                if inspect.iscoroutinefunction(child_scope['endpoint']):
-                    return AsyncConnectClientMocker
-                return ConnectClientMocker
+                return child_scope['endpoint'], child_scope['path_params']
+        return None, None
 
     def _generate_call_context(self, installation):
         return {
@@ -162,13 +239,6 @@ class WebAppTestClient(TestClient):
         context=None,
         log_level=None,
     ):
-
-        if not context:
-            context = Context(**self._generate_call_context(installation))
-        elif isinstance(context, dict):
-            ctx_data = self._generate_call_context(installation)
-            ctx_data.update(context)
-            context = Context(**ctx_data)
 
         headers['X-Connect-Logging-Level'] = log_level or 'INFO'
         if config:

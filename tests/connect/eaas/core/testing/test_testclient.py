@@ -190,3 +190,14 @@ def test_client_error_json_body(webapp_mock):
         'error_code': 'ERR-000',
         'errors': ['this is an error'],
     }
+
+
+def test_get_installation_admin_client(webapp_mock, client_mocker_factory):
+    installation = {'settings': {'a': 'b'}}
+    client_mocker = client_mocker_factory()
+    client_mocker('devops').installations['EIN-01234'].get(
+        return_value=installation,
+    )
+    client = WebAppTestClient(webapp_mock)
+    resp = client.get('/api/sync/admin/EIN-01234/doit')
+    assert resp.json() == installation
