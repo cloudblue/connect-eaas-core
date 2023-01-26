@@ -82,4 +82,12 @@ def webapp_mock(mocker):
                 errors=['this is an error'],
             )
 
+        @router.get('/sync/admin/{installation_id}/doit')
+        def sync_installation_admin_client(
+            self,
+            installation_id: str,
+            client: ConnectClient = Depends(synchronous.get_installation_admin_client),
+        ):
+            return client('devops').installations[installation_id].get()
+
     return MyWebApplication
