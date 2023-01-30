@@ -1,7 +1,4 @@
-from connect.eaas.core.validation.models import (
-    ValidationItem,
-    ValidationResult,
-)
+from connect.eaas.core.validation.models import ValidationItem, ValidationResult
 
 
 def test_validation_res_to_dict():

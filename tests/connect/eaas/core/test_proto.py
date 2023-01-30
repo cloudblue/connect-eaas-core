@@ -20,6 +20,7 @@ from connect.eaas.core.proto import (
     WebTaskOptions,
 )
 
+
 TASK_DATA = {
     'options': {
         'task_id': 'task_id',

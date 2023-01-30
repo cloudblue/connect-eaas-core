@@ -1,9 +1,8 @@
 import os
 
+from connect.client import ClientError
 from fastapi import Request
 from fastapi.responses import JSONResponse, PlainTextResponse
-
-from connect.client import ClientError
 
 
 def obfuscate_header(key, value):

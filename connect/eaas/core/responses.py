@@ -20,10 +20,9 @@ class _Response:
         Returns a response as the task has been
         successfully processed.
 
-        **Parameters:**
-
-        * **output** - Optional output message to set the reason of failure
-            within the task object.
+        Args:
+            output (str): Optional output message to set the reason of failure
+                within the task object.
         """
         return cls(ResultType.FAIL, output=output)
 
@@ -43,10 +42,9 @@ class BackgroundResponse(_Response):
         Returns a response as the extension wants to skip the processing
         of the received task.
 
-        **Parameters:**
-
-        * **output** - Optional output message to set the reason of why this
-            task has been skipped.
+        Args:
+            output (str): Optional output message to set the reason of why this
+                task has been skipped.
         """
         return cls(ResultType.SKIP, output=output)
 
@@ -55,10 +53,9 @@ class BackgroundResponse(_Response):
         """
         Returns a response as the extension wants to reschedule this task.
 
-        **Parameters:**
-
-        * **countdown** - Optional amount of seconds before next delivery
-        of this task (default to 30 seconds).
+        Args:
+            countdown (int): Optional amount of seconds before next delivery
+                of this task (default to 30 seconds).
         """
         return cls(ResultType.RESCHEDULE, countdown=countdown)
 
@@ -67,10 +64,9 @@ class BackgroundResponse(_Response):
         """
         Returns a response as the extension wants to reschedule this task.
 
-        **Parameters:**
-
-        * **countdown** - Optional amount of seconds before next delivery
-        of this task (default to 300 seconds).
+        Args:
+            countdown (int): Optional amount of seconds before next delivery
+                of this task (default to 300 seconds).
 
         !!! note
             The minumum amount of seconds to wait before this task will
@@ -87,6 +83,9 @@ class ProcessingResponse(BackgroundResponse):
 
 
 class InteractiveResponse(_Response):
+    """
+    Returns the result of an interactive event processing.
+    """
     def __init__(self, status, http_status, headers, body, output):
         super().__init__(status, output)
         self.http_status = http_status
@@ -107,13 +106,12 @@ class InteractiveResponse(_Response):
         Returns a response as the extension has successfully
         processed this interactive event.
 
-        **Parameters:**
-
-        * **http_status** - Optional http status to return to the
-            caller (default 200 -> ok).
-        * **headers** - Optional response headers to return to the
-            caller.
-        ** **body** - Optional response body to return to the caller.
+        Args:
+            http_status (int): Optional http status to return to the
+                caller (default 200 -> ok).
+            headers (Dict): Optional response headers to return to the
+                caller.
+            body (Dict): Optional response body to return to the caller.
         """
         return cls(ResultType.SUCCESS, http_status, headers, body, None)
 
@@ -123,14 +121,13 @@ class InteractiveResponse(_Response):
         Returns a response as the extension has failed to
         process this interactive event.
 
-        **Parameters:**
-
-        * **http_status** - Optional http status to return to the
-            caller (default 400 -> bad request).
-        * **headers** - Optional response headers to return to the
-            caller.
-        ** **body** - Optional response body to return to the caller.
-        ** **output** - Optional output message to set within the task.
+        Args:
+            http_status (int): Optional http status to return to the
+                caller (default 400 -> bad request).
+            headers (Dict): Optional response headers to return to the
+                caller.
+            body (Dict): Optional response body to return to the caller.
+            output (str): Optional output message to set within the task.
         """
         return cls(ResultType.FAIL, http_status, headers, body, output)
 
@@ -158,4 +155,6 @@ class ProductActionResponse(InteractiveResponse):
 
 
 class ScheduledExecutionResponse(_Response):
-    pass
+    """
+    Returns the result of a scheduled event processing.
+    """

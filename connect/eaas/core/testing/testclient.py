@@ -4,14 +4,14 @@ import os
 from unittest.mock import patch
 from urllib.parse import urlparse
 
+from connect.client import ClientError
+from connect.client.testing import AsyncConnectClientMocker, ConnectClientMocker
 from fastapi import FastAPI
 from fastapi.params import Depends
 from fastapi.staticfiles import StaticFiles
 from starlette.routing import Match
 from starlette.testclient import TestClient
 
-from connect.client import ClientError
-from connect.client.testing import AsyncConnectClientMocker, ConnectClientMocker
 from connect.eaas.core.inject import asynchronous, synchronous
 from connect.eaas.core.inject.models import Context
 from connect.eaas.core.utils import client_error_exception_handler
@@ -23,7 +23,7 @@ class WebAppTestClient(TestClient):
     The WebAppTestClient is based on the python requests library
     and will internally create a requests.Session.
     Each interface method (get, post, ...) accepts the following extra
-    keyword arguments:
+        keyword arguments:
 
     * **context**: an instance of connect.eaas.core.inject.models.Context
         to provide the endpoint with a specific call context or a dict that will merged
@@ -38,7 +38,7 @@ class WebAppTestClient(TestClient):
 
     Usage:
 
-    ```python
+    ```py3
     from connect.eaas.core.testing.testclient import WebAppTestClient
 
     from myext.webapp import MyWebApplication
@@ -47,9 +47,9 @@ class WebAppTestClient(TestClient):
     response = client.get('/my/endpoint')
     ```
 
-    **Parameters:**
-
-    * **webapp** - The web application class.
+    Args:
+        webapp: The web application class.
+        base_url (str): The base url to be used.
     """
     def __init__(self, webapp, base_url='https://example.org/public/v1'):
         self._webapp_class = webapp
