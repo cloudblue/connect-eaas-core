@@ -23,7 +23,7 @@ def event(event_type, statuses=None):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import event
     from connect.eaas.core.extension import EventsApplicationBase
 
@@ -42,11 +42,10 @@ def event(event_type, statuses=None):
             pass
     ```
 
-    **Parameters:**
-
-    * **event_type** - The type of event this handler is for.
-    * **statuses** - List of statuses of the event that this handler
-    want to receive.
+    Args:
+        event_type (str): The type of event this handler is for.
+        statuses (List[str]): List of statuses of the event that this handler
+            want to receive.
 
     !!! note
         The list of statuses is required for `background` event types
@@ -73,7 +72,7 @@ def schedulable(name, description):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import schedulable
     from connect.eaas.core.extension import EventsApplicationBase
 
@@ -87,10 +86,9 @@ def schedulable(name, description):
             pass
     ```
 
-    **Parameters:**
-
-    * **name** - The name of this schedulable method.
-    * **description** - Description of what this schedulable method do.
+    Args:
+        name (str): The name of this schedulable method.
+        description (str): Description of what this schedulable method do.
 
     !!! note
         The `name` and `description` arguments are used by the
@@ -144,9 +142,8 @@ def variables(variables):
         pass
     ```
 
-    **Parameters:**
-
-    * **variables** - The list of environment variables you want to initialize.
+    Args:
+        variables (List[Dict]): The list of environment variables you want to initialize.
     """
     def wrapper(cls):
         if hasattr(cls, VARIABLES_INFO_ATTR_NAME):
@@ -169,7 +166,7 @@ def anvil_key_variable(name):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import anvil_key_variable
     from connect.eaas.core.extension import AnvilApplicationBase
 
@@ -179,9 +176,8 @@ def anvil_key_variable(name):
         pass
     ```
 
-    **Parameters:**
-
-    * **name** - Name of the environment variable.
+    Args:
+        name (str): Name of the environment variable.
 
     !!! note
         This environment variable does not need to be
@@ -209,7 +205,7 @@ def anvil_callable(summary=None, description=None):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import anvil_callable, anvil_key_variable
     from connect.eaas.core.extension import AnvilApplicationBase
 
@@ -224,6 +220,10 @@ def anvil_callable(summary=None, description=None):
         def say_hello(self, name):
             return f'Hello {name}'
     ```
+
+    Args:
+        summary (str): Summary of the callable.
+        description (str): Description of the callable.
     """
     def wrapper(func):
         setattr(
@@ -246,7 +246,7 @@ def guest():
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import guest, router, web_app
     from connect.eaas.core.extension import WebApplicationBase
 
@@ -279,7 +279,7 @@ def account_settings_page(label, url):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import (
         account_settings_page, router, web_app,
     )
@@ -292,10 +292,9 @@ def account_settings_page(label, url):
         pass
     ```
 
-    **Parameters:**
-
-    * **label** - the label to use for such page.
-    * **url** - the url path to the html page including `/static`.
+    Args:
+        label (str): The label to use for such page.
+        url (str): The url path to the html page including `/static`.
     """
     def wrapper(cls):
         setattr(cls, ACCOUNT_SETTINGS_PAGE_ATTR_NAME, {'label': label, 'url': url})
@@ -310,7 +309,7 @@ def module_pages(label, url, children=None):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import (
         module_pages, router, web_app,
     )
@@ -332,11 +331,10 @@ def module_pages(label, url, children=None):
         pass
     ```
 
-    **Parameters:**
-
-    * **label** - the label to use for such page.
-    * **url** - the url path to the html page including `/static`.
-    * **children** - optional list of children pages.
+    Args:
+        label (str): The label to use for such page.
+        url (str): The url path to the html page including `/static`.
+        children (List[Dict]): Optional list of children pages.
 
     !!! note
         Your extension pages will be rendered using a `Tabs` component
@@ -366,7 +364,7 @@ def admin_pages(pages):
 
     Usage:
 
-    ``` python
+    ``` py3
     from connect.eaas.core.decorators import (
         admin_pages, router, web_app,
     )
@@ -386,9 +384,8 @@ def admin_pages(pages):
         pass
     ```
 
-    **Parameters:**
-
-    * **pages** - optional list of admin pages.
+    Args:
+        pages (List[Dict]): Optional list of admin pages.
     """
     def wrapper(cls):
         setattr(cls, ADMIN_PAGES_ATTR_NAME, pages)
@@ -410,3 +407,21 @@ def transformation(name, description, edit_dialog_ui):
 
 router = InferringRouter()
 web_app = cbv
+"""
+This decorator is required to be used if you want to declare any
+endpoint.
+
+Usage:
+
+``` py3
+from connect.eaas.core.decorators import (
+    router, web_app,
+)
+from connect.eaas.core.extension import WebApplicationBase
+
+
+@web_app(router)
+class MyWebApp(WebApplicationBase):
+    pass
+```
+"""

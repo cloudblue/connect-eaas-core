@@ -1,9 +1,6 @@
 import inspect
 
-from connect.eaas.core.extension import (
-    EventsApplicationBase,
-    Extension,
-)
+from connect.eaas.core.extension import EventsApplicationBase, Extension
 from connect.eaas.core.responses import (
     CustomEventResponse,
     ProcessingResponse,

@@ -1,6 +1,7 @@
 import inspect
 
 from connect.client import ConnectClient
+
 from connect.eaas.core.inject import synchronous
 from connect.eaas.core.inject.models import Context
 

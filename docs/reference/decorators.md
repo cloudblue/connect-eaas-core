@@ -1,39 +1,51 @@
 ## Common
 
+### <code>connect.eaas.core.decorators.<strong>variables(variables)</strong></code>
+
 ::: connect.eaas.core.decorators.variables
-    :docstring:
 
 ## Events Application
 
+### <code>connect.eaas.core.decorators.<strong>event(event_type, statuses=None)</strong></code>
+
 ::: connect.eaas.core.decorators.event
-    :docstring:
+
+### <code>connect.eaas.core.decorators.<strong>schedulable(name, description)</strong></code>
 
 ::: connect.eaas.core.decorators.schedulable
-    :docstring:
 
 
 ## Web Application
 
+### <code>connect.eaas.core.decorators.<strong>web_app</strong></code>
+
+::: fastapi_utils.cbv.cbv
+
 ::: connect.eaas.core.decorators.web_app
-    :docstring:
+
+### <code>connect.eaas.core.decorators.<strong>guest()</strong></code>
 
 ::: connect.eaas.core.decorators.guest
-    :docstring:
+
+### <code>connect.eaas.core.decorators.<strong>account_settings_page(label, url)</strong></code>
 
 ::: connect.eaas.core.decorators.account_settings_page
-    :docstring:
+
+### <code>connect.eaas.core.decorators.<strong>module_pages(label, url, children=None)</strong></code>
 
 ::: connect.eaas.core.decorators.module_pages
-    :docstring:
+
+### <code>connect.eaas.core.decorators.<strong>admin_pages(pages)</strong></code>
 
 ::: connect.eaas.core.decorators.admin_pages
-    :docstring:
 
 
 ## Anvil Application
 
+### <code>connect.eaas.core.decorators.<strong>anvil_key_variable(name)</strong></code>
+
 ::: connect.eaas.core.decorators.anvil_key_variable
-    :docstring:
+
+### <code>connect.eaas.core.decorators.<strong>anvil_callable(summary=None, description=None)</strong></code>
 
 ::: connect.eaas.core.decorators.anvil_callable
-    :docstring:
