@@ -1,4 +1,10 @@
-from typing import Any, List, Literal, Optional, Union
+from typing import (
+    Any,
+    List,
+    Literal,
+    Optional,
+    Union,
+)
 
 from pydantic import BaseModel as PydanticBaseModel, Field
 from pydantic.utils import DUNDER_ATTRIBUTES

@@ -5,9 +5,9 @@ import os
 
 import anvil.server
 import pkg_resources
+from connect.client import AsyncConnectClient, ConnectClient
 from fastapi import APIRouter
 
-from connect.client import AsyncConnectClient, ConnectClient
 from connect.eaas.core.constants import (
     ACCOUNT_SETTINGS_PAGE_ATTR_NAME,
     ADMIN_PAGES_ATTR_NAME,
@@ -26,7 +26,7 @@ from connect.eaas.core.decorators import router
 class ApplicationBase:
 
     @classmethod
-    def get_descriptor(cls):  # pragma: no cover
+    def get_descriptor(cls) -> dict:  # pragma: no cover
         """
         Returns the **extension.json** extension descriptor.
 
@@ -52,7 +52,7 @@ class ApplicationBase:
         )
 
     @classmethod
-    def get_variables(cls):
+    def get_variables(cls) -> dict:
         """
         Inspects the Events Application class returning the list of environment
         variables declared using the `@variables` class decorator.
@@ -128,7 +128,7 @@ class EventsApplicationBase(ApplicationBase):
         )
 
     @classmethod
-    def get_events(cls):
+    def get_events(cls) -> dict:
         """
         Inspects the Events Application class for methods
         decorated with the `@event` decorator and return a list of
@@ -149,7 +149,7 @@ class EventsApplicationBase(ApplicationBase):
         return cls._get_methods_info(EVENT_INFO_ATTR_NAME)
 
     @classmethod
-    def get_schedulables(cls):
+    def get_schedulables(cls) -> dict:
         """
         Inspects the Events Application class for methods
         decorated with the `@schedulable` decorator and return a list of
@@ -201,7 +201,7 @@ class WebApplicationBase(ApplicationBase):
         return None
 
     @classmethod
-    def get_routers(cls):
+    def get_routers(cls) -> tuple:
         """
         Inspect the Web Application class for routes and return a tuple
         or two routers, the first one contains authenticated API routes,
@@ -250,7 +250,7 @@ class AnvilApplicationBase(ApplicationBase):
         self.installation = installation
 
     @classmethod
-    def get_anvil_key_variable(cls):
+    def get_anvil_key_variable(cls) -> str:
         """
         Returns the name of the environment variable that
         stores the Anvil Server Uplink key.

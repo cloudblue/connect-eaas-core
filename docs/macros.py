@@ -2,7 +2,6 @@ import itertools
 import os
 
 import requests
-
 from connect.client import ConnectClient
 
 

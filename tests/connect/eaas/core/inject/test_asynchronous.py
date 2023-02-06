@@ -1,8 +1,8 @@
 import inspect
 
 import pytest
-
 from connect.client import AsyncConnectClient
+
 from connect.eaas.core.inject import asynchronous
 from connect.eaas.core.inject.models import Context
 

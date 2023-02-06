@@ -22,3 +22,7 @@ div.autodoc-members {
 .red {
     color: red;
 }
+
+:not([data-md-state="blur"]) + nav {
+    display: none;
+  }
