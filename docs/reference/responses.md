@@ -1,20 +1,27 @@
 ## Background events
 
-
 ::: connect.eaas.core.responses.BackgroundResponse
-    :docstring:
-    :members: done fail skip reschedule slow_process_reschedule
+    options:
+        heading_level: 3
+
+::: connect.eaas.core.responses._Response
+    options:
+        heading_level: 3
 
 
 ## Interactive events
 
 ::: connect.eaas.core.responses.InteractiveResponse
-    :docstring:
-    :members: done fail
+    options:
+        heading_level: 3
 
 
 ## Scheduled execution
 
 ::: connect.eaas.core.responses.ScheduledExecutionResponse
-    :docstring:
-    :members: done fail
+    options:
+        heading_level: 3
+
+::: connect.eaas.core.responses._Response
+    options:
+        heading_level: 3

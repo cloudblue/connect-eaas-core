@@ -1,10 +1,10 @@
 import os
 
 import pytest
+from connect.client import AsyncConnectClient, ConnectClient
 from fastapi_utils.inferring_router import InferringRouter
 from pkg_resources import EntryPoint
 
-from connect.client import AsyncConnectClient, ConnectClient
 from connect.eaas.core.constants import GUEST_ENDPOINT_ATTR_NAME
 from connect.eaas.core.decorators import (
     account_settings_page,
@@ -20,11 +20,11 @@ from connect.eaas.core.decorators import (
     web_app,
 )
 from connect.eaas.core.extension import (
-    _invoke,
     AnvilApplicationBase,
     EventsApplicationBase,
     TransformationBase,
     WebApplicationBase,
+    _invoke,
 )
 from connect.eaas.core.models import Context
 

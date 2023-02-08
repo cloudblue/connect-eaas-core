@@ -6,6 +6,7 @@ from fastapi import Depends, Header
 from connect.eaas.core.inject.models import Context
 from connect.eaas.core.logging import ExtensionLogHandler
 
+
 _LOGGING_HANDLER = None
 
 

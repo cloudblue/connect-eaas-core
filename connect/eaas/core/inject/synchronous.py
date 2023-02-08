@@ -1,9 +1,9 @@
 import os
 from logging import Logger
 
+from connect.client import ConnectClient
 from fastapi import Depends, Header, Path
 
-from connect.client import ConnectClient
 from connect.eaas.core.inject.common import get_call_context, get_logger
 from connect.eaas.core.inject.models import Context
 from connect.eaas.core.logging import RequestLogger
