@@ -148,7 +148,7 @@ class Schedulable(BaseModel):
 
 
 class Transformation(BaseModel):
-    class_fqn: str
+    method: str
     name: str
     description: str
     edit_dialog_ui: str
