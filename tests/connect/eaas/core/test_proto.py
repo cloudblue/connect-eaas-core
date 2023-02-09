@@ -128,7 +128,7 @@ SETUP_REQUEST_DATA = {
         'name': 'Name',
         'description': 'Description',
         'edit_dialog_ui': '/static/edit.html',
-        'class_fqn': 'package.ABC',
+        'method': 'my_method',
     }],
     'repository': {
         'readme_url': 'https://read.me',
