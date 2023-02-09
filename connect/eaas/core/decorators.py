@@ -394,14 +394,45 @@ def admin_pages(pages):
 
 
 def transformation(name, description, edit_dialog_ui):
-    def wrapper(cls):
-        setattr(cls, TRANSFORMATION_ATTR_NAME, {
-            'name': name,
-            'description': description,
-            'edit_dialog_ui': edit_dialog_ui,
-            'class_fqn': f'{cls.__module__}.{cls.__name__}',
-        })
-        return cls
+    """
+    Mark a method of an Transformations Application as a tranformation
+    function.
+
+    Usage:
+
+    ``` py3
+    from connect.eaas.core.decorators import transformation
+    from connect.eaas.core.extension import EventsApplicationBase
+
+    class MyTransformationsApplication(TransformationsApplicationBase):
+
+        @transformation(
+            'Split column by delimiter',
+            'Split a column into multiple columns based on a delimiter',
+            '/static/configure_split_by_delimiter.html',
+        )
+        def split_by_delimiter(self, row):
+            pass
+    ```
+
+    Args:
+        name (str): The name of this transformation method.
+        description (str): Description of what this transformation method do.
+        edit_dialog_ui (str): Path to the html page that allow configuring
+        this transformation.
+    """
+    def wrapper(func):
+        setattr(
+            func,
+            TRANSFORMATION_ATTR_NAME,
+            {
+                'method': func.__name__,
+                'name': name,
+                'description': description,
+                'edit_dialog_ui': edit_dialog_ui,
+            },
+        )
+        return func
     return wrapper
 
 

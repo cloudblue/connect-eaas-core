@@ -77,25 +77,7 @@ class ApplicationBase:
         return getattr(cls, VARIABLES_INFO_ATTR_NAME, [])
 
 
-class EventsApplicationBase(ApplicationBase):
-    """Base class to implements an Events Application."""
-
-    def __init__(
-        self,
-        client,
-        logger,
-        config,
-        installation_client=None,
-        installation=None,
-        context=None,
-    ):
-        self.client = client
-        self.logger = logger
-        self.config = config
-        self.installation_client = installation_client
-        self.installation = installation
-        self.context = context
-
+class InstallationAdminClientMixin:
     def get_installation_admin_client(self, installation_id):
         data = (
             self.client('devops')
@@ -126,6 +108,26 @@ class EventsApplicationBase(ApplicationBase):
             default_headers=self.client.default_headers,
             logger=self.client.logger,
         )
+
+
+class EventsApplicationBase(ApplicationBase, InstallationAdminClientMixin):
+    """Base class to implements an Events Application."""
+
+    def __init__(
+        self,
+        client,
+        logger,
+        config,
+        installation_client=None,
+        installation=None,
+        context=None,
+    ):
+        self.client = client
+        self.logger = logger
+        self.config = config
+        self.installation_client = installation_client
+        self.installation = installation
+        self.context = context
 
     @classmethod
     def get_events(cls) -> dict:
@@ -303,35 +305,54 @@ class AnvilApplicationBase(ApplicationBase):
                 anvil.server.callable(fn)
 
 
-class TransformationBase:
+class TransformationsApplicationBase(ApplicationBase, InstallationAdminClientMixin):
 
     def __init__(
-            self,
-            input_columns,
-            output_columns,
-            stream,
-            client,
-            config,
-            logger,
-            transformation_settings=None,
-            installation_client=None,
-            installation=None,
-            cache=None,
+        self,
+        client,
+        logger,
+        config,
+        installation_client=None,
+        installation=None,
+        context=None,
+        transformation_request=None,
     ):
         self.client = client
-        self.config = config
         self.logger = logger
-
+        self.config = config
         self.installation_client = installation_client
         self.installation = installation
-
-        self.input_columns = input_columns
-        self.output_columns = output_columns
-        self.stream = stream
-
-        self.transformation_settings = transformation_settings
-        self.cache = cache
+        self.context = context
+        self.transformation_request = transformation_request
 
     @classmethod
-    def get_transformation_info(cls):
-        return getattr(cls, TRANSFORMATION_ATTR_NAME, None)
+    def get_transformations(cls) -> dict:
+        """
+        Inspects the Transformations Application class for methods
+        decorated with the `@transformation` decorator and return a list of
+        objects like in the following example:
+
+        !!! example
+
+            ``` python
+            [
+                {
+                    'method': 'split_by_delimiter',
+                    'name': 'Split column by delimiter',
+                    'description': 'This schedulable refresh the GCP OAuth toke',
+                },
+            ]
+            ```
+        """
+        return cls._get_methods_info(TRANSFORMATION_ATTR_NAME)
+
+    @classmethod
+    def _get_methods_info(cls, attr_name):
+        info = []
+        members = inspect.getmembers(cls)
+        for _, value in members:
+            if not (inspect.isfunction(value) or inspect.iscoroutinefunction(value)):
+                continue
+            if hasattr(value, attr_name):
+                info.append(getattr(value, attr_name))
+        return info
