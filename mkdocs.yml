@@ -92,6 +92,9 @@ nav:
       - Basic concepts:
           - Events and Tasks: dev_guide/basics_events_tasks.md
           - Project structure: dev_guide/basics_project_structure.md
+      - Advanced concepts:
+        - Hooks: dev_guide/hooks.md
+        - Middleware: dev_guide/middleware.md
       - Tools: dev_guide/tools.md
       - UI Toolkit: dev_guide/ui_toolkit.md
       - Async support: dev_guide/async.md

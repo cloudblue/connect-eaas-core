@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
@@ -271,7 +273,7 @@ def guest():
     return wrapper
 
 
-def account_settings_page(label, url):
+def account_settings_page(label: str, url: str):
     """
     Class decorator for Web Application that declare which html page
     must be rendererd within the `Account Settings` module of Connect UI
@@ -302,7 +304,7 @@ def account_settings_page(label, url):
     return wrapper
 
 
-def module_pages(label, url, children=None):
+def module_pages(label: str, url: str, children: List[Dict] = None):
     """
     Class decorator for Web Application that declare the main page
     for a web application and optionally a list of children pages.
@@ -355,7 +357,7 @@ def module_pages(label, url, children=None):
     return wrapper
 
 
-def admin_pages(pages):
+def admin_pages(pages: List[Dict]):
     """
     Class decorator for Web Application that declare a list of
     admin pages.
@@ -393,7 +395,7 @@ def admin_pages(pages):
     return wrapper
 
 
-def transformation(name, description, edit_dialog_ui):
+def transformation(name: str, description: str, edit_dialog_ui: str):
     """
     Mark a method of an Transformations Application as a tranformation
     function.
