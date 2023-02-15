@@ -8,6 +8,7 @@ from connect.eaas.core.constants import (
     ADMIN_PAGES_ATTR_NAME,
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
+    DEVOPS_PAGES_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
@@ -435,6 +436,43 @@ def transformation(name: str, description: str, edit_dialog_ui: str):
             },
         )
         return func
+    return wrapper
+
+
+def devops_pages(pages: List[Dict]):
+    """
+    Class decorator for Web Application that declare a list of
+    devops pages that will be displayed.
+    These pages are shown as additional tabs in the main devops page.
+
+    Usage:
+
+    ``` py3
+    from connect.eaas.core.decorators import (
+        devops_pages, router, web_app,
+    )
+    from connect.eaas.core.extension import WebApplicationBase
+
+
+    @web_app(router)
+    @devops_pages(
+        [
+            {
+                'label': 'My tab 1',
+                'url': '/static/tab1.html',
+            },
+        ],
+    )
+    class MyWebApp(WebApplicationBase):
+        pass
+    ```
+
+    Args:
+        pages (List[Dict]): List of devops pages including the label and the url.
+    """
+    def wrapper(cls):
+        setattr(cls, DEVOPS_PAGES_ATTR_NAME, pages)
+        return cls
     return wrapper
 
 

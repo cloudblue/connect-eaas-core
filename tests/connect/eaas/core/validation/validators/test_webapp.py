@@ -3,6 +3,7 @@ from fastapi.routing import APIRouter
 from connect.eaas.core.decorators import (
     account_settings_page,
     admin_pages,
+    devops_pages,
     module_pages,
     web_app,
 )
@@ -420,6 +421,87 @@ def test_validate_webapp_wrong_admin_pages_object(mocker):
     ) == item.message
 
 
+def test_validate_webapp_wrong_devops_pages_type(mocker):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @devops_pages('hello')
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.os.path.exists',
+        return_value=True,
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert 'The argument of the @devops_pages decorator must be a list of objects.' == item.message
+
+
+def test_validate_webapp_wrong_devops_pages_object(mocker):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @devops_pages([{'hello': 'world'}])
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.os.path.exists',
+        return_value=True,
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'Invalid devops page declaration. Each devops page must '
+        'be an object with the label and url attributes.'
+    ) == item.message
+
+
 def test_validate_webapp(mocker):
 
     router = APIRouter()
@@ -442,6 +524,14 @@ def test_validate_webapp(mocker):
             {
                 'label': 'Admin page1',
                 'url': '/static/admin1.html',
+            },
+        ],
+    )
+    @devops_pages(
+        [
+            {
+                'label': 'Tab1',
+                'url': '/static/tab1.html',
             },
         ],
     )
