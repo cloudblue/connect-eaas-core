@@ -11,6 +11,7 @@ from connect.eaas.core.decorators import (
     admin_pages,
     anvil_callable,
     anvil_key_variable,
+    devops_pages,
     event,
     guest,
     module_pages,
@@ -410,6 +411,7 @@ def test_get_ui_modules(mocker):
     @account_settings_page('Extension settings', '/static/settings.html')
     @module_pages('Main Page', '/static/main.html')
     @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
+    @devops_pages([{'label': 'tab1', 'url': '/static/tab1.html'}])
     @web_app(router)
     class MyExtension(WebApplicationBase):
 
@@ -424,12 +426,6 @@ def test_get_ui_modules(mocker):
 
     mocker.patch('connect.eaas.core.extension.router', router)
 
-    # mocker.patch.object(
-    #     EntryPoint,
-    #     'load',
-    #     return_value=MyExtension,
-    # )
-
     ui_modules = MyExtension.get_ui_modules()
     assert ui_modules == {
         'settings': {
@@ -441,6 +437,7 @@ def test_get_ui_modules(mocker):
             'url': '/static/main.html',
         },
         'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
+        'devops': [{'label': 'tab1', 'url': '/static/tab1.html'}],
     }
 
 

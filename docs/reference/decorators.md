@@ -39,6 +39,10 @@
 
 ::: connect.eaas.core.decorators.admin_pages
 
+### <code>connect.eaas.core.decorators.<strong>devops_pages(pages)</strong></code>
+
+::: connect.eaas.core.decorators.devops_pages
+
 
 ## Anvil Application
 

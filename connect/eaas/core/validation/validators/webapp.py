@@ -246,4 +246,46 @@ def _validate_webapp_ui_modules(context):  # noqa: CCR001
                     ),
                 )
 
+    if 'devops' in ui_modules:
+        devops = ui_modules['devops']
+        if not isinstance(devops, (list, tuple)):
+            messages.append(
+                ValidationItem(
+                    level='ERROR',
+                    message=(
+                        'The argument of the @devops_pages '
+                        'decorator must be a list of objects.'
+                    ),
+                    **get_code_context(extension_class, '@devops_pages('),
+                ),
+            )
+        else:
+            for child in devops:
+                if 'label' not in child or 'url' not in child:
+                    messages.append(
+                        ValidationItem(
+                            level='ERROR',
+                            message=(
+                                'Invalid devops page declaration. '
+                                'Each devops page must be an object with the '
+                                'label and url attributes.'
+                            ),
+                            **get_code_context(extension_class, '@devops_pages('),
+                        ),
+                    )
+                    continue
+
+                label = child['label']
+                url = child['url']
+                messages.extend(
+                    _check_ui_component_label(
+                        extension_class, '"Devops Page"', label, '@devops_pages(',
+                    ),
+                )
+                messages.extend(
+                    _check_ui_component_url(
+                        extension_class, '"Devops Page"', url, '@devops_pages(',
+                    ),
+                )
+
     return messages
