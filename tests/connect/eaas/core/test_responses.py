@@ -8,6 +8,7 @@ from connect.eaas.core.responses import (
     ProcessingResponse,
     ProductActionResponse,
     ScheduledExecutionResponse,
+    TransformationResponse,
     ValidationResponse,
 )
 
@@ -17,12 +18,24 @@ def test_result_ok():
     assert ScheduledExecutionResponse.done().status == ResultType.SUCCESS
 
 
-def test_result_skip():
-    assert BackgroundResponse.skip().status == ResultType.SKIP
+@pytest.mark.parametrize(
+    'response_cls',
+    (
+        BackgroundResponse, TransformationResponse,
+    ),
+)
+def test_result_skip(response_cls):
+    assert response_cls.skip().status == ResultType.SKIP
 
 
-def test_result_skip_with_output():
-    skip = BackgroundResponse.skip('output')
+@pytest.mark.parametrize(
+    'response_cls',
+    (
+        BackgroundResponse, TransformationResponse,
+    ),
+)
+def test_result_skip_with_output(response_cls):
+    skip = response_cls.skip('output')
     assert skip.status == ResultType.SKIP
     assert skip.output == 'output'
 
@@ -67,7 +80,7 @@ def test_result_slow_reschedule(countdown, expected):
     'response_cls',
     (
         BackgroundResponse, InteractiveResponse,
-        ScheduledExecutionResponse,
+        ScheduledExecutionResponse, TransformationResponse,
     ),
 )
 def test_result_fail(response_cls):

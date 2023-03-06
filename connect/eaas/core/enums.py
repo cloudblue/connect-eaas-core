@@ -26,6 +26,7 @@ class TaskCategory:
     BACKGROUND = 'background'
     INTERACTIVE = 'interactive'
     SCHEDULED = 'scheduled'
+    TRANSFORMATION = 'transformation'
 
 
 class ResultType:
