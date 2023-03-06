@@ -158,3 +158,21 @@ class ScheduledExecutionResponse(_Response):
     """
     Returns the result of a scheduled event processing.
     """
+
+
+class TransformationResponse(_Response):
+    """
+    Returns the result of a transformation processing.
+    """
+
+    @classmethod
+    def skip(cls, output=None):
+        """
+        Returns a response as the extension wants to skip the processing
+        of the received task.
+
+        Args:
+            output (str): Optional output message to set the reason of why this
+                task has been skipped.
+        """
+        return cls(ResultType.SKIP, output=output)
