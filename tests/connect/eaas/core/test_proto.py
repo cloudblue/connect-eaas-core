@@ -129,6 +129,7 @@ SETUP_REQUEST_DATA = {
         'description': 'Description',
         'edit_dialog_ui': '/static/edit.html',
         'method': 'my_method',
+        'manual': False,
     }],
     'repository': {
         'readme_url': 'https://read.me',
