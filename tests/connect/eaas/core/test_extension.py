@@ -14,6 +14,7 @@ from connect.eaas.core.decorators import (
     devops_pages,
     event,
     guest,
+    manual_transformation,
     module_pages,
     schedulable,
     transformation,
@@ -497,15 +498,47 @@ def test_get_transformations(mocker):
         def transform_row(self, row):
             pass
 
+        @manual_transformation()
+        @transformation(
+            name='my manual transformation',
+            description='The transformation',
+            edit_dialog_ui='/static/settings.html',
+        )
+        def dummy(self, row):
+            pass
+
+        @transformation(
+            name='another manual transformation',
+            description='The transformation',
+            edit_dialog_ui='/static/settings.html',
+        )
+        @manual_transformation()
+        def dummy2(self, row):
+            pass
+
     transformations = MyExtension.get_transformations()
-    assert transformations == [
-        {
-            'method': 'transform_row',
-            'name': 'my transformation',
-            'description': 'The my transformation',
-            'edit_dialog_ui': '/static/my_settings.html',
-        },
-    ]
+    assert len(transformations) == 3
+    assert {
+        'method': 'transform_row',
+        'name': 'my transformation',
+        'description': 'The my transformation',
+        'edit_dialog_ui': '/static/my_settings.html',
+        'manual': False,
+    } in transformations
+    assert {
+        'method': 'dummy',
+        'name': 'my manual transformation',
+        'description': 'The transformation',
+        'edit_dialog_ui': '/static/settings.html',
+        'manual': True,
+    } in transformations
+    assert {
+        'method': 'dummy2',
+        'name': 'another manual transformation',
+        'description': 'The transformation',
+        'edit_dialog_ui': '/static/settings.html',
+        'manual': True,
+    } in transformations
 
 
 def test_get_installation_admin_client(mocker, client_mocker_factory):

@@ -425,6 +425,10 @@ def transformation(name: str, description: str, edit_dialog_ui: str):
         this transformation.
     """
     def wrapper(func):
+        manual = False
+        if hasattr(func, TRANSFORMATION_ATTR_NAME):
+            manual = getattr(func, TRANSFORMATION_ATTR_NAME)['manual']
+
         setattr(
             func,
             TRANSFORMATION_ATTR_NAME,
@@ -433,7 +437,46 @@ def transformation(name: str, description: str, edit_dialog_ui: str):
                 'name': name,
                 'description': description,
                 'edit_dialog_ui': edit_dialog_ui,
+                'manual': manual,
             },
+        )
+        return func
+    return wrapper
+
+
+def manual_transformation():
+    """
+    Mark a method of an Transformations Application as a manual tranformation.
+
+    Usage:
+
+    ``` py3
+    from connect.eaas.core.decorators import manual_transformation, transformation
+    from connect.eaas.core.extension import EventsApplicationBase
+
+    class MyTransformationsApplication(TransformationsApplicationBase):
+
+        @manual_transformation()
+        @transformation(
+            'Split column by delimiter',
+            'Split a column into multiple columns based on a delimiter',
+            '/static/configure_split_by_delimiter.html',
+        )
+        def manual(self, row):
+            pass
+    ```
+    """
+    def wrapper(func):
+        if hasattr(func, TRANSFORMATION_ATTR_NAME):
+            data = getattr(func, TRANSFORMATION_ATTR_NAME)
+            data['manual'] = True
+        else:
+            data = {'manual': True}
+
+        setattr(
+            func,
+            TRANSFORMATION_ATTR_NAME,
+            data,
         )
         return func
     return wrapper

@@ -152,6 +152,7 @@ class Transformation(BaseModel):
     name: str
     description: str
     edit_dialog_ui: str
+    manual: bool = False
 
 
 class Repository(BaseModel):
