@@ -86,7 +86,7 @@ def validate_pyproject_toml(context):  # noqa: CCR001
         return ValidationResult(items=messages, must_exit=True)
 
     sys.path.append(os.path.join(os.getcwd(), project_dir))
-    possible_extensions = ['extension', 'webapp', 'anvilapp', 'eventsapp']
+    possible_extensions = ['extension', 'webapp', 'anvilapp', 'eventsapp', 'tfnapp']
     extensions = {}
     for extension_type in possible_extensions:
         if extension_type in extension_dict.keys():
@@ -134,7 +134,9 @@ def validate_pyproject_toml(context):  # noqa: CCR001
                     'declared at least one the following: *"eventsapp" = '
                     '"your_package.events:YourEventsApplication"*, '
                     '*"webapp" = "your_package.webapp:YourWebApplication"*, '
-                    '*"anvilapp" = "your_package.anvil:YourAnvilApplication"*.'
+                    '*"anvilapp" = "your_package.anvil:YourAnvilApplication"*. '
+                    'For Commerce Transformation the application must be declared as: '
+                    '*"tfnapp" = "your_package.transformations:YourTfnApplication"*'
                 ),
                 file=descriptor_file,
             ),

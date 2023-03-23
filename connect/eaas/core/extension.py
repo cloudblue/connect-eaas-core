@@ -344,6 +344,8 @@ class TransformationsApplicationBase(ApplicationBase, InstallationAdminClientMix
                     'method': 'split_by_delimiter',
                     'name': 'Split column by delimiter',
                     'description': 'This schedulable refresh the GCP OAuth toke',
+                    'edit_dialog_ui': '/static/path/to/ui.html',
+                    'manual': False,
                 },
             ]
             ```
