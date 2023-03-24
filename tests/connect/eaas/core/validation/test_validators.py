@@ -7,6 +7,7 @@ from connect.eaas.core.validation.validators.base import (
     validate_variables,
 )
 from connect.eaas.core.validation.validators.eventsapp import validate_eventsapp
+from connect.eaas.core.validation.validators.tfnapp import validate_tfnapp
 from connect.eaas.core.validation.validators.webapp import validate_webapp
 
 
@@ -18,5 +19,6 @@ def test_get_validators():
         validate_eventsapp,
         validate_anvilapp,
         validate_webapp,
+        validate_tfnapp,
         validate_variables,
     ]
