@@ -137,6 +137,10 @@ SETUP_REQUEST_DATA = {
     },
     'runner_version': '3',
     'model_type': 'setup_request',
+    'proxied_connect_api': [
+        '/public/v1/accounts',
+        '/public/v1/auth/context',
+    ],
 }
 SETUP_REQUEST_DATA_V1 = {
     'capabilities': {'test': 'data'},
@@ -327,6 +331,7 @@ def test_deserialize_v1_setup_request_data():
     expected_data = copy.deepcopy(SETUP_REQUEST_DATA)
     expected_data['anvil_callables'] = None
     expected_data['transformations'] = None
+    expected_data['proxied_connect_api'] = None
 
     assert isinstance(message, Message)
     assert message.version == 1

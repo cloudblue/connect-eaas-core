@@ -43,6 +43,10 @@
 
 ::: connect.eaas.core.decorators.devops_pages
 
+### <code>connect.eaas.core.decorators.<strong>proxied_connect_api(endpoints)</strong></code>
+
+::: connect.eaas.core.decorators.proxied_connect_api
+
 
 ## Anvil Application
 

@@ -16,6 +16,7 @@ from connect.eaas.core.decorators import (
     guest,
     manual_transformation,
     module_pages,
+    proxied_connect_api,
     schedulable,
     transformation,
     variables,
@@ -485,6 +486,22 @@ def test_get_ui_modules_with_children(mocker):
         },
         'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
     }
+
+
+def test_get_proxied_connect_api_not_set():
+    class MyWebApp(WebApplicationBase):
+        pass
+
+    assert MyWebApp.get_proxied_connect_api() == []
+
+
+@pytest.mark.parametrize('endpoints', ([], ['/p/1'], ['/api/v1/ep', '/public/v2/ep/test']))
+def test_get_proxied_connect_api(endpoints):
+    @proxied_connect_api(endpoints)
+    class MyWebApp(WebApplicationBase):
+        pass
+
+    assert MyWebApp.get_proxied_connect_api() == endpoints
 
 
 def test_get_transformations(mocker):

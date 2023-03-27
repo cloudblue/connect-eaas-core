@@ -17,6 +17,7 @@ from connect.eaas.core.constants import (
     EVENT_INFO_ATTR_NAME,
     GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
+    PROXIED_CONNECT_API_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     TRANSFORMATION_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
@@ -240,6 +241,23 @@ class WebApplicationBase(ApplicationBase):
             ui_modules['devops'] = getattr(cls, DEVOPS_PAGES_ATTR_NAME)
 
         return ui_modules
+
+    @classmethod
+    def get_proxied_connect_api(cls) -> list:
+        """
+        Inspects the Web Application class returning the list of accessible
+        Connect Public API endpoints declared using the `@proxied_connect_api` class decorator.
+
+        !!! example
+
+            ``` python
+            [
+                '/public/v1/marketplaces',
+                '/public/v1/auth/context',
+            ]
+            ```
+        """
+        return getattr(cls, PROXIED_CONNECT_API_ATTR_NAME, [])
 
 
 def _invoke(method, **kwargs):

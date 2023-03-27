@@ -12,6 +12,7 @@ from connect.eaas.core.constants import (
     EVENT_INFO_ATTR_NAME,
     GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
+    PROXIED_CONNECT_API_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     TRANSFORMATION_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
@@ -515,6 +516,43 @@ def devops_pages(pages: List[Dict]):
     """
     def wrapper(cls):
         setattr(cls, DEVOPS_PAGES_ATTR_NAME, pages)
+        return cls
+    return wrapper
+
+
+def proxied_connect_api(endpoints: List[str]):
+    """
+    Class decorator for Web Application that declares a list of
+    Connect Public API endpoints, accessible on the hosts of the extension
+    and its installations.
+    Each item shall start with a / and contain a full API path of the endpoint.
+    Nested API endpoints with dynamic IDs are not supported at the moment.
+
+    Usage:
+
+    ``` py3
+    from connect.eaas.core.decorators import (
+        proxied_connect_api, router, web_app,
+    )
+    from connect.eaas.core.extension import WebApplicationBase
+
+
+    @web_app(router)
+    @proxied_connect_api(
+        [
+            '/public/v1/marketplaces',
+            '/public/v1/auth/context',
+        ],
+    )
+    class MyWebApp(WebApplicationBase):
+        pass
+    ```
+
+    Args:
+        endpoints (List[str]): List of endpoints.
+    """
+    def wrapper(cls):
+        setattr(cls, PROXIED_CONNECT_API_ATTR_NAME, endpoints)
         return cls
     return wrapper
 
