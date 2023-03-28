@@ -264,6 +264,7 @@ class WebAppTestClient(TestClient):
         auth_router, no_auth_router = self._webapp_class.get_routers()
         app.include_router(auth_router, prefix='/api')
         app.include_router(no_auth_router, prefix='/guest')
+        app.include_router(no_auth_router, prefix='/unauthorized')
 
         static_root = self._webapp_class.get_static_root()
         if static_root:

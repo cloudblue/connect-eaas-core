@@ -5,7 +5,7 @@ from connect.client import AsyncConnectClient, ConnectClient
 from fastapi_utils.inferring_router import InferringRouter
 from pkg_resources import EntryPoint
 
-from connect.eaas.core.constants import GUEST_ENDPOINT_ATTR_NAME
+from connect.eaas.core.constants import UNAUTHORIZED_ENDPOINT_ATTR_NAME
 from connect.eaas.core.decorators import (
     account_settings_page,
     admin_pages,
@@ -19,6 +19,7 @@ from connect.eaas.core.decorators import (
     proxied_connect_api,
     schedulable,
     transformation,
+    unauthorized,
     variables,
     web_app,
 )
@@ -378,7 +379,20 @@ def test_guest_endpoint(mocker):
 
     ext = MyWebApp()
 
-    assert getattr(ext.my_endpoint, GUEST_ENDPOINT_ATTR_NAME, False) is True
+    assert getattr(ext.my_endpoint, UNAUTHORIZED_ENDPOINT_ATTR_NAME, False) is True
+
+
+def test_unauthorized_endpoint(mocker):
+
+    class MyWebApp(WebApplicationBase):
+
+        @unauthorized()
+        def my_endpoint(self, arg1):
+            pass
+
+    ext = MyWebApp()
+
+    assert getattr(ext.my_endpoint, UNAUTHORIZED_ENDPOINT_ATTR_NAME, False) is True
 
 
 def test_get_routers(mocker):
@@ -393,8 +407,13 @@ def test_get_routers(mocker):
             pass
 
         @guest()
-        @router.get('/unauthenticated')
+        @router.get('/unauthenticated-deprecated')
         def test_guest(self):
+            pass
+
+        @unauthorized()
+        @router.get('/unauthenticated')
+        def test_unauthorized(self):
             pass
 
     mocker.patch('connect.eaas.core.extension.router', router)
@@ -402,9 +421,10 @@ def test_get_routers(mocker):
     auth_router, no_auth_router = MyExtension.get_routers()
 
     assert len(auth_router.routes) == 1
-    assert len(no_auth_router.routes) == 1
+    assert len(no_auth_router.routes) == 2
     assert auth_router.routes[0].path == '/authenticated'
-    assert no_auth_router.routes[0].path == '/unauthenticated'
+    assert no_auth_router.routes[0].path == '/unauthenticated-deprecated'
+    assert no_auth_router.routes[1].path == '/unauthenticated'
 
 
 def test_get_ui_modules(mocker):
@@ -422,8 +442,13 @@ def test_get_ui_modules(mocker):
             pass
 
         @guest()
-        @router.get('/unauthenticated')
+        @router.get('/unauthenticated-deprecated')
         def test_guest(self):
+            pass
+
+        @unauthorized()
+        @router.get('/unauthenticated')
+        def test_unauthorized(self):
             pass
 
     mocker.patch('connect.eaas.core.extension.router', router)
@@ -461,8 +486,13 @@ def test_get_ui_modules_with_children(mocker):
             pass
 
         @guest()
-        @router.get('/unauthenticated')
+        @router.get('/unauthenticated-deprecated')
         def test_guest(self):
+            pass
+
+        @unauthorized()
+        @router.get('/unauthenticated')
+        def test_unauthorized(self):
             pass
 
     mocker.patch('connect.eaas.core.extension.router', router)
