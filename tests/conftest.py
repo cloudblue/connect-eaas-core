@@ -1,9 +1,9 @@
 import pytest
 import responses as sentry_responses
-from connect.client import AsyncConnectClient, ClientError, ConnectClient
 from fastapi import Depends
 from fastapi.routing import APIRouter
 
+from connect.client import AsyncConnectClient, ClientError, ConnectClient
 from connect.eaas.core.decorators import web_app
 from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.inject import asynchronous, common, synchronous

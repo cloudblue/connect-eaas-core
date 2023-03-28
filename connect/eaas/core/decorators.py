@@ -10,11 +10,11 @@ from connect.eaas.core.constants import (
     ANVIL_KEY_VAR_ATTR_NAME,
     DEVOPS_PAGES_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
-    GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
     PROXIED_CONNECT_API_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     TRANSFORMATION_ATTR_NAME,
+    UNAUTHORIZED_ENDPOINT_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
 
@@ -243,36 +243,42 @@ def anvil_callable(summary=None, description=None):
     return wrapper
 
 
-def guest():
+def unauthorized():
     """
     Mark an endpoint of a Web Application as not subject to
     the Connect authentication.
 
     Usage:
 
-    ``` py3
-    from connect.eaas.core.decorators import guest, router, web_app
+    ```py3
+    from connect.eaas.core.decorators import unauthorized, router, web_app
     from connect.eaas.core.extension import WebApplicationBase
 
 
     @web_app(router)
     class MyWebApp(WebApplicationBase):
 
-        @guest()
+        @unauthorized()
         @router.get('/my_endpoint')
         def my_endpoint(self):
             pass
     ```
 
-    !!! warning
-        Non authenticated endpoints must be authorized by CloudBlue.
-        If your extension need to expose some, please contact the
-        CloudBlue support.
+    !!! Important: In releases prior to 27,
+    unauthenticated endpoints required authorization by CloudBlue.
+    Although this feature is now enabled by default,
+    if your extension was created using a version earlier than release 27,
+    you must still contact CloudBlue support to enable unauthenticated endpoints for your extension.
     """
     def wrapper(func):
-        setattr(func, GUEST_ENDPOINT_ATTR_NAME, True)
+        setattr(func, UNAUTHORIZED_ENDPOINT_ATTR_NAME, True)
         return func
     return wrapper
+
+
+# Deprecated: The 'guest' alias is maintained for backward compatibility purposes and
+# will be deprecated in future releases. Use 'unauthorized' instead.
+guest = unauthorized
 
 
 def account_settings_page(label: str, url: str):

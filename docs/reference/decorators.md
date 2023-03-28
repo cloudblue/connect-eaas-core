@@ -23,9 +23,16 @@
 
 ::: connect.eaas.core.decorators.web_app
 
+### <code>connect.eaas.core.decorators.<strong>unauthorized()</strong></code>
+
+::: connect.eaas.core.decorators.unauthorized
+
 ### <code>connect.eaas.core.decorators.<strong>guest()</strong></code>
 
-::: connect.eaas.core.decorators.guest
+::: warning DEPRECATED  
+The `guest()` decorator is deprecated and will be removed in future releases. 
+Use the `unauthorized()` decorator instead.  
+:::  
 
 ### <code>connect.eaas.core.decorators.<strong>account_settings_page(label, url)</strong></code>
 
