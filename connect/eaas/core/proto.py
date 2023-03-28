@@ -172,6 +172,7 @@ class SetupRequest(BaseModel):
     audience: Optional[List[Literal['vendor', 'distributor', 'reseller']]]
     repository: Optional[Repository]
     runner_version: Optional[str]
+    proxied_connect_api: Optional[List]
     model_type: Literal['setup_request'] = 'setup_request'
 
     def get_sensitive_fields(self):
