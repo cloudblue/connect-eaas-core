@@ -6,8 +6,8 @@ from connect.eaas.core.validation.validators.base import (  # noqa
     validate_variables,
 )
 from connect.eaas.core.validation.validators.eventsapp import validate_eventsapp  # noqa
-from connect.eaas.core.validation.validators.webapp import validate_webapp  # noqa
 from connect.eaas.core.validation.validators.tfnapp import validate_tfnapp  # noqa
+from connect.eaas.core.validation.validators.webapp import validate_webapp  # noqa
 
 
 def get_validators():

@@ -15,11 +15,11 @@ from connect.eaas.core.constants import (
     ANVIL_KEY_VAR_ATTR_NAME,
     DEVOPS_PAGES_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
-    GUEST_ENDPOINT_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
     PROXIED_CONNECT_API_ATTR_NAME,
     SCHEDULABLE_INFO_ATTR_NAME,
     TRANSFORMATION_ATTR_NAME,
+    UNAUTHORIZED_ENDPOINT_ATTR_NAME,
     VARIABLES_INFO_ATTR_NAME,
 )
 from connect.eaas.core.decorators import router
@@ -219,7 +219,7 @@ class WebApplicationBase(ApplicationBase):
         auth = APIRouter()
         no_auth = APIRouter()
         for route in router.routes:
-            if getattr(route.endpoint, GUEST_ENDPOINT_ATTR_NAME, False):
+            if getattr(route.endpoint, UNAUTHORIZED_ENDPOINT_ATTR_NAME, False):
                 no_auth.routes.append(route)
             else:
                 auth.routes.append(route)

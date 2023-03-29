@@ -23,6 +23,10 @@
 
 ::: connect.eaas.core.decorators.web_app
 
+### <code>connect.eaas.core.decorators.<strong>unauthorized()</strong></code>
+
+::: connect.eaas.core.decorators.unauthorized
+
 ### <code>connect.eaas.core.decorators.<strong>guest()</strong></code>
 
 ::: connect.eaas.core.decorators.guest
