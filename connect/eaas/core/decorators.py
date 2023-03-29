@@ -250,7 +250,7 @@ def unauthorized():
 
     Usage:
 
-    ```py3
+    ``` py3
     from connect.eaas.core.decorators import unauthorized, router, web_app
     from connect.eaas.core.extension import WebApplicationBase
 
@@ -264,11 +264,12 @@ def unauthorized():
             pass
     ```
 
-    !!! Important: In releases prior to 27,
-    unauthenticated endpoints required authorization by CloudBlue.
-    Although this feature is now enabled by default,
-    if your extension was created using a version earlier than release 27,
-    you must still contact CloudBlue support to enable unauthenticated endpoints for your extension.
+    !!! note
+        In releases prior to 27, unauthenticated endpoints required authorization by CloudBlue.
+        Although this feature is now enabled by default,
+        if your extension was created using a version earlier than release 27,
+        you must still contact CloudBlue support
+        to enable unauthenticated endpoints for your extension.
     """
     def wrapper(func):
         setattr(func, UNAUTHORIZED_ENDPOINT_ATTR_NAME, True)
@@ -276,9 +277,12 @@ def unauthorized():
     return wrapper
 
 
-# Deprecated: The 'guest' alias is maintained for backward compatibility purposes and
-# will be deprecated in future releases. Use 'unauthorized' instead.
 guest = unauthorized
+"""
+!!! warning
+    Deprecated: The 'guest' alias is maintained for backward compatibility purposes and
+    will be deprecated in future releases. Use 'unauthorized' instead.
+"""
 
 
 def account_settings_page(label: str, url: str):
