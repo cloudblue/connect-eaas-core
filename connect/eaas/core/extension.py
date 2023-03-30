@@ -5,9 +5,9 @@ import os
 
 import anvil.server
 import pkg_resources
-from connect.client import AsyncConnectClient, ConnectClient
 from fastapi import APIRouter
 
+from connect.client import AsyncConnectClient, ConnectClient
 from connect.eaas.core.constants import (
     ACCOUNT_SETTINGS_PAGE_ATTR_NAME,
     ADMIN_PAGES_ATTR_NAME,

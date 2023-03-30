@@ -4,14 +4,14 @@ import os
 from unittest.mock import patch
 from urllib.parse import urlparse
 
-from connect.client import ClientError
-from connect.client.testing import AsyncConnectClientMocker, ConnectClientMocker
 from fastapi import FastAPI
 from fastapi.params import Depends
 from fastapi.staticfiles import StaticFiles
 from starlette.routing import Match
 from starlette.testclient import TestClient
 
+from connect.client import ClientError
+from connect.client.testing import AsyncConnectClientMocker, ConnectClientMocker
 from connect.eaas.core.inject import asynchronous, synchronous
 from connect.eaas.core.inject.models import Context
 from connect.eaas.core.utils import client_error_exception_handler

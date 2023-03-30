@@ -117,6 +117,7 @@ ignore = ["FI1", "W503", "B008"]
 [tool.isort]
 src_paths = "*"
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_first_party = ["connect"]
 group_by_package = true
 multi_line_output = 3
 force_grid_wrap = 4
