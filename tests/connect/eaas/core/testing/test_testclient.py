@@ -37,7 +37,6 @@ def test_get_installation_and_call_sync(webapp_mock, client_mocker_factory):
     mocker = client_mocker_factory()
     mocker.products.all().mock(return_value=[])
     resp = client.get('/api/sync/installation_and_call', installation=installation)
-
     assert resp.status_code == 200
     assert resp.json() == installation
 
@@ -201,3 +200,11 @@ def test_get_installation_admin_client(webapp_mock, client_mocker_factory):
     client = WebAppTestClient(webapp_mock)
     resp = client.get('/api/sync/admin/EIN-01234/doit')
     assert resp.json() == installation
+
+
+def test_shortcuts(mocker, webapp_mock):
+    mocked_request = mocker.patch.object(WebAppTestClient, 'request')
+    client = WebAppTestClient(webapp_mock)
+    for idx, method in enumerate(('get', 'post', 'put', 'patch', 'delete', 'options', 'head')):
+        getattr(client, method)('url')
+        assert mocked_request.mock_calls[idx].args[0] == method.upper()

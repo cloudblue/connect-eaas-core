@@ -4,6 +4,7 @@ import os
 from unittest.mock import patch
 from urllib.parse import urlparse
 
+import httpx
 from fastapi import FastAPI
 from fastapi.params import Depends
 from fastapi.staticfiles import StaticFiles
@@ -52,13 +53,13 @@ class WebAppTestClient(TestClient):
         base_url (str): The base url to be used.
     """
     def __init__(self, webapp, base_url='https://example.org/public/v1'):
+        self._url_prefix = base_url
         self._webapp_class = webapp
         self._app = self._get_application()
-
         super().__init__(app=self._app, base_url=base_url)
 
         self.headers = {
-            'X-Connect-Api-Gateway-Url': self.base_url,
+            'X-Connect-Api-Gateway-Url': self._url_prefix,
             'X-Connect-User-Agent': 'eaas-test-client',
             'X-Connect-Installation-Api-Key': 'ApiKey XXXX',
         }
@@ -67,26 +68,23 @@ class WebAppTestClient(TestClient):
         self,
         method,
         url,
-        params=None,
+        content=None,
         data=None,
+        files=None,
+        json=None,
+        params=None,
         headers=None,
         cookies=None,
-        files=None,
-        auth=None,
-        timeout=None,
-        allow_redirects=True,
-        proxies=None,
-        hooks=None,
-        stream=None,
-        verify=None,
-        cert=None,
-        json=None,
+        auth=httpx._client.USE_CLIENT_DEFAULT,
+        follow_redirects=None,
+        allow_redirects=None,
+        timeout=httpx._client.USE_CLIENT_DEFAULT,
+        extensions=None,
         context=None,
         installation=None,
         config=None,
         log_level=None,
     ):
-
         if not context:
             context = Context(**self._generate_call_context(installation))
         elif isinstance(context, dict):
@@ -107,20 +105,18 @@ class WebAppTestClient(TestClient):
             return super().request(
                 method,
                 url,
-                params=params,
+                content=content,
                 data=data,
+                files=files,
+                json=json,
+                params=params,
                 headers=headers,
                 cookies=cookies,
-                files=files,
                 auth=auth,
-                timeout=timeout,
+                follow_redirects=follow_redirects,
                 allow_redirects=allow_redirects,
-                proxies=proxies,
-                hooks=hooks,
-                stream=stream,
-                verify=verify,
-                cert=cert,
-                json=json,
+                timeout=timeout,
+                extensions=extensions,
             )
 
         injection_info = self._get_endpoint_injection_info(handler)
@@ -134,25 +130,23 @@ class WebAppTestClient(TestClient):
             return super().request(
                 method,
                 url,
-                params=params,
+                content=content,
                 data=data,
+                files=files,
+                json=json,
+                params=params,
                 headers=headers,
                 cookies=cookies,
-                files=files,
                 auth=auth,
-                timeout=timeout,
+                follow_redirects=follow_redirects,
                 allow_redirects=allow_redirects,
-                proxies=proxies,
-                hooks=hooks,
-                stream=stream,
-                verify=verify,
-                cert=cert,
-                json=json,
+                timeout=timeout,
+                extensions=extensions,
             )
 
         mocker = self._get_client_mocker(handler)
 
-        with mocker(self.base_url) as mocker, patch.dict(
+        with mocker(self._url_prefix) as mocker, patch.dict(
             os.environ, {'API_KEY': 'ApiKey SU-000:XXX'},
         ):
             if injection_info['installation'] and installation:
@@ -170,20 +164,18 @@ class WebAppTestClient(TestClient):
             return super().request(
                 method,
                 url,
-                params=params,
+                content=content,
                 data=data,
+                files=files,
+                json=json,
+                params=params,
                 headers=headers,
                 cookies=cookies,
-                files=files,
                 auth=auth,
-                timeout=timeout,
+                follow_redirects=follow_redirects,
                 allow_redirects=allow_redirects,
-                proxies=proxies,
-                hooks=hooks,
-                stream=stream,
-                verify=verify,
-                cert=cert,
-                json=json,
+                timeout=timeout,
+                extensions=extensions,
             )
 
     def _get_client_mocker(self, handler):
@@ -271,3 +263,52 @@ class WebAppTestClient(TestClient):
             app.mount('/static', StaticFiles(directory=static_root), name='static')
 
         return app
+
+    def get(self, *args, **kwargs):
+        return self.request(
+            'GET',
+            *args,
+            **kwargs,
+        )
+
+    def post(self, *args, **kwargs):
+        return self.request(
+            'POST',
+            *args,
+            **kwargs,
+        )
+
+    def put(self, *args, **kwargs):
+        return self.request(
+            'PUT',
+            *args,
+            **kwargs,
+        )
+
+    def delete(self, *args, **kwargs):
+        return self.request(
+            'DELETE',
+            *args,
+            **kwargs,
+        )
+
+    def head(self, *args, **kwargs):
+        return self.request(
+            'HEAD',
+            *args,
+            **kwargs,
+        )
+
+    def options(self, *args, **kwargs):
+        return self.request(
+            'OPTIONS',
+            *args,
+            **kwargs,
+        )
+
+    def patch(self, *args, **kwargs):
+        return self.request(
+            'PATCH',
+            *args,
+            **kwargs,
+        )
