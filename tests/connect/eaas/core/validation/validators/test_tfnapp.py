@@ -58,11 +58,55 @@ def test_validate_tfnapp(mocker):
         def dummy_function(self):
             pass
 
-    context = {'extension_classes': {'tfn': MyTfnApp}}
+    context = {'extension_classes': {'tfnapp': MyTfnApp}}
     result = validate_tfnapp(context)
     assert isinstance(result, ValidationResult)
     assert result.must_exit is False
     assert len(result.items) == 0
+
+
+def test_validate_tfnapp_empty_and_not_string(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.tfnapp.inspect.getsourcefile',
+        return_value='/dir/file.py',
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.tfnapp.os.path.exists',
+        return_value=True,
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.tfnapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyTnfApp:',
+        },
+    )
+
+    class MyTfnApp(TransformationsApplicationBase):
+        @transformation(
+            name='',
+            description=True,
+            edit_dialog_ui='/static/copy.html',
+        )
+        def copy_columns(self, row):
+            pass
+
+        @manual_transformation()
+        @transformation(
+            name='Manual Transformation',
+            description='The transformation function that do nothing',
+            edit_dialog_ui=123,
+        )
+        def dummy_function(self):
+            pass
+
+    context = {'extension_classes': {'tfnapp': MyTfnApp}}
+    result = validate_tfnapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 3
 
 
 def test_validate_tfnapp_not_static_ui(mocker):
@@ -99,7 +143,7 @@ def test_validate_tfnapp_not_static_ui(mocker):
     assert item.level == 'ERROR'
     assert (
         'The url /currency_conversion.html of the convert_pricing '
-        'must be prefixed with /static.'
+        'must be not empty string and prefixed with /static.'
     ) == item.message
 
 
