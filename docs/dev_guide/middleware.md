@@ -1,5 +1,5 @@
 Sometimes you need to implement a middleware that has to be executed on every call. For instance if
- you want to authenticate in differents ways depending on the path or log the HTTPS call performance. For this
+ you want to authenticate in different ways depending on the path or log the HTTPS call performance. For this
  reason you could use middlewares that follows the 
   [ASGI](https://asgi.readthedocs.io/en/latest/specs/main.html) protocol standards.
   [FastAPI](https://fastapi.tiangolo.com/advanced/middleware/) and

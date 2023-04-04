@@ -95,6 +95,7 @@ nav:
       - Advanced concepts:
         - Hooks: dev_guide/hooks.md
         - Middleware: dev_guide/middleware.md
+        - Exception handling: dev_guide/exc_handling.md
       - Tools: dev_guide/tools.md
       - UI Toolkit: dev_guide/ui_toolkit.md
       - Async support: dev_guide/async.md
