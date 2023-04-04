@@ -1,10 +1,14 @@
+import pytest
+from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 
+from connect.client import ClientError
 from connect.eaas.core.decorators import (
     account_settings_page,
     admin_pages,
     devops_pages,
     module_pages,
+    proxied_connect_api,
     web_app,
 )
 from connect.eaas.core.extension import WebApplicationBase
@@ -579,3 +583,200 @@ def test_validate_webapp_invalid_superclass(mocker):
         'The application class *MyWebApp* is not a subclass of '
         '*connect.eaas.core.extension.WebApplicationBase*.'
     ) in item.message
+
+
+@pytest.mark.parametrize('exception_handlers', (
+    {},
+    {ValueError: 1},
+    {HTTPException: 2, ClientError: ''},
+))
+def test_validate_webapp_get_exc_handling_ok(mocker, exception_handlers):
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    class MyWebApp(WebApplicationBase):
+        @classmethod
+        def get_exception_handlers(cls, _):
+            return exception_handlers
+
+        @router.get('/')
+        def example(self):
+            pass
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert not result.items
+
+
+@pytest.mark.parametrize('f, error', (
+    (1, 'Invalid declaration of `get_exception_handlers` in Web Application.'),
+    (lambda: {}, 'Invalid declaration of `get_exception_handlers` in Web Application.'),
+    (
+        lambda a: [],
+        'Invalid implementation of `get_exception_handlers` in Web Application: '
+        'returned value must be a dictionary.',
+    ),
+    (
+        lambda a: {
+            RuntimeError: 1,
+            WebApplicationBase: 2,
+        },
+        'Invalid implementation of `get_exception_handlers` in Web Application: all'
+        ' configuration keys must Exception classes, inherited from BaseException.',
+    ),
+))
+def test_validate_webapp_get_exc_handling_fail(mocker, f, error):
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    class MyWebApp(WebApplicationBase):
+        @classmethod
+        def get_exception_handlers(cls, *args, **kwargs):
+            return f(*args, **kwargs)
+
+        @router.get('/')
+        def example(self):
+            pass
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert error == item.message
+
+
+@pytest.mark.parametrize('middlewares', (
+    [],
+    [lambda: 1],
+    [WebApplicationBase(), lambda: 1],
+))
+def test_validate_webapp_get_middlewares_ok(mocker, middlewares):
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    class MyWebApp(WebApplicationBase):
+        @classmethod
+        def get_middlewares(cls):
+            return middlewares
+
+        @router.get('/')
+        def example(self):
+            pass
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert not result.items
+
+
+@pytest.mark.parametrize('f, error', (
+    (1, 'Invalid declaration of `get_middlewares` in Web Application.'),
+    (
+        lambda: {},
+        'Invalid implementation of `get_middlewares` in Web Application: '
+        'returned value must be a list.',
+    ),
+))
+def test_validate_webapp_get_middlewares_fail(mocker, f, error):
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp._get_extension_class_file',
+        return_value='1',
+    )
+
+    @web_app(router)
+    class MyWebApp(WebApplicationBase):
+        @classmethod
+        def get_middlewares(cls, *args, **kwargs):
+            return f(*args, **kwargs)
+
+        @router.get('/')
+        def example(self):
+            pass
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+
+    assert isinstance(result, ValidationResult)
+
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert item.file == '1'
+    assert error == item.message
+
+
+@pytest.mark.parametrize('proxied_api', (
+    [],
+    ['/public/v1/auth'],
+    ['/public/', '/public/v1/auth/context'],
+))
+def test_validate_webapp_get_proxied_connect_api_ok(mocker, proxied_api):
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @proxied_connect_api(proxied_api)
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert not result.items
+
+
+@pytest.mark.parametrize('proxied_api, error', (
+    ({}, 'The argument of the `@proxied_connect_api` must be a list of strings.'),
+    (['str', 1], 'The argument of the `@proxied_connect_api` must be a list of strings.'),
+    (['/public/v1/auth'] * 101, 'Max allowed length of the `@proxied_connect_api` argument: 100.'),
+    (['/media'], 'Only Public API can be referenced in `@proxied_connect_api`.'),
+))
+def test_validate_webapp_get_proxied_connect_api_fail(mocker, proxied_api, error):
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp._get_extension_class_file',
+        return_value='1',
+    )
+
+    @web_app(router)
+    @proxied_connect_api(proxied_api)
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+
+    assert isinstance(result, ValidationResult)
+
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert error == item.message
