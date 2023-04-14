@@ -7,6 +7,7 @@ from connect.eaas.core.responses import (
     InteractiveResponse,
     ProcessingResponse,
     ProductActionResponse,
+    RowTransformationResponse,
     ScheduledExecutionResponse,
     TransformationResponse,
     ValidationResponse,
@@ -21,7 +22,7 @@ def test_result_ok():
 @pytest.mark.parametrize(
     'response_cls',
     (
-        BackgroundResponse, TransformationResponse,
+        BackgroundResponse, TransformationResponse, RowTransformationResponse,
     ),
 )
 def test_result_skip(response_cls):
@@ -81,6 +82,7 @@ def test_result_slow_reschedule(countdown, expected):
     (
         BackgroundResponse, InteractiveResponse,
         ScheduledExecutionResponse, TransformationResponse,
+        RowTransformationResponse,
     ),
 )
 def test_result_fail(response_cls):
@@ -137,3 +139,11 @@ def test_v1_responses():
         'headers': {'X-Custom-Header': 'value'},
         'body': 'text',
     }
+
+
+def test_row_transformation_respose():
+    transformed_row = {'col1': 'res1', 'col2': 'res2'}
+    response = RowTransformationResponse.done(transformed_row)
+
+    assert response.status == ResultType.SUCCESS
+    assert response.transformed_row == transformed_row
