@@ -147,3 +147,6 @@ def test_row_transformation_respose():
 
     assert response.status == ResultType.SUCCESS
     assert response.transformed_row == transformed_row
+
+    response = RowTransformationResponse.delete()
+    assert response.status == ResultType.DELETE

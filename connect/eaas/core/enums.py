@@ -35,3 +35,4 @@ class ResultType:
     SKIP = 'skip'
     RETRY = 'retry'
     FAIL = 'fail'
+    DELETE = 'delete'

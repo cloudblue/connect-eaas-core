@@ -194,3 +194,7 @@ class RowTransformationResponse(_Response):
     @classmethod
     def done(cls, transformed_row):
         return cls(ResultType.SUCCESS, transformed_row=transformed_row)
+
+    @classmethod
+    def delete(cls):
+        return cls(ResultType.DELETE)
