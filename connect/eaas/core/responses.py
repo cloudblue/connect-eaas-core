@@ -176,3 +176,21 @@ class TransformationResponse(_Response):
                 task has been skipped.
         """
         return cls(ResultType.SKIP, output=output)
+
+
+class RowTransformationResponse(_Response):
+    """
+    Returns the result of a background event processing.
+    """
+
+    def __init__(self, status, transformed_row=None, output=None):
+        super().__init__(status, output)
+        self.transformed_row = transformed_row
+
+    @classmethod
+    def skip(cls):
+        return cls(ResultType.SKIP)
+
+    @classmethod
+    def done(cls, transformed_row):
+        return cls(ResultType.SUCCESS, transformed_row=transformed_row)
