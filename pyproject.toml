@@ -89,7 +89,8 @@ omit = [
     "*/settings/*",
     "*/manage.py",
     "*/wsgi.py",
-    "*/urls.py"
+    "*/urls.py",
+    "*__init__.py",
 ]
 
 exclude_lines = [

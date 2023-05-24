@@ -10,6 +10,7 @@ ADMIN_PAGES_ATTR_NAME = '_eaas_admin_pages'
 TRANSFORMATION_ATTR_NAME = '_eaas_transformation_info'
 DEVOPS_PAGES_ATTR_NAME = '_eaas_devops_pages'
 PROXIED_CONNECT_API_ATTR_NAME = '_eaas_proxied_connect_api'
+CUSTOMER_HOME_PAGE = '_eaas_customer_home_page'
 
 
 PROXIED_CONNECT_API_ENDPOINTS_MAX_ALLOWED_NUMBER = 100

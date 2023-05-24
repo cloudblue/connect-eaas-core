@@ -32,7 +32,7 @@ def validate_anvilapp(context):
     anvil_key_var = extension_class.get_anvil_key_variable()
 
     if anvil_key_var:
-        variable_name_pattern = r'^[A-Za-z](?:[A-Za-z0-9_\-.]+)*$'
+        variable_name_pattern = r'[A-Za-z][\w]+'
         variable_name_regex = re.compile(variable_name_pattern)
 
         if not variable_name_regex.match(anvil_key_var):

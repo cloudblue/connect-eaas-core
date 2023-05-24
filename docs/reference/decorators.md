@@ -54,6 +54,10 @@
 
 ::: connect.eaas.core.decorators.proxied_connect_api
 
+### <code>connect.eaas.core.decorators.<strong>customer_home_page(label, url)</strong></code>
+
+::: connect.eaas.core.decorators.customer_home_page
+
 
 ## Anvil Application
 
