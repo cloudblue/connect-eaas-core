@@ -203,6 +203,7 @@ class WebTaskOptions(BaseModel):
     reply_to: str
     api_key: Optional[str]
     installation_id: Optional[str]
+    tier_account_id: Optional[str]
     connect_correlation_id: Optional[str]
     user_id: Optional[str]
     account_id: Optional[str]

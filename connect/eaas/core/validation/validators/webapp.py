@@ -443,6 +443,22 @@ def _validate_webapp_ui_modules(context):  # noqa: CCR001
                     ),
                 )
 
+    if 'customer' in ui_modules:
+        label = ui_modules['customer']['label']
+        url = ui_modules['customer']['url']
+
+        messages.extend(
+            _check_ui_component_label(
+                extension_class, '"Customer home page"', label, '@customer_home_page(',
+            ),
+        )
+
+        messages.extend(
+            _check_ui_component_url(
+                extension_class, '"Customer home page"', url, '@customer_home_page(',
+            ),
+        )
+
     return messages
 
 

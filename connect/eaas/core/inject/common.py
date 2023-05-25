@@ -20,12 +20,14 @@ def get_call_context(
     x_connect_extension_id: str = Header(None),
     x_connect_environment_id: str = Header(None),
     x_connect_environment_type: str = Header(None),
+    x_connect_tier_account_id: str = Header(None),
 ) -> Context:
     return Context(
         extension_id=x_connect_extension_id,
         environment_id=x_connect_environment_id,
         environment_type=x_connect_environment_type,
         installation_id=x_connect_installation_id,
+        tier_account_id=x_connect_tier_account_id,
         user_id=x_connect_user_id,
         account_id=x_connect_account_id,
         account_role=x_connect_account_role,
