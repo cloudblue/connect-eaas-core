@@ -247,7 +247,7 @@ def validate_variables(context):  # noqa: CCR001
     for _, extension_class in context['extension_classes'].items():
 
         variables = extension_class.get_variables()
-        variable_name_pattern = r'^[A-Za-z](?:[A-Za-z0-9_\-.]+)*$'
+        variable_name_pattern = r'[A-Za-z][\w]+'
         variable_name_regex = re.compile(variable_name_pattern)
 
         names = []

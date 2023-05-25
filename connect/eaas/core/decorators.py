@@ -8,6 +8,7 @@ from connect.eaas.core.constants import (
     ADMIN_PAGES_ATTR_NAME,
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
+    CUSTOMER_HOME_PAGE,
     DEVOPS_PAGES_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
@@ -563,6 +564,40 @@ def proxied_connect_api(endpoints: List[str]):
     """
     def wrapper(cls):
         setattr(cls, PROXIED_CONNECT_API_ATTR_NAME, endpoints)
+        return cls
+    return wrapper
+
+
+def customer_home_page(label: str, url: str):
+    """
+    Class decorator for Web Application that declare the customer
+     home page label and url. This page will be used as customer home
+      page.
+
+    Usage:
+
+    ``` py3
+    from connect.eaas.core.decorators import (
+        customer_home_page, router, web_app,
+    )
+    from connect.eaas.core.extension import WebApplicationBase
+
+
+    @web_app(router)
+    @customer_home_page(
+        label='Customer home page',
+        url'='/static/customer.html',
+    )
+    class MyWebApp(WebApplicationBase):
+        pass
+    ```
+
+    Args:
+        label (str): The label that will be used to describe this customer home page.
+        url (str): The url that contains the UI page.
+    """
+    def wrapper(cls):
+        setattr(cls, CUSTOMER_HOME_PAGE, {'label': label, 'url': url})
         return cls
     return wrapper
 
