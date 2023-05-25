@@ -13,6 +13,7 @@ class Context(BaseModel):
     * **environment_id** - id of the environment into which this extension is running.
     * **environment_type** - type of the environment into which this extension is running.
     * **installation_id** - id of the installation object owned by the current caller.
+    * **tier_account_id** - id of the tier account of the current caller.
     * **user_id** - id of the user or service user that is doing the call.
     * **account_id** - id of the account that is doing the call.
     * **account_role** - role of the account that is doing the call.
@@ -25,6 +26,7 @@ class Context(BaseModel):
     environment_id: Optional[str]
     environment_type: Optional[Literal['development', 'test', 'production']]
     installation_id: Optional[str] = None
+    tier_account_id: Optional[str] = None
     user_id: Optional[str]
     account_id: Optional[str]
     account_role: Optional[str]

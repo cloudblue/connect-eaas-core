@@ -67,6 +67,7 @@ def test_get_call_context():
         x_connect_extension_id='SRVC-0000',
         x_connect_environment_id='ENV-0000-03',
         x_connect_environment_type='production',
+        x_connect_tier_account_id='PA-123-123',
     )
 
     assert ctx == models.Context(
@@ -74,6 +75,7 @@ def test_get_call_context():
         environment_id='ENV-0000-03',
         environment_type='production',
         installation_id='installation_id',
+        tier_account_id='PA-123-123',
         user_id='user_id',
         account_id='account_id',
         account_role='account_role',
@@ -94,6 +96,7 @@ def test_get_call_context_for_guest_eps():
         x_connect_extension_id=None,
         x_connect_environment_id=None,
         x_connect_environment_type=None,
+        x_connect_tier_account_id=None,
     )
 
     assert ctx == models.Context(
@@ -101,6 +104,7 @@ def test_get_call_context_for_guest_eps():
         environment_id=None,
         environment_type=None,
         installation_id=None,
+        tier_account_id=None,
         user_id=None,
         account_id=None,
         account_role=None,
