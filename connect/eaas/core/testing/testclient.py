@@ -8,6 +8,7 @@ import httpx
 from fastapi import FastAPI
 from fastapi.params import Depends
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.routing import Match
 from starlette.testclient import TestClient
 
@@ -248,11 +249,15 @@ class WebAppTestClient(TestClient):
         return headers
 
     def _get_application(self):
+        handlers = {
+            ClientError: client_error_exception_handler,
+        }
+        if hasattr(self._webapp_class, 'get_exception_handlers'):
+            handlers = self._webapp_class.get_exception_handlers(handlers)
         app = FastAPI(
-            exception_handlers={
-                ClientError: client_error_exception_handler,
-            },
+            exception_handlers=handlers,
         )
+
         auth_router, no_auth_router = self._webapp_class.get_routers()
         app.include_router(auth_router, prefix='/api')
         app.include_router(no_auth_router, prefix='/guest')
@@ -262,7 +267,20 @@ class WebAppTestClient(TestClient):
         if static_root:
             app.mount('/static', StaticFiles(directory=static_root), name='static')
 
+        if hasattr(self._webapp_class, 'get_middlewares'):
+            self._setup_middlewares(app, self._webapp_class.get_middlewares())
+
         return app
+
+    @staticmethod
+    def _setup_middlewares(app, middlewares):
+        for middleware in middlewares:
+            if inspect.isfunction(middleware):
+                app.add_middleware(BaseHTTPMiddleware, dispatch=middleware)
+            elif inspect.isclass(middleware):
+                app.add_middleware(middleware)
+            elif isinstance(middleware, tuple):
+                app.add_middleware(middleware[0], **middleware[1])
 
     def get(self, *args, **kwargs):
         return self.request(
