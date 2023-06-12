@@ -1,6 +1,11 @@
+import logging
+import time
+
 import pytest
 import responses as sentry_responses
 from fastapi import Depends
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import Response
 from fastapi.routing import APIRouter
 
 from connect.client import AsyncConnectClient, ClientError, ConnectClient
@@ -11,10 +16,74 @@ from connect.eaas.core.inject.models import Context
 from connect.eaas.core.testing.fixtures import test_client_factory  # noqa
 
 
+logger = logging.getLogger('connect-eaas-core')
+
+
 @pytest.fixture
 def responses():
     with sentry_responses.RequestsMock() as rsps:
         yield rsps
+
+
+async def middleware_timing(request, call_next):
+    """
+    Middleware that logs all the call timings in seconds.
+    """
+    start_time = time.time()
+    request = await call_next(request)
+    elapsed = time.time() - start_time
+    logger.info(f'Request processed. Elapsed time {elapsed}s')
+    return request
+
+
+class MiddlewareTimingClass:
+    """
+    Middleware that logs all the call timings in seconds.
+    """
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        start_time = time.time()
+        await self.app(scope, receive, send)
+        elapsed = time.time() - start_time
+        logger.info(f'Request processed. Elapsed time {elapsed}s')
+
+
+class MiddlewareTimingClassWithParams:
+    """
+    Middleware that logs the calls that are longer than the specified
+     threshold in seconds. Also the logging level could be configured.
+    """
+
+    _log_fn = {
+        logging.CRITICAL: logger.critical,
+        logging.ERROR: logger.error,
+        logging.WARNING: logger.warning,
+        logging.INFO: logger.info,
+        logging.DEBUG: logger.debug,
+    }
+
+    def __init__(self, app, log_level=logging.INFO, threshold=60.0):
+        self.app = app
+        self.log_level = log_level
+        self.threshold = threshold
+
+    async def __call__(self, scope, receive, send):
+        start_time = time.time()
+        await self.app(scope, receive, send)
+        elapsed = time.time() - start_time
+        if elapsed >= self.threshold:
+            self._log_fn[self.log_level](
+                f'Request processed. Elapsed time {elapsed}s',
+            )
+
+
+async def custom_http_exception_handler(request, exc):
+    data = request.json()
+    key = data['detail'][0]['loc'][-1]
+    msg = data['detail'][0]['msg'].replace('value', f'The {key} field')
+    return Response(msg, status_code=400)
 
 
 @pytest.fixture
@@ -25,6 +94,25 @@ def webapp_mock(mocker):
 
     @web_app(router)
     class MyWebApplication(WebApplicationBase):
+
+        @classmethod
+        def get_middlewares(cls):
+            return [
+                middleware_timing,
+                MiddlewareTimingClass,
+                (
+                    MiddlewareTimingClassWithParams,
+                    {
+                        'log_level': logging.ERROR,
+                        'threshold': 40.0,
+                    },
+                ),
+            ]
+
+        @classmethod
+        def get_exception_handlers(cls, exception_handlers):
+            exception_handlers[RequestValidationError] = custom_http_exception_handler
+            return exception_handlers
 
         @router.get('/sync/installation')
         def sync_installation(
@@ -89,5 +177,18 @@ def webapp_mock(mocker):
             client: ConnectClient = Depends(synchronous.get_installation_admin_client),
         ):
             return client('devops').installations[installation_id].get()
+
+    return MyWebApplication
+
+
+@pytest.fixture
+def empty_webapp_mock(mocker):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    class MyWebApplication(WebApplicationBase):
+        pass
 
     return MyWebApplication
