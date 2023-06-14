@@ -180,21 +180,45 @@ class TransformationResponse(_Response):
 
 class RowTransformationResponse(_Response):
     """
-    Returns the result of a background event processing.
+    Returns the result of a transformation row.
     """
 
-    def __init__(self, status, transformed_row=None, output=None):
+    def __init__(
+        self,
+        status,
+        transformed_row=None,
+        output=None,
+        transformed_row_style=None,
+    ):
         super().__init__(status, output)
         self.transformed_row = transformed_row
+        self.transformed_row_style = transformed_row_style
 
     @classmethod
     def skip(cls):
+        """
+        Returns a response as the row has to be skipped.
+        """
         return cls(ResultType.SKIP)
 
     @classmethod
-    def done(cls, transformed_row):
-        return cls(ResultType.SUCCESS, transformed_row=transformed_row)
+    def done(cls, transformed_row, transformed_row_style=None):
+        """
+        Returns a response as the row has been successfully processed.
+
+        Args:
+            transformed_row (str): Transformed row data.
+            transformed_row_style: Optional cell style.
+        """
+        return cls(
+            ResultType.SUCCESS,
+            transformed_row=transformed_row,
+            transformed_row_style=transformed_row_style,
+        )
 
     @classmethod
     def delete(cls):
+        """
+        Returns a response as the row has to be deleted.
+        """
         return cls(ResultType.DELETE)
