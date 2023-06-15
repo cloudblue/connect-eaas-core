@@ -187,12 +187,12 @@ class RowTransformationResponse(_Response):
         self,
         status,
         transformed_row=None,
+        transformed_row_styles=None,
         output=None,
-        transformed_row_style=None,
     ):
         super().__init__(status, output)
         self.transformed_row = transformed_row
-        self.transformed_row_style = transformed_row_style
+        self.transformed_row_styles = transformed_row_styles or {}
 
     @classmethod
     def skip(cls):
@@ -202,7 +202,7 @@ class RowTransformationResponse(_Response):
         return cls(ResultType.SKIP)
 
     @classmethod
-    def done(cls, transformed_row, transformed_row_style=None):
+    def done(cls, transformed_row, transformed_row_styles=None):
         """
         Returns a response as the row has been successfully processed.
 
@@ -213,7 +213,7 @@ class RowTransformationResponse(_Response):
         return cls(
             ResultType.SUCCESS,
             transformed_row=transformed_row,
-            transformed_row_style=transformed_row_style,
+            transformed_row_styles=transformed_row_styles,
         )
 
     @classmethod
