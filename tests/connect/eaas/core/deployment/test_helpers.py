@@ -1,7 +1,13 @@
 import subprocess
 
-from connect.eaas.core.deployment.helpers import DEFAULT_CLONE_DIR, clone_repo, list_tags
-from connect.eaas.core.validation.models import ValidationItem
+import pytest
+
+from connect.eaas.core.deployment.helpers import (
+    DEFAULT_CLONE_DIR,
+    GitException,
+    clone_repo,
+    list_tags,
+)
 
 
 _DEFAULT_SUBP_KWARGS = {
@@ -29,8 +35,7 @@ def test_clone_ok(mocker):
         return_value=result,
     )
 
-    result = clone_repo(temp_path, repo_url)
-    assert result is None
+    clone_repo(temp_path, repo_url)
     subp_mock.assert_called_once_with(cmd, **_DEFAULT_SUBP_KWARGS)
 
 
@@ -45,9 +50,11 @@ def test_clone_repo_subprocess_failed(mocker):
         'connect.eaas.core.deployment.helpers.subprocess.run',
         return_value=result,
     )
-    result = clone_repo('https://github.com/dummy/repo.git', '/tmp/tests')
-    assert isinstance(result, ValidationItem)
-    assert 'Error cloning repository: error message' in result.message
+
+    with pytest.raises(GitException) as cv:
+        clone_repo('https://github.com/dummy/repo.git', '/tmp/tests')
+
+    assert str(cv.value) == f'Error cloning repository: {error}'
 
 
 def test_list_tags_ok(mocker):
@@ -60,7 +67,7 @@ def test_list_tags_ok(mocker):
         'connect.eaas.core.deployment.helpers.subprocess.run',
         return_value=result,
     )
-    data, _ = list_tags('https://github.com/dummy/repo.git')
+    data = list_tags('https://github.com/dummy/repo.git')
     subp_mock.assert_called_once_with(
         [
             'git',
@@ -95,7 +102,7 @@ def test_list_tags_ordering(mocker):
         'connect.eaas.core.deployment.helpers.subprocess.run',
         return_value=result,
     )
-    data, _ = list_tags('https://github.com/dummy/repo.git')
+    data = list_tags('https://github.com/dummy/repo.git')
     assert list(data.keys()) == [tag_3, tag_1, tag_5, tag_2, tag_6, tag_4]
 
 
@@ -111,7 +118,7 @@ def test_list_tags_duplicated_tags(mocker):
         'connect.eaas.core.deployment.helpers.subprocess.run',
         return_value=result,
     )
-    data, _ = list_tags('https://github.com/dummy/repo.git')
+    data = list_tags('https://github.com/dummy/repo.git')
     assert isinstance(data, dict)
     assert len(data) == 1
     assert tag_id in data
@@ -130,7 +137,7 @@ def test_list_tags_impossible_values_ok(mocker):
         'connect.eaas.core.deployment.helpers.subprocess.run',
         return_value=result,
     )
-    data, _ = list_tags('https://github.com/dummy/repo.git')
+    data = list_tags('https://github.com/dummy/repo.git')
     assert list(data.keys()) == [str(tag_1), tag_2]
 
 
@@ -145,7 +152,8 @@ def test_list_tags_subprocess_failed(mocker):
         'connect.eaas.core.deployment.helpers.subprocess.run',
         return_value=result,
     )
-    _, error = list_tags('https://github.com/dummy/repo.git')
 
-    assert isinstance(error, ValidationItem)
-    assert 'error message' in error.message
+    with pytest.raises(GitException) as cv:
+        list_tags('https://github.com/dummy/repo.git')
+
+    assert str(cv.value) == error

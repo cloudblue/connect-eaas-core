@@ -2,6 +2,7 @@ import logging
 
 from connect.client import ConnectClient
 from connect.eaas.core.deployment.install import install_extension
+from connect.eaas.core.deployment.utils import DeploymentError
 
 
 CLIENT = ConnectClient(
@@ -14,7 +15,7 @@ LOGGER = logging.getLogger('test')
 def test_install_error_extract_arguments(caplog, mocker):
     mocker.patch(
         'connect.eaas.core.deployment.install.extract_arguments',
-        return_value=(None, mocker.MagicMock(message='Some error')),
+        side_effect=DeploymentError('Some error'),
     )
     with caplog.at_level(logging.DEBUG):
         install_extension(
@@ -30,7 +31,7 @@ def test_install_error_extract_arguments(caplog, mocker):
 def test_install_no_package_id(caplog, mocker):
     mocker.patch(
         'connect.eaas.core.deployment.install.extract_arguments',
-        return_value=({'tag': '1.2'}, None),
+        return_value={'tag': '1.2'},
     )
     with caplog.at_level(logging.DEBUG):
         install_extension(
@@ -46,11 +47,11 @@ def test_install_no_package_id(caplog, mocker):
 def test_install_error_get_git_data(caplog, mocker):
     mocker.patch(
         'connect.eaas.core.deployment.install.extract_arguments',
-        return_value=({'package_id': 'pacakge.id'}, None),
+        return_value={'package_id': 'pacakge.id'},
     )
     mocker.patch(
         'connect.eaas.core.deployment.install.get_git_data',
-        return_value=(None, mocker.MagicMock(message='Git error')),
+        side_effect=DeploymentError('Git error'),
     )
     with caplog.at_level(logging.DEBUG):
         install_extension(
@@ -66,12 +67,9 @@ def test_install_error_get_git_data(caplog, mocker):
 def test_install_error_creating_extension(caplog, mocker, responses):
     mocker.patch(
         'connect.eaas.core.deployment.install.extract_arguments',
-        return_value=({'package_id': 'pacakge.id', 'type': 'wrong_type', 'name': 'Name'}, None),
+        return_value={'package_id': 'pacakge.id', 'type': 'wrong_type', 'name': 'Name'},
     )
-    mocker.patch(
-        'connect.eaas.core.deployment.install.get_git_data',
-        return_value=({}, None),
-    )
+    mocker.patch('connect.eaas.core.deployment.install.get_git_data', return_value={})
     responses.add(
         'POST',
         'https://localhost/public/v1/devops/services',
@@ -93,12 +91,9 @@ def test_install_error_creating_extension(caplog, mocker, responses):
 def test_install_error_processing_environment(caplog, mocker, responses):
     mocker.patch(
         'connect.eaas.core.deployment.install.extract_arguments',
-        return_value=({'package_id': 'pacakge.id', 'env': 'test', 'type': 'multiaccount'}, None),
+        return_value={'package_id': 'pacakge.id', 'env': 'test', 'type': 'multiaccount'},
     )
-    mocker.patch(
-        'connect.eaas.core.deployment.install.get_git_data',
-        return_value=({}, None),
-    )
+    mocker.patch('connect.eaas.core.deployment.install.get_git_data', return_value={})
     responses.add(
         'POST',
         'https://localhost/public/v1/devops/services',
@@ -130,12 +125,9 @@ def test_install_error_processing_environment(caplog, mocker, responses):
 def test_install_ok(caplog, mocker, responses):
     mocker.patch(
         'connect.eaas.core.deployment.install.extract_arguments',
-        return_value=({'package_id': 'pacakge.id', 'env': 'test', 'type': 'multiaccount'}, None),
+        return_value={'package_id': 'pacakge.id', 'env': 'test', 'type': 'multiaccount'},
     )
-    mocker.patch(
-        'connect.eaas.core.deployment.install.get_git_data',
-        return_value=({}, None),
-    )
+    mocker.patch('connect.eaas.core.deployment.install.get_git_data', return_value={})
     responses.add(
         'POST',
         'https://localhost/public/v1/devops/services',

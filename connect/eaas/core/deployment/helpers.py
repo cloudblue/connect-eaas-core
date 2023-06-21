@@ -3,10 +3,12 @@ import subprocess
 from collections import OrderedDict
 from distutils.version import StrictVersion
 
-from connect.eaas.core.validation.models import ValidationItem
-
 
 DEFAULT_CLONE_DIR = '_repo'
+
+
+class GitException(Exception):
+    pass
 
 
 def clone_repo(temp_path, repo_url):
@@ -26,9 +28,7 @@ def clone_repo(temp_path, repo_url):
     try:
         result.check_returncode()
     except subprocess.CalledProcessError:
-        return ValidationItem(
-            message=f'Error cloning repository: {result.stderr.decode()}',
-        )
+        raise GitException(f'Error cloning repository: {result.stderr.decode()}')
 
 
 class ConnectVersionTag(StrictVersion):
@@ -82,11 +82,11 @@ def list_tags(repo_url):
     try:
         result.check_returncode()
     except subprocess.CalledProcessError:
-        return None, ValidationItem(message=result.stderr.decode())
+        raise GitException(result.stderr.decode())
 
     tags = {}
     for line in result.stdout.decode().splitlines():
         commit, tagref = line.split()
         tag = tagref.rsplit('/', 1)[-1]
         tags[tag] = commit
-    return sort_tags(tags), None
+    return sort_tags(tags)

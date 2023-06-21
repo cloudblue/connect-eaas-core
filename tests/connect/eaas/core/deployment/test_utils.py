@@ -1,7 +1,9 @@
 import pytest
 
 from connect.client import ConnectClient
+from connect.eaas.core.deployment.helpers import GitException
 from connect.eaas.core.deployment.utils import (
+    DeploymentError,
     extract_arguments,
     get_git_data,
     preprocess_variables,
@@ -39,7 +41,7 @@ def test_extract_arguments_ok(mocker):
     mock_open = mocker.mock_open(read_data=yaml_data)
     mocker.patch('connect.eaas.core.deployment.utils.open', mock_open)
 
-    deploy_args, _ = extract_arguments('https://github.com/test/repo.git')
+    deploy_args = extract_arguments('https://github.com/test/repo.git')
     assert deploy_args == {
         'package_id': 'package.id',
         'tag': 27.17,
@@ -69,12 +71,13 @@ def test_extract_arguments_clone_error(mocker):
     )
     mocker.patch(
         'connect.eaas.core.deployment.utils.clone_repo',
-        return_value='some error',
+        side_effect=GitException('Server error'),
     )
 
-    _, error = extract_arguments('https://github.com/test/repo.git')
+    with pytest.raises(DeploymentError) as cv:
+        extract_arguments('https://github.com/test/repo.git')
 
-    assert error == 'some error'
+    assert str(cv.value) == 'Server error'
 
 
 @pytest.mark.django_db
@@ -85,14 +88,15 @@ def test_extract_arguments_no_yaml(mocker):
         'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
         return_value=tempdir_mock,
     )
-    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo')
     path_mock = mocker.MagicMock()
     mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
 
-    _, error = extract_arguments('https://github.com/test/repo.git')
+    with pytest.raises(DeploymentError) as cv:
+        extract_arguments('https://github.com/test/repo.git')
 
-    assert 'No such file' in error.message
-    assert '.connect_deployment.yaml' in error.message
+    assert 'No such file' in str(cv.value)
+    assert '.connect_deployment.yaml' in str(cv.value)
 
 
 @pytest.mark.django_db
@@ -103,7 +107,7 @@ def test_extract_arguments_error_opening_file(mocker):
         'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
         return_value=tempdir_mock,
     )
-    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo')
     path_mock = mocker.MagicMock()
     mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
     mocker.patch(
@@ -111,9 +115,10 @@ def test_extract_arguments_error_opening_file(mocker):
         side_effect=OSError('Unable to open'),
     )
 
-    _, error = extract_arguments('https://github.com/test/repo.git')
+    with pytest.raises(DeploymentError) as cv:
+        extract_arguments('https://github.com/test/repo.git')
 
-    assert error.message == 'Error opening file: Unable to open'
+    assert str(cv.value) == 'Error opening file: Unable to open'
 
 
 @pytest.mark.django_db
@@ -124,7 +129,7 @@ def test_extract_arguments_scanner_error(mocker):
         'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
         return_value=tempdir_mock,
     )
-    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo')
 
     path_mock = mocker.MagicMock()
     mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
@@ -136,9 +141,10 @@ def test_extract_arguments_scanner_error(mocker):
     mock_open = mocker.mock_open(read_data=yaml_data)
     mocker.patch('connect.eaas.core.deployment.utils.open', mock_open)
 
-    _, error = extract_arguments('https://github.com/test/repo.git')
+    with pytest.raises(DeploymentError) as cv:
+        extract_arguments('https://github.com/test/repo.git')
 
-    assert 'Invalid deployment file' in error.message
+    assert 'Invalid deployment file' in str(cv.value)
 
 
 def test_extract_arguments_no_type(mocker):
@@ -148,7 +154,7 @@ def test_extract_arguments_no_type(mocker):
         'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
         return_value=tempdir_mock,
     )
-    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo')
 
     path_mock = mocker.MagicMock()
     mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
@@ -164,7 +170,7 @@ def test_extract_arguments_no_type(mocker):
         },
     )
 
-    deploy_args, _ = extract_arguments('https://github.com/test/repo')
+    deploy_args = extract_arguments('https://github.com/test/repo')
     assert deploy_args['type'] == 'transformations'
 
 
@@ -175,7 +181,7 @@ def test_extract_arguments_invalid_pyprj(mocker):
         'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
         return_value=tempdir_mock,
     )
-    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo')
 
     path_mock = mocker.MagicMock()
     mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
@@ -189,8 +195,10 @@ def test_extract_arguments_invalid_pyprj(mocker):
         return_value={'tool': {'connect.eaas.ext': {'tfnapp': 'TfnApp'}}},
     )
 
-    _, error = extract_arguments('https://github.com/test/repo')
-    assert 'Error extracting data' in error.message
+    with pytest.raises(DeploymentError) as cv:
+        extract_arguments('https://github.com/test/repo')
+
+    assert 'Error extracting data' in str(cv.value)
 
 
 def test_extract_arguments_with_icon(mocker):
@@ -200,7 +208,7 @@ def test_extract_arguments_with_icon(mocker):
         'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
         return_value=tempdir_mock,
     )
-    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo')
 
     path_mock = mocker.MagicMock()
     mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
@@ -212,7 +220,7 @@ def test_extract_arguments_with_icon(mocker):
     mock_open = mocker.mock_open(read_data=yaml_data)
     mocker.patch('connect.eaas.core.deployment.utils.open', mock_open)
 
-    deploy_args, _ = extract_arguments('https://github.com/test/repo', is_install=True)
+    deploy_args = extract_arguments('https://github.com/test/repo', is_install=True)
     assert deploy_args['icon'] is not None
     assert not isinstance(deploy_args['icon'], str)
 
@@ -315,10 +323,10 @@ def test_process_variables_ok(responses):
 def test_get_git_data_ok(mocker):
     mocker.patch(
         'connect.eaas.core.deployment.utils.list_tags',
-        return_value=({'1.2': 'hash 1.2', '1.1': 'hash 1.1'}, None),
+        return_value={'1.2': 'hash 1.2', '1.1': 'hash 1.1'},
     )
 
-    result, _ = get_git_data('https://github.com/test/repo', 1.1)
+    result = get_git_data('https://github.com/test/repo', 1.1)
     assert result == {
         'tag': '1.1',
         'commit': 'hash 1.1',
@@ -329,28 +337,30 @@ def test_get_git_data_ok(mocker):
 def test_get_git_data_no_tag_ok(mocker):
     mocker.patch(
         'connect.eaas.core.deployment.utils.list_tags',
-        return_value=({'1.2': 'hash 1.2', '1.1': 'hash 1.1'}, None),
+        return_value={'1.2': 'hash 1.2', '1.1': 'hash 1.1'},
     )
 
-    result, _ = get_git_data('https://github.com/test/repo', None)
+    result = get_git_data('https://github.com/test/repo', None)
     assert result['tag'] == '1.2'
 
 
 def test_get_git_data_list_tag_error(mocker):
     mocker.patch(
         'connect.eaas.core.deployment.utils.list_tags',
-        return_value=(None, mocker.MagicMock(message='some error')),
+        side_effect=GitException('Server error'),
     )
 
-    _, error = get_git_data('https://github.com/test/repo', None)
-    assert 'Cannot retrieve git repository https://github.com/test/repo tags info' in error.message
+    with pytest.raises(DeploymentError) as cv:
+        get_git_data('https://github.com/test/repo', None)
+    assert 'Cannot retrieve git repository https://github.com/test/repo tags info' in str(cv.value)
 
 
 def test_get_git_data_invalid_tag(mocker):
     mocker.patch(
         'connect.eaas.core.deployment.utils.list_tags',
-        return_value=({'1.2': 'hash 1.2', '1.1': 'hash 1.1'}, None),
+        return_value={'1.2': 'hash 1.2', '1.1': 'hash 1.1'},
     )
 
-    _, error = get_git_data('https://github.com/test/repo', '1.1.1')
-    assert error.message == 'Invalid tag: 1.1.1.'
+    with pytest.raises(DeploymentError) as cv:
+        get_git_data('https://github.com/test/repo', '1.1.1')
+    assert str(cv.value) == 'Invalid tag: 1.1.1.'

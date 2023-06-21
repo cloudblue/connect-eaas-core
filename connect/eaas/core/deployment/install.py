@@ -1,24 +1,32 @@
 from connect.client import ClientError
-from connect.eaas.core.deployment.utils import extract_arguments, get_git_data, process_variables
+from connect.eaas.core.deployment.utils import (
+    DeploymentError,
+    extract_arguments,
+    get_git_data,
+    process_variables,
+)
 
 
 def install_extension(repo, client, log):
     log('Starting install...')
 
     log('Extracting data from connect_deployment.yaml.')
-    arguments, error = extract_arguments(repo, is_install=True)
-    if error:
-        log(error.message)
+    try:
+        arguments = extract_arguments(repo, is_install=True)
+    except DeploymentError as de:
+        log(de)
         return
+
     if not arguments.get('package_id'):
         log('No required package_id found in .connect_deployment.yaml file.')
         return
     arguments['name'] = arguments.get('name') or f'Extension for {arguments["package_id"]}'
 
     log('Getting repository tag.')
-    git, error = get_git_data(repo, arguments.get('tag'))
-    if error:
-        log(error.message)
+    try:
+        git = get_git_data(repo, arguments.get('tag'))
+    except DeploymentError as de:
+        log(de)
         return
 
     try:

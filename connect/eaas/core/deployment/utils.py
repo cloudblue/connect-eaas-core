@@ -5,20 +5,26 @@ from pathlib import Path
 import toml
 from yaml import safe_load, scanner
 
-from connect.eaas.core.deployment.helpers import DEFAULT_CLONE_DIR, clone_repo, list_tags
-from connect.eaas.core.validation.models import ValidationItem
+from connect.eaas.core.deployment.helpers import (
+    DEFAULT_CLONE_DIR,
+    GitException,
+    clone_repo,
+    list_tags,
+)
+
+
+class DeploymentError(Exception):
+    pass
 
 
 def extract_arguments(url, is_install=False):
     with tempfile.TemporaryDirectory() as temp_path:
-        message = clone_repo(temp_path, url)
-        if message:
-            return None, message
+        try:
+            clone_repo(temp_path, url)
+        except GitException as ge:
+            raise DeploymentError(ge)
 
         repo_path = Path(os.path.join(temp_path, DEFAULT_CLONE_DIR))
-        arguments = None
-        message = None
-
         try:
             with open(os.path.join(repo_path, '.connect_deployment.yaml'), 'r') as file_data:
                 arguments = safe_load(file_data)
@@ -31,16 +37,16 @@ def extract_arguments(url, is_install=False):
 
             if arguments.get('icon') and is_install:
                 arguments['icon'] = open(os.path.join(repo_path, arguments.get('icon')), 'rb')
-        except FileNotFoundError as fe:
-            message = ValidationItem(message=f'No file: {fe}.')
-        except OSError as e:
-            message = ValidationItem(message=f'Error opening file: {e}')
-        except scanner.ScannerError as se:
-            message = ValidationItem(message=f'Invalid deployment file: {se}')
-        except Exception as e:
-            message = ValidationItem(message=f'Error extracting data: {e}')
 
-        return arguments, message
+            return arguments
+        except FileNotFoundError as fe:
+            raise DeploymentError(f'No file: {fe}.')
+        except OSError as e:
+            raise DeploymentError(f'Error opening file: {e}')
+        except scanner.ScannerError as se:
+            raise DeploymentError(f'Invalid deployment file: {se}')
+        except Exception as e:
+            raise DeploymentError(f'Error extracting data: {e}')
 
 
 def preprocess_variables(arguments):
@@ -78,18 +84,17 @@ def process_variables(arguments, env_api):
 
 
 def get_git_data(repo, tag):
-    tags, error = list_tags(repo)
-    if error:
-        return None, ValidationItem(
-            message=f'Cannot retrieve git repository {repo} tags info: {error.message}.',
-        )
+    try:
+        tags = list_tags(repo)
+    except GitException as ge:
+        raise DeploymentError(f'Cannot retrieve git repository {repo} tags info: {ge}.')
 
     tag = list(tags.keys())[0] if tag is None else str(tag)
     if tag not in tags:
-        return None, ValidationItem(message=f'Invalid tag: {tag}.')
+        raise DeploymentError(f'Invalid tag: {tag}.')
 
     return {
         'tag': tag,
         'commit': tags[tag],
         'url': repo,
-    }, None
+    }
