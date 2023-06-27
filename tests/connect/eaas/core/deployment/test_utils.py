@@ -11,7 +11,6 @@ from connect.eaas.core.deployment.utils import (
 )
 
 
-@pytest.mark.django_db
 def test_extract_arguments_ok(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -61,7 +60,6 @@ def test_extract_arguments_ok(mocker):
     }
 
 
-@pytest.mark.django_db
 def test_extract_arguments_clone_error(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -80,7 +78,6 @@ def test_extract_arguments_clone_error(mocker):
     assert str(cv.value) == 'Server error'
 
 
-@pytest.mark.django_db
 def test_extract_arguments_no_yaml(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -99,7 +96,6 @@ def test_extract_arguments_no_yaml(mocker):
     assert '.connect_deployment.yaml' in str(cv.value)
 
 
-@pytest.mark.django_db
 def test_extract_arguments_error_opening_file(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -121,7 +117,6 @@ def test_extract_arguments_error_opening_file(mocker):
     assert str(cv.value) == 'Error opening file: Unable to open'
 
 
-@pytest.mark.django_db
 def test_extract_arguments_scanner_error(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'

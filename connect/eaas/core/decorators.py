@@ -8,7 +8,7 @@ from connect.eaas.core.constants import (
     ADMIN_PAGES_ATTR_NAME,
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
-    CUSTOMER_HOME_PAGE,
+    CUSTOMER_PAGES_ATTR_NAME,
     DEVOPS_PAGES_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
@@ -286,7 +286,7 @@ guest = unauthorized
 """
 
 
-def account_settings_page(label: str, url: str):
+def account_settings_page(label: str, url: str, icon: str = None):
     """
     Class decorator for Web Application that declare which html page
     must be rendererd within the `Account Settings` module of Connect UI
@@ -310,9 +310,13 @@ def account_settings_page(label: str, url: str):
     Args:
         label (str): The label to use for such page.
         url (str): The url path to the html page including `/static`.
+        icon (str): The image path to the icon including `/static`.
     """
     def wrapper(cls):
-        setattr(cls, ACCOUNT_SETTINGS_PAGE_ATTR_NAME, {'label': label, 'url': url})
+        data = {'label': label, 'url': url}
+        if icon:
+            data['icon'] = icon
+        setattr(cls, ACCOUNT_SETTINGS_PAGE_ATTR_NAME, data)
         return cls
     return wrapper
 
@@ -392,6 +396,7 @@ def admin_pages(pages: List[Dict]):
             {
                 'label': 'My Admin 1',
                 'url': '/static/admin1.html',
+                'icon': '/static/icon.png',
             },
         ],
     )
@@ -515,6 +520,7 @@ def devops_pages(pages: List[Dict]):
             {
                 'label': 'My tab 1',
                 'url': '/static/tab1.html',
+                'icon': '/static/icon.png',
             },
         ],
     )
@@ -523,7 +529,7 @@ def devops_pages(pages: List[Dict]):
     ```
 
     Args:
-        pages (List[Dict]): List of devops pages including the label and the url.
+        pages (List[Dict]): List of devops pages including the label, the url and the icon.
     """
     def wrapper(cls):
         setattr(cls, DEVOPS_PAGES_ATTR_NAME, pages)
@@ -568,36 +574,40 @@ def proxied_connect_api(endpoints: List[str]):
     return wrapper
 
 
-def customer_home_page(label: str, url: str):
+def customer_pages(pages: List[Dict]):
     """
     Class decorator for Web Application that declare the customer
-     home page label and url. This page will be used as customer home
-      page.
+     home pages (each includes label, url and icon). These pages will
+     be used as customer home pages.
 
     Usage:
 
     ``` py3
     from connect.eaas.core.decorators import (
-        customer_home_page, router, web_app,
+        customer_pages, router, web_app,
     )
     from connect.eaas.core.extension import WebApplicationBase
 
 
     @web_app(router)
-    @customer_home_page(
-        label='Customer home page',
-        url'='/static/customer.html',
+    @customer_pages(
+        [
+            {
+                'label': 'My page 1',
+                'url': '/static/page1.html',
+                'icon': '/static/pageIcon.png',
+            },
+        ],
     )
     class MyWebApp(WebApplicationBase):
         pass
     ```
 
     Args:
-        label (str): The label that will be used to describe this customer home page.
-        url (str): The url that contains the UI page.
+        pages (List[Dict]): List of customer home pages including the label, the url and the icon.
     """
     def wrapper(cls):
-        setattr(cls, CUSTOMER_HOME_PAGE, {'label': label, 'url': url})
+        setattr(cls, CUSTOMER_PAGES_ATTR_NAME, pages)
         return cls
     return wrapper
 

@@ -13,7 +13,7 @@ from connect.eaas.core.constants import (
     ADMIN_PAGES_ATTR_NAME,
     ANVIL_CALLABLE_ATTR_NAME,
     ANVIL_KEY_VAR_ATTR_NAME,
-    CUSTOMER_HOME_PAGE,
+    CUSTOMER_PAGES_ATTR_NAME,
     DEVOPS_PAGES_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
@@ -241,8 +241,8 @@ class WebApplicationBase(ApplicationBase):
         if hasattr(cls, DEVOPS_PAGES_ATTR_NAME):
             ui_modules['devops'] = getattr(cls, DEVOPS_PAGES_ATTR_NAME)
 
-        if hasattr(cls, CUSTOMER_HOME_PAGE):
-            ui_modules['customer'] = getattr(cls, CUSTOMER_HOME_PAGE)
+        if hasattr(cls, CUSTOMER_PAGES_ATTR_NAME):
+            ui_modules['customer'] = getattr(cls, CUSTOMER_PAGES_ATTR_NAME)
 
         return ui_modules
 

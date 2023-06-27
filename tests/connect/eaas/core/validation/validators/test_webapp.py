@@ -6,7 +6,7 @@ from connect.client import ClientError
 from connect.eaas.core.decorators import (
     account_settings_page,
     admin_pages,
-    customer_home_page,
+    customer_pages,
     devops_pages,
     module_pages,
     proxied_connect_api,
@@ -248,8 +248,99 @@ def test_validate_webapp_wrong_page_url_type(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The url of the "Account Settings" must be a path to a '
+        'The url of the "Account Settings" must be a path to '
         'html file relative to the static folder.'
+    ) == item.message
+
+
+@pytest.mark.parametrize(
+    'pages',
+    (
+        set(),
+        dict(),
+    ),
+)
+def test_validate_webapp_customer_page_invalid_format(mocker, pages):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @customer_pages(
+        pages=pages,
+    )
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'The argument of the @customer_pages decorator must be a list of objects.'
+    ) == item.message
+
+
+@pytest.mark.parametrize(
+    'pages',
+    (
+        [{'url': '/static/customer.html'}],
+        [{'label': 'Label'}],
+    ),
+)
+def test_validate_webapp_customer_page_invalid_child_format(mocker, pages):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @customer_pages(
+        pages=pages,
+    )
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'Invalid customer page declaration. Each customer page must be an object with the label'
+        ' and url attributes (and optionally icon).'
     ) == item.message
 
 
@@ -259,7 +350,14 @@ def test_validate_webapp_customer_page_doesnt_exist(mocker):
     mocker.patch('connect.eaas.core.extension.router', router)
 
     @web_app(router)
-    @customer_home_page('Customer home page', '/static/customer.html')
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer home page',
+                'url': '/static/customer.html',
+            },
+        ],
+    )
     class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
@@ -290,7 +388,7 @@ def test_validate_webapp_customer_page_doesnt_exist(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The url /static/customer.html of the "Customer home page" '
+        'The url /static/customer.html of the "Customer Page" '
         'page does not point to any file.'
     ) == item.message
 
@@ -301,7 +399,15 @@ def test_validate_webapp_wrong_customer_page_label(mocker):
     mocker.patch('connect.eaas.core.extension.router', router)
 
     @web_app(router)
-    @customer_home_page(None, '/static/customer.html')
+    @customer_pages(
+        pages=[
+            {
+                'label': None,
+                'url': '/static/customer.html',
+                'icon': '/static/icon.png',
+            },
+        ],
+    )
     class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
@@ -332,7 +438,7 @@ def test_validate_webapp_wrong_customer_page_label(mocker):
     item = result.items[0]
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
-    assert 'The label of the "Customer home page" must be a non-blank string.' == item.message
+    assert 'The label of the "Customer Page" must be a non-blank string.' == item.message
 
 
 def test_validate_webapp_wrong_customer_page_url_format(mocker):
@@ -341,7 +447,14 @@ def test_validate_webapp_wrong_customer_page_url_format(mocker):
     mocker.patch('connect.eaas.core.extension.router', router)
 
     @web_app(router)
-    @customer_home_page('Customer home page', 'customer.html')
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer home page',
+                'url': 'customer.html',
+            },
+        ],
+    )
     class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
@@ -372,7 +485,7 @@ def test_validate_webapp_wrong_customer_page_url_format(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The url customer.html of the "Customer home page" '
+        'The url customer.html of the "Customer Page" '
         'must be prefixed with /static.'
     ) == item.message
 
@@ -383,7 +496,14 @@ def test_validate_webapp_wrong_customer_page_url_type(mocker):
     mocker.patch('connect.eaas.core.extension.router', router)
 
     @web_app(router)
-    @customer_home_page('Customer home page', None)
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer home page',
+                'url': None,
+            },
+        ],
+    )
     class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):
@@ -414,9 +534,159 @@ def test_validate_webapp_wrong_customer_page_url_type(mocker):
     assert isinstance(item, ValidationItem)
     assert item.level == 'ERROR'
     assert (
-        'The url of the "Customer home page" must be a path to a '
+        'The url of the "Customer Page" must be a path to '
         'html file relative to the static folder.'
     ) == item.message
+
+
+def test_validate_webapp_wrong_customer_page_icon_format(mocker):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer home page',
+                'url': '/static/customer.html',
+                'icon': 'icon.png',
+            },
+        ],
+    )
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.os.path.exists',
+        return_value=True,
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'The icon icon.png of the "Customer Page" '
+        'must be prefixed with /static.'
+    ) == item.message
+
+
+def test_validate_webapp_wrong_customer_page_icon_type(mocker):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer home page',
+                'url': '/static/customer.html',
+                'icon': None,
+            },
+        ],
+    )
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.os.path.exists',
+        return_value=True,
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'The icon of the "Customer Page" must be a path to '
+        'image file relative to the static folder.'
+    ) == item.message
+
+
+def test_validate_webapp_wrong_customer_page_url_and_icon_does_not_exist(mocker):
+
+    router = APIRouter()
+    mocker.patch('connect.eaas.core.extension.router', router)
+
+    @web_app(router)
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer home page',
+                'url': '/static/customer.html',
+                'icon': '/static/icon.png',
+            },
+        ],
+    )
+    class MyWebApp(WebApplicationBase):
+        @router.get('/')
+        def example(self):
+            pass
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.webapp.get_code_context',
+        return_value={
+            'file': 'file.py',
+            'start_line': 11,
+            'lineno': 22,
+            'code': 'class MyExtension:',
+        },
+    )
+
+    context = {'extension_classes': {'webapp': MyWebApp}}
+
+    result = validate_webapp(context)
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is True
+    assert len(result.items) == 2
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'The url /static/customer.html of the "Customer Page" page does not point to any file.'
+    ) == item.message
+    item2 = result.items[1]
+    assert isinstance(item2, ValidationItem)
+    assert item2.level == 'ERROR'
+    assert (
+        'The icon /static/icon.png of the "Customer Page" page does not point to any file.'
+    ) == item2.message
 
 
 def test_validate_webapp_wrong_module_children_pages_type(mocker):
@@ -706,7 +976,15 @@ def test_validate_webapp(mocker):
             },
         ],
     )
-    @customer_home_page('Customer Home Page', '/static/customer.html')
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer Home Page',
+                'url': '/static/customer.html',
+                'icon': '/static/icon.png',
+            },
+        ],
+    )
     class MyWebApp(WebApplicationBase):
         @router.get('/')
         def example(self):

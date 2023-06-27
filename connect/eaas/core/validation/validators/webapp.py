@@ -238,29 +238,55 @@ def _check_ui_component_label(extension_class, page_name, value, code_pattern):
     return []
 
 
+def _generate_ui_component_error(extension_class, parameter_name, format, page_name, code_pattern):
+    return [
+        ValidationItem(
+            level='ERROR',
+            message=(
+                f'The {parameter_name} of the {page_name} must be a '
+                f'path to {format} file relative to the static folder.'
+            ),
+            **get_code_context(extension_class, code_pattern),
+        ),
+    ]
+
+
+def _generate_ui_component_static(extension_class, parameter_name, page_name, value, code_pattern):
+    return [
+        ValidationItem(
+            level='ERROR',
+            message=(
+                f'The {parameter_name} {value} of the {page_name} must be prefixed with /static.'
+            ),
+            **get_code_context(extension_class, code_pattern),
+        ),
+    ]
+
+
+def _generate_ui_component_does_not_exist(
+    extension_class,
+    parameter_name,
+    page_name,
+    value,
+    code_pattern,
+):
+    return [
+        ValidationItem(
+            level='ERROR',
+            message=(
+                f'The {parameter_name} {value} of the {page_name} page does not point to any file.'
+            ),
+            **get_code_context(extension_class, code_pattern),
+        ),
+    ]
+
+
 def _check_ui_component_url(extension_class, page_name, value, code_pattern):
     if not isinstance(value, str) or not value:
-        return [
-            ValidationItem(
-                level='ERROR',
-                message=(
-                    f'The url of the {page_name} must be a '
-                    'path to a html file relative to the static folder.'
-                ),
-                **get_code_context(extension_class, code_pattern),
-            ),
-        ]
+        return _generate_ui_component_error(extension_class, 'url', 'html', page_name, code_pattern)
 
     if not value.startswith('/static/'):
-        return [
-            ValidationItem(
-                level='ERROR',
-                message=(
-                    f'The url {value} of the {page_name} must be prefixed with /static.'
-                ),
-                **get_code_context(extension_class, code_pattern),
-            ),
-        ]
+        return _generate_ui_component_static(extension_class, 'url', page_name, value, code_pattern)
 
     page_path = value[8:]
     full_path = os.path.join(
@@ -269,15 +295,51 @@ def _check_ui_component_url(extension_class, page_name, value, code_pattern):
         page_path,
     )
     if not os.path.exists(full_path):
-        return [
-            ValidationItem(
-                level='ERROR',
-                message=(
-                    f'The url {value} of the {page_name} page does not point to any file.'
-                ),
-                **get_code_context(extension_class, code_pattern),
-            ),
-        ]
+        return _generate_ui_component_does_not_exist(
+            extension_class,
+            'url',
+            page_name,
+            value,
+            code_pattern,
+        )
+
+    return []
+
+
+def _check_ui_component_icon(extension_class, page_name, value, code_pattern):
+    if not isinstance(value, str) or not value:
+        return _generate_ui_component_error(
+            extension_class,
+            'icon',
+            'image',
+            page_name,
+            code_pattern,
+        )
+
+    if not value.startswith('/static/'):
+        return _generate_ui_component_static(
+            extension_class,
+            'icon',
+            page_name,
+            value,
+            code_pattern,
+        )
+
+    page_path = value[8:]
+    full_path = os.path.join(
+        os.path.dirname(_get_extension_class_file(extension_class)),
+        'static',
+        page_path,
+    )
+    if not os.path.exists(full_path):
+        return _generate_ui_component_does_not_exist(
+            extension_class,
+            'icon',
+            page_name,
+            value,
+            code_pattern,
+        )
+
     return []
 
 
@@ -444,20 +506,52 @@ def _validate_webapp_ui_modules(context):  # noqa: CCR001
                 )
 
     if 'customer' in ui_modules:
-        label = ui_modules['customer']['label']
-        url = ui_modules['customer']['url']
+        customer = ui_modules['customer']
+        if not isinstance(customer, (list, tuple)):
+            messages.append(
+                ValidationItem(
+                    level='ERROR',
+                    message=(
+                        'The argument of the @customer_pages '
+                        'decorator must be a list of objects.'
+                    ),
+                    **get_code_context(extension_class, '@customer_pages('),
+                ),
+            )
+        else:
+            for child in customer:
+                if 'label' not in child or 'url' not in child:
+                    messages.append(
+                        ValidationItem(
+                            level='ERROR',
+                            message=(
+                                'Invalid customer page declaration. '
+                                'Each customer page must be an object with the '
+                                'label and url attributes (and optionally icon).'
+                            ),
+                            **get_code_context(extension_class, '@customer_pages('),
+                        ),
+                    )
+                    continue
 
-        messages.extend(
-            _check_ui_component_label(
-                extension_class, '"Customer home page"', label, '@customer_home_page(',
-            ),
-        )
-
-        messages.extend(
-            _check_ui_component_url(
-                extension_class, '"Customer home page"', url, '@customer_home_page(',
-            ),
-        )
+                label = child['label']
+                url = child['url']
+                messages.extend(
+                    _check_ui_component_label(
+                        extension_class, '"Customer Page"', label, '@customer_pages(',
+                    ),
+                )
+                messages.extend(
+                    _check_ui_component_url(
+                        extension_class, '"Customer Page"', url, '@customer_pages(',
+                    ),
+                )
+                if 'icon' in child:
+                    messages.extend(
+                        _check_ui_component_icon(
+                            extension_class, '"Customer Page"', child['icon'], '@customer_pages(',
+                        ),
+                    )
 
     return messages
 

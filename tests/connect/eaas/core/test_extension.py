@@ -11,7 +11,7 @@ from connect.eaas.core.decorators import (
     admin_pages,
     anvil_callable,
     anvil_key_variable,
-    customer_home_page,
+    customer_pages,
     devops_pages,
     event,
     guest,
@@ -435,7 +435,14 @@ def test_get_ui_modules(mocker):
     @module_pages('Main Page', '/static/main.html')
     @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
     @devops_pages([{'label': 'tab1', 'url': '/static/tab1.html'}])
-    @customer_home_page('Customer Home Page', '/static/customer.html')
+    @customer_pages(
+        pages=[
+            {
+                'label': 'Customer Home Page',
+                'url': '/static/customer.html',
+            },
+        ],
+    )
     @web_app(router)
     class MyExtension(WebApplicationBase):
 
@@ -467,7 +474,7 @@ def test_get_ui_modules(mocker):
         },
         'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
         'devops': [{'label': 'tab1', 'url': '/static/tab1.html'}],
-        'customer': {'label': 'Customer Home Page', 'url': '/static/customer.html'},
+        'customer': [{'label': 'Customer Home Page', 'url': '/static/customer.html'}],
     }
 
 
