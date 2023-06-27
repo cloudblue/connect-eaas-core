@@ -953,6 +953,7 @@ def test_validate_webapp(mocker):
     @module_pages(
         'Main',
         '/static/main.html',
+        '/static/icon.png',
         children=[
             {
                 'label': 'Child page1',

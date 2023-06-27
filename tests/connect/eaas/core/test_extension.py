@@ -432,7 +432,7 @@ def test_get_ui_modules(mocker):
     router = InferringRouter()
 
     @account_settings_page('Extension settings', '/static/settings.html')
-    @module_pages('Main Page', '/static/main.html')
+    @module_pages('Main Page', '/static/main.html', '/static/icon.png')
     @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
     @devops_pages([{'label': 'tab1', 'url': '/static/tab1.html'}])
     @customer_pages(
@@ -471,6 +471,7 @@ def test_get_ui_modules(mocker):
         'modules': {
             'label': 'Main Page',
             'url': '/static/main.html',
+            'icon': '/static/icon.png',
         },
         'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
         'devops': [{'label': 'tab1', 'url': '/static/tab1.html'}],
@@ -485,7 +486,10 @@ def test_get_ui_modules_with_children(mocker):
     @module_pages(
         'Main Page',
         '/static/main.html',
-        children=[{'label': 'Child page', 'url': '/static/child.html'}],
+        '/static/icon.png',
+        children=[
+            {'label': 'Child page', 'url': '/static/child.html', 'icon': '/static/icon.png'},
+        ],
     )
     @admin_pages([{'label': 'Admin page', 'url': '/static/admin.html'}])
     @web_app(router)
@@ -522,7 +526,10 @@ def test_get_ui_modules_with_children(mocker):
         'modules': {
             'label': 'Main Page',
             'url': '/static/main.html',
-            'children': [{'label': 'Child page', 'url': '/static/child.html'}],
+            'icon': '/static/icon.png',
+            'children': [
+                {'label': 'Child page', 'url': '/static/child.html', 'icon': '/static/icon.png'},
+            ],
         },
         'admins': [{'label': 'Admin page', 'url': '/static/admin.html'}],
     }
