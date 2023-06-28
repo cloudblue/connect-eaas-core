@@ -9,7 +9,7 @@ from connect.eaas.core.deployment.utils import (
 )
 
 
-def update_extension(repo, client, log):
+def update_extension(repo, client, log, tag=None):
     log('Starting update...')
 
     log('Extracting data from connect_deployment.yaml.')
@@ -25,7 +25,7 @@ def update_extension(repo, client, log):
 
     log('Getting repository tag.')
     try:
-        git = get_git_data(repo, arguments.get('tag'))
+        git = get_git_data(repo, tag, arguments.get('tag'))
     except DeploymentError as de:
         log(de)
         return

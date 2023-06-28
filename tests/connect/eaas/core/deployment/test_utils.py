@@ -40,7 +40,7 @@ def test_extract_arguments_ok(mocker):
     mock_open = mocker.mock_open(read_data=yaml_data)
     mocker.patch('connect.eaas.core.deployment.utils.open', mock_open)
 
-    deploy_args = extract_arguments('https://github.com/test/repo.git')
+    deploy_args = extract_arguments('https://github.com/test/repo.git', is_install=True)
     assert deploy_args == {
         'package_id': 'package.id',
         'tag': 27.17,
@@ -60,6 +60,56 @@ def test_extract_arguments_ok(mocker):
     }
 
 
+@pytest.mark.django_db
+def test_extract_arguments_ok_with_overview(mocker):
+    tempdir_mock = mocker.MagicMock()
+    tempdir_mock.__enter__.return_value = '/tmp'
+    mocker.patch(
+        'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
+        return_value=tempdir_mock,
+    )
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+
+    path_mock = mocker.MagicMock()
+    mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
+    mocker.patch('connect.eaas.core.deployment.utils.os.path.exists', return_value=True)
+    yaml_data = """
+    package_id: package.id
+    type: multiaccount
+    overview: path.to.overview.md
+    """
+    mock_open = mocker.mock_open(read_data=yaml_data)
+    mocker.patch('connect.eaas.core.deployment.utils.open', mock_open)
+
+    deploy_args = extract_arguments('https://github.com/test/repo.git', is_install=True)
+    assert deploy_args['overview'] is not None
+
+
+@pytest.mark.django_db
+def test_extract_arguments_ok_with__non_existance_overview(mocker):
+    tempdir_mock = mocker.MagicMock()
+    tempdir_mock.__enter__.return_value = '/tmp'
+    mocker.patch(
+        'connect.eaas.core.deployment.utils.tempfile.TemporaryDirectory',
+        return_value=tempdir_mock,
+    )
+    mocker.patch('connect.eaas.core.deployment.utils.clone_repo', return_value=None)
+
+    path_mock = mocker.MagicMock()
+    mocker.patch('connect.eaas.core.deployment.utils.Path', return_value=path_mock)
+    yaml_data = """
+    package_id: package.id
+    type: multiaccount
+    overview: path.to.overview.md
+    """
+    mock_open = mocker.mock_open(read_data=yaml_data)
+    mocker.patch('connect.eaas.core.deployment.utils.open', mock_open)
+
+    deploy_args = extract_arguments('https://github.com/test/repo.git', is_install=True)
+    assert deploy_args['overview'] is None
+
+
+@pytest.mark.django_db
 def test_extract_arguments_clone_error(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -93,7 +143,7 @@ def test_extract_arguments_no_yaml(mocker):
         extract_arguments('https://github.com/test/repo.git')
 
     assert 'No such file' in str(cv.value)
-    assert '.connect_deployment.yaml' in str(cv.value)
+    assert '.connect-deployment.yml' in str(cv.value)
 
 
 def test_extract_arguments_error_opening_file(mocker):
@@ -321,10 +371,10 @@ def test_get_git_data_ok(mocker):
         return_value={'1.2': 'hash 1.2', '1.1': 'hash 1.1'},
     )
 
-    result = get_git_data('https://github.com/test/repo', 1.1)
+    result = get_git_data('https://github.com/test/repo', '1.2', 1.1)
     assert result == {
-        'tag': '1.1',
-        'commit': 'hash 1.1',
+        'tag': '1.2',
+        'commit': 'hash 1.2',
         'url': 'https://github.com/test/repo',
     }
 
@@ -335,7 +385,7 @@ def test_get_git_data_no_tag_ok(mocker):
         return_value={'1.2': 'hash 1.2', '1.1': 'hash 1.1'},
     )
 
-    result = get_git_data('https://github.com/test/repo', None)
+    result = get_git_data('https://github.com/test/repo', None, None)
     assert result['tag'] == '1.2'
 
 
@@ -346,7 +396,7 @@ def test_get_git_data_list_tag_error(mocker):
     )
 
     with pytest.raises(DeploymentError) as cv:
-        get_git_data('https://github.com/test/repo', None)
+        get_git_data('https://github.com/test/repo', None, None)
     assert 'Cannot retrieve git repository https://github.com/test/repo tags info' in str(cv.value)
 
 
@@ -357,5 +407,5 @@ def test_get_git_data_invalid_tag(mocker):
     )
 
     with pytest.raises(DeploymentError) as cv:
-        get_git_data('https://github.com/test/repo', '1.1.1')
-    assert str(cv.value) == 'Invalid tag: 1.1.1.'
+        get_git_data('https://github.com/test/repo', '1.1.1', '1.1.2')
+    assert str(cv.value) == 'Invalid tag: 1.1.2.'

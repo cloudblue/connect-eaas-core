@@ -82,6 +82,7 @@ def test_update_error_filtering_extension(caplog, mocker, responses):
             'https://github.com/dummy/repo.git',
             CLIENT,
             LOGGER.info,
+            '1.2',
         )
 
     assert 'Error getting extension' in caplog.text
@@ -243,6 +244,7 @@ def test_update_ok(caplog, mocker, responses):
             'https://github.com/dummy/repo.git',
             CLIENT,
             LOGGER.info,
+            '1.2',
         )
 
     assert 'Extension successfully updated' in caplog.text

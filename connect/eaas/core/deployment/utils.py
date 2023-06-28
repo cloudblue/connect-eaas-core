@@ -17,7 +17,7 @@ class DeploymentError(Exception):
     pass
 
 
-def extract_arguments(url, is_install=False):
+def extract_arguments(url, is_install=False):  # noqa: CCR001
     with tempfile.TemporaryDirectory() as temp_path:
         try:
             clone_repo(temp_path, url)
@@ -25,8 +25,11 @@ def extract_arguments(url, is_install=False):
             raise DeploymentError(ge)
 
         repo_path = Path(os.path.join(temp_path, DEFAULT_CLONE_DIR))
+        file_path = os.path.join(repo_path, '.connect-deployment.yaml')
+        if not os.path.exists(file_path):
+            file_path = os.path.join(repo_path, '.connect-deployment.yml')
         try:
-            with open(os.path.join(repo_path, '.connect_deployment.yaml'), 'r') as file_data:
+            with open(file_path, 'r') as file_data:
                 arguments = safe_load(file_data)
 
             if arguments.get('type') is None:
@@ -37,6 +40,13 @@ def extract_arguments(url, is_install=False):
 
             if arguments.get('icon') and is_install:
                 arguments['icon'] = open(os.path.join(repo_path, arguments.get('icon')), 'rb')
+
+            if arguments.get('overview') and is_install:
+                if os.path.exists(os.path.join(repo_path, arguments['overview'])):
+                    with open(os.path.join(repo_path, arguments['overview']), 'r') as overview:
+                        arguments['overview'] = overview.read()
+                else:
+                    arguments['overview'] = None
 
             return arguments
         except FileNotFoundError as fe:
@@ -52,11 +62,12 @@ def extract_arguments(url, is_install=False):
 def preprocess_variables(arguments):
     vars = arguments.get('var', {})
     for var_key, var in vars.items():
-        if var is None:
-            vars[var_key] = {'value': os.getenv(var_key), 'secure': False}
-        else:
-            vars[var_key]['value'] = var.get('value', os.getenv(var_key))
-            vars[var_key]['secure'] = var.get('secure', False)
+        var = var or {}
+        if not var.get('value'):
+            var['value'] = os.getenv(var_key)
+        if not isinstance(var.get('secure'), bool):
+            var['secure'] = False
+        vars[var_key] = var
 
     return vars
 
@@ -83,13 +94,14 @@ def process_variables(arguments, env_api):
             )
 
 
-def get_git_data(repo, tag):
+def get_git_data(repo, tag, default_tag):
     try:
         tags = list_tags(repo)
     except GitException as ge:
         raise DeploymentError(f'Cannot retrieve git repository {repo} tags info: {ge}.')
 
-    tag = list(tags.keys())[0] if tag is None else str(tag)
+    if tag is None or tag not in tags:
+        tag = list(tags.keys())[0] if default_tag is None else str(default_tag)
     if tag not in tags:
         raise DeploymentError(f'Invalid tag: {tag}.')
 

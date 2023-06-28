@@ -7,7 +7,7 @@ from connect.eaas.core.deployment.utils import (
 )
 
 
-def install_extension(repo, client, log):
+def install_extension(repo, client, log, tag=None):
     log('Starting install...')
 
     log('Extracting data from connect_deployment.yaml.')
@@ -24,10 +24,21 @@ def install_extension(repo, client, log):
 
     log('Getting repository tag.')
     try:
-        git = get_git_data(repo, arguments.get('tag'))
+        git = get_git_data(repo, tag, arguments.get('tag'))
     except DeploymentError as de:
         log(de)
         return
+
+    category_id = None
+    if arguments.get('category'):
+        try:
+            category = client.dictionary['extensions'].categories.filter(
+                name=arguments.get('category'),
+            ).first()
+            if category:
+                category_id = category['id']
+        except ClientError as ce:
+            log(f'Error during looking up category: {ce}. Skip it.')
 
     try:
         log('Creating extension instance.')
@@ -36,6 +47,10 @@ def install_extension(repo, client, log):
                 'type': arguments['type'],
                 'name': arguments['name'],
                 'package_id': arguments['package_id'],
+                'category': category_id,
+                'short_description': arguments.get('description'),
+                'overview': arguments.get('overview'),
+                'website': arguments.get('website'),
             },
             files={'icon': arguments.get('icon')},
         )
