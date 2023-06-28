@@ -321,7 +321,7 @@ def account_settings_page(label: str, url: str, icon: str = None):
     return wrapper
 
 
-def module_pages(label: str, url: str, children: List[Dict] = None):
+def module_pages(label: str, url: str, icon: str = None, children: List[Dict] = None):
     """
     Class decorator for Web Application that declare the main page
     for a web application and optionally a list of children pages.
@@ -339,10 +339,12 @@ def module_pages(label: str, url: str, children: List[Dict] = None):
     @module_pages(
         'Home',
         '/static/home.html',
+        '/static/icon.png',
         children=[
             {
                 'label': 'Child page 1',
                 'url': '/static/child1.html',
+                'icon': '/static/c1icon.png',
             },
         ],
     )
@@ -353,6 +355,7 @@ def module_pages(label: str, url: str, children: List[Dict] = None):
     Args:
         label (str): The label to use for such page.
         url (str): The url path to the html page including `/static`.
+        url (str): Optional icon url path including `/static`.
         children (List[Dict]): Optional list of children pages.
 
     !!! note
@@ -363,10 +366,9 @@ def module_pages(label: str, url: str, children: List[Dict] = None):
         component using its label as the tab label.
     """
     def wrapper(cls):
-        data = {
-            'label': label,
-            'url': url,
-        }
+        data = {'label': label, 'url': url}
+        if icon:
+            data['icon'] = icon
         if children:
             data['children'] = children
         setattr(cls, MODULE_PAGES_ATTR_NAME, data)
