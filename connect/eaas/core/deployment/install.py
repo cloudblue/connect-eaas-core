@@ -36,7 +36,7 @@ def install_extension(repo, client, log, tag=None):
                 name=arguments.get('category'),
             ).first()
             if category:
-                category_id = category['id']
+                category_id = {'id': category['id']}
         except ClientError as ce:
             log(f'Error during looking up category: {ce}. Skip it.')
 
