@@ -2,6 +2,7 @@ import functools
 import inspect
 import json
 import os
+from typing import Dict, List, Union
 
 import anvil.server
 import pkg_resources
@@ -247,9 +248,9 @@ class WebApplicationBase(ApplicationBase):
         return ui_modules
 
     @classmethod
-    def get_proxied_connect_api(cls) -> list:
+    def get_proxied_connect_api(cls) -> Union[List[str], Dict]:
         """
-        Inspects the Web Application class returning the list of accessible
+        Inspects the Web Application class returning the configuration of accessible
         Connect Public API endpoints declared using the `@proxied_connect_api` class decorator.
 
         !!! example
