@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -539,9 +539,9 @@ def devops_pages(pages: List[Dict]):
     return wrapper
 
 
-def proxied_connect_api(endpoints: List[str]):
+def proxied_connect_api(endpoints: Union[List[str], Dict]):
     """
-    Class decorator for Web Application that declares a list of
+    Class decorator for Web Application that declares a list (or dict) of
     Connect Public API endpoints, accessible on the hosts of the extension
     and its installations.
     Each item shall start with a / and contain a full API path of the endpoint.
@@ -565,10 +565,21 @@ def proxied_connect_api(endpoints: List[str]):
     )
     class MyWebApp(WebApplicationBase):
         pass
+
+
+    @web_app(router)
+    @proxied_connect_api(
+        {
+            '/public/v1/marketplaces': 'edit',
+            '/public/v1/auth/context': 'view',
+        },
+    )
+    class MyWebApp2(WebApplicationBase):
+        pass
     ```
 
     Args:
-        endpoints (List[str]): List of endpoints.
+        endpoints (Union[List[str], Dict]): List of endpoints.
     """
     def wrapper(cls):
         setattr(cls, PROXIED_CONNECT_API_ATTR_NAME, endpoints)

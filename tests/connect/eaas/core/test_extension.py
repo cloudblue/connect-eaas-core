@@ -542,7 +542,18 @@ def test_get_proxied_connect_api_not_set():
     assert MyWebApp.get_proxied_connect_api() == []
 
 
-@pytest.mark.parametrize('endpoints', ([], ['/p/1'], ['/api/v1/ep', '/public/v2/ep/test']))
+@pytest.mark.parametrize(
+    'endpoints',
+    (
+        [],
+        ['/p/1'],
+        ['/api/v1/ep', '/public/v2/ep/test'],
+        {
+            '/api/v1/ep': 'view',
+            '/public/v2/ep/test': 'edit',
+        },
+    ),
+)
 def test_get_proxied_connect_api(endpoints):
     @proxied_connect_api(endpoints)
     class MyWebApp(WebApplicationBase):
