@@ -1172,8 +1172,13 @@ def test_validate_webapp_get_middlewares_fail(mocker, f, error):
 
 @pytest.mark.parametrize('proxied_api', (
     [],
+    {},
     ['/public/v1/auth'],
     ['/public/', '/public/v1/auth/context'],
+    {
+        '/public/': 'view',
+        '/public/v1/auth/context': 'edit',
+    },
 ))
 def test_validate_webapp_get_proxied_connect_api_ok(mocker, proxied_api):
     router = APIRouter()
@@ -1195,10 +1200,34 @@ def test_validate_webapp_get_proxied_connect_api_ok(mocker, proxied_api):
 
 
 @pytest.mark.parametrize('proxied_api, error', (
-    ({}, 'The argument of the `@proxied_connect_api` must be a list of strings.'),
-    (['str', 1], 'The argument of the `@proxied_connect_api` must be a list of strings.'),
+    (set(), 'The argument of the `@proxied_connect_api` must be a list of strings or a dict.'),
+    (['str', 1], 'The argument of the `@proxied_connect_api` must be a list of strings or a dict.'),
     (['/public/v1/auth'] * 101, 'Max allowed length of the `@proxied_connect_api` argument: 100.'),
     (['/media'], 'Only Public API can be referenced in `@proxied_connect_api`.'),
+    (
+        {f'/public/v1/ep{i}': 'view' for i in range(200)},
+        'Max allowed length of the `@proxied_connect_api` argument: 100.',
+    ),
+    (
+        {
+            '/public/v1/marketplaces': 'view',
+            '/public/v1/products': 'edit',
+            '/private/api': 'view',
+        },
+        'Only Public API can be referenced in `@proxied_connect_api`.',
+    ),
+    (
+        {
+            '/public/v1/marketplaces': 'view',
+            '/public/v1/products': 'create',
+            '/public/v1/accounts/VA-123/users': 'post',
+        },
+        'Wrong Public API permission value in `@proxied_connect_api`.',
+    ),
+    (
+        {'/public/v1/marketplaces': []},
+        'Wrong Public API permission value in `@proxied_connect_api`.',
+    ),
 ))
 def test_validate_webapp_get_proxied_connect_api_fail(mocker, proxied_api, error):
     router = APIRouter()
