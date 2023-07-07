@@ -154,11 +154,12 @@ def _validate_webapp_proxied_connect_api(context):
     proxied_connect_api = extension_class.get_proxied_connect_api()
     code_pattern = '@proxied_connect_api('
 
-    if not isinstance(proxied_connect_api, list):
+    type_msg = 'The argument of the `@proxied_connect_api` must be a list of strings or a dict.'
+    if not isinstance(proxied_connect_api, (list, dict)):
         errors.append(
             ValidationItem(
                 level='ERROR',
-                message='The argument of the `@proxied_connect_api` must be a list of strings.',
+                message=type_msg,
                 **get_code_context(extension_class, code_pattern),
             ),
         )
@@ -178,22 +179,38 @@ def _validate_webapp_proxied_connect_api(context):
         )
         return errors
 
-    if not all(isinstance(v, str) for v in proxied_connect_api):
+    is_dict_conf = isinstance(proxied_connect_api, dict)
+    api_paths = proxied_connect_api
+    if is_dict_conf:
+        api_paths = proxied_connect_api.keys()
+    if not all(isinstance(v, str) for v in api_paths):
         errors.append(
             ValidationItem(
                 level='ERROR',
-                message='The argument of the `@proxied_connect_api` must be a list of strings.',
+                message=type_msg,
                 **get_code_context(extension_class, code_pattern),
             ),
         )
         return errors
 
     public_prefix = PROXIED_CONNECT_API_ENDPOINTS_PUBLIC_PREFIX
-    if not all(v.startswith(public_prefix) for v in proxied_connect_api):
+    if not all(v.startswith(public_prefix) for v in api_paths):
         errors.append(
             ValidationItem(
                 level='ERROR',
                 message='Only Public API can be referenced in `@proxied_connect_api`.',
+                **get_code_context(extension_class, code_pattern),
+            ),
+        )
+        return errors
+
+    if is_dict_conf and (
+        not all(isinstance(v, str) and v in ('view', 'edit') for v in proxied_connect_api.values())
+    ):
+        errors.append(
+            ValidationItem(
+                level='ERROR',
+                message='Wrong Public API permission value in `@proxied_connect_api`.',
                 **get_code_context(extension_class, code_pattern),
             ),
         )
