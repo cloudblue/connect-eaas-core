@@ -11,13 +11,15 @@ class GitException(Exception):
     pass
 
 
-def clone_repo(temp_path, repo_url):
+def clone_repo(temp_path, repo_url, tag):
     result = subprocess.run(
         [
             'git',
             '-C',
             temp_path,
             'clone',
+            '-b',
+            tag,
             repo_url,
             DEFAULT_CLONE_DIR,
         ],
@@ -28,7 +30,7 @@ def clone_repo(temp_path, repo_url):
     try:
         result.check_returncode()
     except subprocess.CalledProcessError:
-        raise GitException(f'Error cloning repository: {result.stderr.decode()}')
+        raise GitException(f'Error cloning repository {repo_url}: {result.stderr.decode()}')
 
 
 class ConnectVersionTag(StrictVersion):

@@ -27,6 +27,8 @@ def test_clone_ok(mocker):
         '-C',
         temp_path,
         'clone',
+        '-b',
+        '1.0',
         repo_url,
         DEFAULT_CLONE_DIR,
     ]
@@ -35,7 +37,7 @@ def test_clone_ok(mocker):
         return_value=result,
     )
 
-    clone_repo(temp_path, repo_url)
+    clone_repo(temp_path, repo_url, '1.0')
     subp_mock.assert_called_once_with(cmd, **_DEFAULT_SUBP_KWARGS)
 
 
@@ -52,9 +54,9 @@ def test_clone_repo_subprocess_failed(mocker):
     )
 
     with pytest.raises(GitException) as cv:
-        clone_repo('https://github.com/dummy/repo.git', '/tmp/tests')
+        clone_repo('/tmp/tests', 'https://github.com/dummy/repo.git', '1.0')
 
-    assert str(cv.value) == f'Error cloning repository: {error}'
+    assert str(cv.value) == f'Error cloning repository https://github.com/dummy/repo.git: {error}'
 
 
 def test_list_tags_ok(mocker):
@@ -108,7 +110,7 @@ def test_list_tags_ordering(mocker):
 
 def test_list_tags_duplicated_tags(mocker):
     commit_1 = '0c92d254606ad06c2669dd29a65a28b577cf3b1e'
-    commit_2 = '0c92d254606ad06c2669dd29a65a28b577cf3b1e'
+    commit_2 = '0c92d254606ad06c2669dd29a65a28b577cf3b11'
     tag_id = '21.7'
     result = mocker.MagicMock()
     result.returnvalue = 0
