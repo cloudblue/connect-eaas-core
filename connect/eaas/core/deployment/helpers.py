@@ -75,6 +75,11 @@ def sort_tags(tags):
 
 
 def list_tags(repo_url):
+    version_re = re.compile(
+        r'^v?(\d+) \. (\d+) (\. (\d+))?$',
+        re.VERBOSE | re.ASCII,
+    )
+
     result = subprocess.run(
         ['git', 'ls-remote', '--tags', '--refs', repo_url],
         capture_output=True,
@@ -90,5 +95,6 @@ def list_tags(repo_url):
     for line in result.stdout.decode().splitlines():
         commit, tagref = line.split()
         tag = tagref.rsplit('/', 1)[-1]
-        tags[tag] = commit
+        if version_re.match(tag):
+            tags[tag] = commit
     return sort_tags(tags)

@@ -142,6 +142,77 @@ def test_deploy_extension_ok_update(caplog, responses, mocker):
     assert 'Extension with package_id p.id successfully deployed' in caplog.text
 
 
+def test_deploy_extension_ok_update_only_config(caplog, responses, mocker):
+    mocker.patch(
+        'connect.eaas.core.deployment.extension.get_git_data',
+        return_value={'tag': '1.2', 'commit': 'commit_hash', 'url': 'https://github.com/dummy'},
+    )
+    mocker.patch(
+        'connect.eaas.core.deployment.extension.extract_arguments',
+        return_value={
+            'package_id': 'p.id',
+            'env': 'test',
+            'type': 'multiaccount',
+            'name': 'Extension',
+            'var': {},
+        },
+    )
+    responses.add(
+        'GET',
+        'https://localhost/public/v1/devops/services?eq(package_id,p.id)&limit=1&offset=0',
+        json=[
+            {
+                'id': 'SRV-001',
+                'environments': {
+                    'test': {
+                        'id': 'ENV-001',
+                        'status': 'running',
+                        'runtime': 'cloud',
+                        'git': {'commit': 'commit_hash'},
+                    },
+                },
+            },
+        ],
+        status=200,
+    )
+    mocker.patch(
+        'connect.eaas.core.deployment.extension.update_extension',
+        return_value={
+            'id': 'SRV-001',
+            'environments': {
+                'test': {
+                    'id': 'ENV-001',
+                    'status': 'running',
+                    'runtime': 'cloud',
+                    'git': {'commit': 'commit_hash'},
+                    'type': 'test',
+                },
+            },
+        },
+    )
+    mocker.patch(
+        'connect.eaas.core.deployment.extension.process_variables',
+        return_value=True,
+    )
+    responses.add(
+        'POST',
+        'https://localhost/public/v1/devops/services/SRV-001/environments/ENV-001/update-config',
+        json={},
+        status=200,
+    )
+
+    with caplog.at_level(logging.DEBUG):
+        deploy_extension(
+            'https://github.com/dummy',
+            CLIENT,
+            LOGGER.info,
+            '1.2',
+        )
+
+    assert 'Updating test environment config.' in caplog.text
+    assert 'Extension with package_id p.id successfully deployed' in caplog.text
+
+
 def test_deploy_extension_extracting_error(caplog, responses, mocker):
     mocker.patch(
         'connect.eaas.core.deployment.extension.get_git_data',

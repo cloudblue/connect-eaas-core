@@ -10,7 +10,7 @@ from connect.eaas.core.deployment.utils import (
 )
 
 
-def deploy_extension(repo, client, log, tag=None):
+def deploy_extension(repo, client, log, tag=None):  # noqa: CCR001
     log(f'Starting deploy repo {repo}...')
 
     try:
@@ -58,19 +58,28 @@ def deploy_extension(repo, client, log, tag=None):
     environment = extension['environments'][arguments.get('env', 'production')]
     env_api = client('devops').services[extension['id']].environments[environment['id']]
 
-    environment = stop_environment(environment, env_api, log)
-    if environment['status'] == 'running':
-        return
-
     try:
-        log(f'Creating variables for extension with package_id {arguments["package_id"]}.')
-        process_variables(arguments, env_api)
+        log(f'Processing variables for extension with package_id {arguments["package_id"]}.')
+        vars_updated = process_variables(arguments, env_api, log)
 
-        log(f'Updating and starting {environment["type"]} environment.')
-        env_api.update({'git': git, 'runtime': 'cloud'})
+        if (
+            environment.get('git', {}).get('commit') != git['commit']
+            or environment['runtime'] == 'local'
+        ):
+            environment = stop_environment(environment, env_api, log)
+            if environment['status'] == 'running':
+                return
+
+            log(f'Updating {environment["type"]} environment.')
+            env_api.update({'git': git, 'runtime': 'cloud'})
 
         if environment['runtime'] == 'cloud':
-            env_api.action('start').post()
+            if environment['status'] == 'stopped':
+                log(f'Starting {environment["type"]} environment.')
+                env_api.action('start').post()
+            elif vars_updated:
+                log(f'Updating {environment["type"]} environment config.')
+                env_api.action('update-config').post()
     except ClientError as ce:
         log(f'Error processing environment: {ce}.')
         return
