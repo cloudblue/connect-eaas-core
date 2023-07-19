@@ -167,6 +167,9 @@ SETUP_RESPONSE_DATA = {
         },
     },
     'event_definitions': None,
+    'environment_runtime': None,
+    'environment_hostname': None,
+    'environment_domain': None,
     'model_type': 'setup_response',
 }
 SETUP_RESPONSE_DATA_V1 = {
