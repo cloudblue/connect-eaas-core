@@ -58,6 +58,15 @@ def deploy_extension(repo, client, log, tag=None):  # noqa: CCR001
     environment = extension['environments'][arguments.get('env', 'production')]
     env_api = client('devops').services[extension['id']].environments[environment['id']]
 
+    if environment['runtime'] == 'local' and environment['status'] == 'connected':
+        log(
+            (
+                f'{environment["type"]} environment is in local mode and connected. '
+                f'Please, stop it and rerun deployment again.'
+            ),
+        )
+        return
+
     try:
         log(f'Processing variables for extension with package_id {arguments["package_id"]}.')
         vars_updated = process_variables(arguments, env_api, log)
@@ -67,19 +76,26 @@ def deploy_extension(repo, client, log, tag=None):  # noqa: CCR001
             or environment['runtime'] == 'local'
         ):
             environment = stop_environment(environment, env_api, log)
-            if environment['status'] == 'running':
+            if environment['status'] in ['running', 'stopping']:
                 return
 
             log(f'Updating {environment["type"]} environment.')
-            env_api.update({'git': git, 'runtime': 'cloud'})
+            environment = env_api.update({'git': git, 'runtime': 'cloud'})
+        else:
+            log(
+                (
+                    f'Version {git["tag"]} is already deployed in cloud mode for '
+                    f'{environment["type"]} environment for extension with package_id '
+                    f'{arguments["package_id"]}.'
+                ),
+            )
 
-        if environment['runtime'] == 'cloud':
-            if environment['status'] == 'stopped':
-                log(f'Starting {environment["type"]} environment.')
-                env_api.action('start').post()
-            elif vars_updated:
-                log(f'Updating {environment["type"]} environment config.')
-                env_api.action('update-config').post()
+        if environment['status'] not in ['running', 'deploying']:
+            log(f'Starting {environment["type"]} environment.')
+            env_api.action('start').post()
+        elif environment['status'] == 'running' and vars_updated:
+            log(f'Updating {environment["type"]} environment config.')
+            env_api.action('update-config').post()
     except ClientError as ce:
         log(f'Error processing environment: {ce}.')
         return
