@@ -378,7 +378,11 @@ def test_process_variables_ok(responses):
         },
     }
     client = ConnectClient('ApiKey XXX:YYY', endpoint='https://localhost/public/v1')
-    process_variables(arguments, client('devops').services['SRV-001'].environments['ENV-001'])
+    process_variables(
+        arguments,
+        client('devops').services['SRV-001'].environments['ENV-001'],
+        print,
+    )
 
     assert mock_put.call_count == 1
     assert mock_post.call_count == 1

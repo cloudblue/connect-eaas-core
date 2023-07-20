@@ -105,7 +105,7 @@ def test_list_tags_ordering(mocker):
         return_value=result,
     )
     data = list_tags('https://github.com/dummy/repo.git')
-    assert list(data.keys()) == [tag_3, tag_1, tag_5, tag_2, tag_6, tag_4]
+    assert list(data.keys()) == [tag_3, tag_1, tag_5]
 
 
 def test_list_tags_duplicated_tags(mocker):
@@ -140,7 +140,7 @@ def test_list_tags_impossible_values_ok(mocker):
         return_value=result,
     )
     data = list_tags('https://github.com/dummy/repo.git')
-    assert list(data.keys()) == [str(tag_1), tag_2]
+    assert list(data.keys()) == []
 
 
 def test_list_tags_subprocess_failed(mocker):

@@ -80,7 +80,9 @@ def preprocess_variables(arguments):
     return vars
 
 
-def process_variables(arguments, env_api):
+def process_variables(arguments, env_api, log):
+    updated = 0
+    created = 0
     vars = preprocess_variables(arguments)
     existing_vars = env_api.action('variables').get()
     existing_vars = {var['name']: var for var in existing_vars}
@@ -88,10 +90,11 @@ def process_variables(arguments, env_api):
     for key, var in vars.items():
         if key in existing_vars:
             if (
-                    var['value'] != existing_vars[key]['value']
-                    or var['secure'] != existing_vars[key]['secure']
+                var['value'] != existing_vars[key]['value']
+                or var['secure'] != existing_vars[key]['secure']
             ):
                 env_api.variables[existing_vars[key]['id']].update(var)
+                updated += 1
         else:
             env_api.action('variables').post(
                 {
@@ -100,6 +103,9 @@ def process_variables(arguments, env_api):
                     'secure': var['secure'],
                 },
             )
+            created += 1
+    log(f'{created} variables created. {updated} variables updated.')
+    return created + updated > 0
 
 
 def get_git_data(repo, tag):
