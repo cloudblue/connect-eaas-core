@@ -122,6 +122,9 @@ class SetupResponse(BaseModel):
     environment_type: Optional[str]
     logging: Optional[Logging]
     event_definitions: Optional[List[EventDefinition]]
+    environment_runtime: Optional[str]
+    environment_hostname: Optional[str]
+    environment_domain: Optional[str]
     model_type: Literal['setup_response'] = 'setup_response'
 
     def get_sensitive_fields(self):
