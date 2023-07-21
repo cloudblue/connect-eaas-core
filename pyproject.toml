@@ -55,8 +55,6 @@ responses = ">=0.14.0,<1"
 pytest-httpx = ">=0.20"
 Faker = "^14.2.0"
 flake8-isort = "^6.0.0"
-django = ">=4.2,<5"
-pytest-django = "^4.5.2"
 django-rql = "^4.4.0"
 
 [tool.poetry.group.docs.dependencies]

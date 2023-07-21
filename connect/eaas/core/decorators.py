@@ -10,6 +10,7 @@ from connect.eaas.core.constants import (
     ANVIL_KEY_VAR_ATTR_NAME,
     CUSTOMER_PAGES_ATTR_NAME,
     DEVOPS_PAGES_ATTR_NAME,
+    DJANGO_SECRET_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
     PROXIED_CONNECT_API_ATTR_NAME,
@@ -621,6 +622,20 @@ def customer_pages(pages: List[Dict]):
     """
     def wrapper(cls):
         setattr(cls, CUSTOMER_PAGES_ATTR_NAME, pages)
+        return cls
+    return wrapper
+
+
+def django_secret_key_variable(name):
+    def wrapper(cls):
+        setattr(cls, DJANGO_SECRET_KEY_VAR_ATTR_NAME, name)
+        variables = []
+        if not hasattr(cls, VARIABLES_INFO_ATTR_NAME):
+            setattr(cls, VARIABLES_INFO_ATTR_NAME, variables)
+        else:
+            variables = getattr(cls, VARIABLES_INFO_ATTR_NAME)
+        if len(list(filter(lambda x: x['name'] == name, variables))) == 0:
+            variables.append({'name': name, 'initial_value': 'changeme!', 'secure': True})
         return cls
     return wrapper
 

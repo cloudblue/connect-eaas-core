@@ -71,7 +71,6 @@ def test_extract_arguments_ok(mocker):
     }
 
 
-@pytest.mark.django_db
 def test_extract_arguments_ok_with_overview(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -96,7 +95,6 @@ def test_extract_arguments_ok_with_overview(mocker):
     assert deploy_args['overview'] is not None
 
 
-@pytest.mark.django_db
 def test_extract_arguments_ok_with_non_existing_overview(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'
@@ -124,7 +122,6 @@ def test_extract_arguments_ok_with_non_existing_overview(mocker):
     assert deploy_args['overview'] is None
 
 
-@pytest.mark.django_db
 def test_extract_arguments_clone_error(mocker):
     tempdir_mock = mocker.MagicMock()
     tempdir_mock.__enter__.return_value = '/tmp'

@@ -11,6 +11,7 @@ TRANSFORMATION_ATTR_NAME = '_eaas_transformation_info'
 DEVOPS_PAGES_ATTR_NAME = '_eaas_devops_pages'
 PROXIED_CONNECT_API_ATTR_NAME = '_eaas_proxied_connect_api'
 CUSTOMER_PAGES_ATTR_NAME = '_eaas_customer_pages'
+DJANGO_SECRET_KEY_VAR_ATTR_NAME = '_eaas_django_secret_key_var'
 
 
 PROXIED_CONNECT_API_ENDPOINTS_MAX_ALLOWED_NUMBER = 100
