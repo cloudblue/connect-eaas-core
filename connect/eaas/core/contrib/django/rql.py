@@ -5,6 +5,7 @@ from dj_rql.filter_cls import RQLFilterClass
 from dj_rql.transformer import RQLLimitOffsetTransformer
 from django.db.models.query import QuerySet
 from fastapi import Depends, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from lark.exceptions import LarkError
 from py_rql.exceptions import RQLFilterParsingError
@@ -43,7 +44,7 @@ class _RQLLimitOffsetPaginator:
                 if self.limit + self.offset > self.count:
                     self.limit = self.count - self.offset
                 body = [
-                    dict(model.from_orm(item))
+                    dict(jsonable_encoder(model.from_orm(item)))
                     for item in queryset[self.offset: self.offset + self.limit]
                 ]
 
@@ -67,7 +68,7 @@ class _RQLLimitOffsetPaginator:
                 if self.limit + self.offset > self.count:
                     self.limit = self.count - self.offset
                 body = [
-                    dict(model.from_orm(item))
+                    dict(jsonable_encoder(model.from_orm(item)))
                     async for item in queryset[self.offset: self.offset + self.limit]
                 ]
 
