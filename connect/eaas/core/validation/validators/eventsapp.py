@@ -115,6 +115,18 @@ def _validate_events(context):
                 ),
             )
             continue
+        if not event['statuses'] and definitions[event['event_type']]['object_statuses']:
+            messages.append(
+                ValidationItem(
+                    level='ERROR',
+                    message=(
+                        f'The event *{event["event_type"]}* is not valid, event declaration '
+                        'must contain not empty list of statuses.'
+                    ),
+                    **get_code_context(method, '@event'),
+                ),
+            )
+            continue
 
         statuses = definitions[event['event_type']]['object_statuses']
         if statuses:
