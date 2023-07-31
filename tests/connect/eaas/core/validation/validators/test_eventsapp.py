@@ -216,6 +216,44 @@ def test_validate_eventsapp_invalid_event(mocker):
     assert item.code == 'code'
 
 
+def test_validate_eventsapp_no_statuses(mocker):
+    class MyExt(EventsApplicationBase):
+        @event('test_event', statuses=[])
+        def handle_event(self, request):
+            pass
+
+    context = {
+        'extension_classes': {'extension': MyExt},
+        'descriptor': {},
+        'extension_json_file': 'extension.json',
+        'event_definitions': {'test_event': {'object_statuses': ['draft']}},
+    }
+
+    mocker.patch(
+        'connect.eaas.core.validation.validators.eventsapp.get_code_context',
+        return_value={
+            'file': 'file',
+            'start_line': 0,
+            'lineno': 5,
+            'code': 'code',
+        },
+    )
+
+    result = validate_eventsapp(context)
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert 'event declaration must contain not empty list of statuses.' in item.message
+    assert item.file == 'file'
+    assert item.start_line == 0
+    assert item.lineno == 5
+    assert item.code == 'code'
+
+
 @pytest.mark.parametrize(
     ('object_statuses', 'event_statuses'),
     (
