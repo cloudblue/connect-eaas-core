@@ -1203,18 +1203,19 @@ def test_validate_webapp_get_proxied_connect_api_ok(mocker, proxied_api):
     (set(), 'The argument of the `@proxied_connect_api` must be a list of strings or a dict.'),
     (['str', 1], 'The argument of the `@proxied_connect_api` must be a list of strings or a dict.'),
     (['/public/v1/auth'] * 101, 'Max allowed length of the `@proxied_connect_api` argument: 100.'),
-    (['/media'], 'Only Public API can be referenced in `@proxied_connect_api`.'),
+    (['/media'], 'Only Public or Files API can be referenced in `@proxied_connect_api`.'),
     (
         {f'/public/v1/ep{i}': 'view' for i in range(200)},
         'Max allowed length of the `@proxied_connect_api` argument: 100.',
     ),
     (
         {
+            '/files': 'view',
             '/public/v1/marketplaces': 'view',
             '/public/v1/products': 'edit',
             '/private/api': 'view',
         },
-        'Only Public API can be referenced in `@proxied_connect_api`.',
+        'Only Public or Files API can be referenced in `@proxied_connect_api`.',
     ),
     (
         {

@@ -8,8 +8,8 @@ import os
 from fastapi_utils.cbv import CBV_CLASS_KEY
 
 from connect.eaas.core.constants import (
+    PROXIED_CONNECT_API_ALLOWED_PREFIXES,
     PROXIED_CONNECT_API_ENDPOINTS_MAX_ALLOWED_NUMBER,
-    PROXIED_CONNECT_API_ENDPOINTS_PUBLIC_PREFIX,
 )
 from connect.eaas.core.extension import WebApplicationBase
 from connect.eaas.core.validation.helpers import get_code_context
@@ -193,12 +193,12 @@ def _validate_webapp_proxied_connect_api(context):
         )
         return errors
 
-    public_prefix = PROXIED_CONNECT_API_ENDPOINTS_PUBLIC_PREFIX
-    if not all(v.startswith(public_prefix) for v in api_paths):
+    allowed_prefixes = PROXIED_CONNECT_API_ALLOWED_PREFIXES
+    if not all(v.startswith(allowed_prefixes) for v in api_paths):
         errors.append(
             ValidationItem(
                 level='ERROR',
-                message='Only Public API can be referenced in `@proxied_connect_api`.',
+                message='Only Public or Files API can be referenced in `@proxied_connect_api`.',
                 **get_code_context(extension_class, code_pattern),
             ),
         )
