@@ -16,6 +16,7 @@ from connect.eaas.core.constants import (
     ANVIL_KEY_VAR_ATTR_NAME,
     CUSTOMER_PAGES_ATTR_NAME,
     DEVOPS_PAGES_ATTR_NAME,
+    DJANGO_SECRET_KEY_VAR_ATTR_NAME,
     EVENT_INFO_ATTR_NAME,
     MODULE_PAGES_ATTR_NAME,
     PROXIED_CONNECT_API_ATTR_NAME,
@@ -79,6 +80,14 @@ class ApplicationBase:
             ```
         """
         return getattr(cls, VARIABLES_INFO_ATTR_NAME, [])
+
+    @classmethod
+    def get_django_secret_key_variable(cls) -> str:
+        """
+        Returns the name of the environment variable that
+        stores the Anvil Server Uplink key.
+        """
+        return getattr(cls, DJANGO_SECRET_KEY_VAR_ATTR_NAME, None)
 
 
 class InstallationAdminClientMixin:
@@ -284,7 +293,7 @@ class AnvilApplicationBase(ApplicationBase):
         Returns the name of the environment variable that
         stores the Anvil Server Uplink key.
         """
-        return getattr(cls, ANVIL_KEY_VAR_ATTR_NAME, [])
+        return getattr(cls, ANVIL_KEY_VAR_ATTR_NAME, None)
 
     @classmethod
     def get_anvil_callables(cls):

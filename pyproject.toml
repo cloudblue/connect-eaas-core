@@ -55,6 +55,7 @@ responses = ">=0.14.0,<1"
 pytest-httpx = ">=0.20"
 Faker = "^14.2.0"
 flake8-isort = "^6.0.0"
+django-rql = "^4.4.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.4.2"
@@ -78,6 +79,7 @@ testpaths = ["tests"]
 log_cli = true
 addopts = "--cov=connect.eaas.core --cov-report=term-missing:skip-covered --cov-report=html --cov-report=xml"
 asyncio_mode = "strict"
+
 
 [tool.coverage.run]
 branch = true

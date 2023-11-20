@@ -13,6 +13,7 @@ from connect.eaas.core.decorators import (
     anvil_key_variable,
     customer_pages,
     devops_pages,
+    django_secret_key_variable,
     event,
     guest,
     manual_transformation,
@@ -836,3 +837,68 @@ async def test_get_installation_admin_async_client_for_transformations(
     assert installation_admin_client.endpoint == extension_client.endpoint
     assert installation_admin_client.default_headers == extension_client.default_headers
     assert installation_admin_client.logger == extension_client.logger
+
+
+@pytest.mark.parametrize(
+    'app_base_class',
+    (
+        AnvilApplicationBase,
+        EventsApplicationBase,
+        TransformationsApplicationBase,
+        WebApplicationBase,
+    ),
+)
+def test_get_django_secret_key_variable(app_base_class):
+
+    @django_secret_key_variable('DJANGO_SECRET_KEY')
+    class MyApp(app_base_class):
+        pass
+
+    assert MyApp.get_django_secret_key_variable() == 'DJANGO_SECRET_KEY'
+    assert MyApp.get_variables()[0] == {
+        'name': 'DJANGO_SECRET_KEY',
+        'initial_value': 'changeme!',
+        'secure': True,
+    }
+
+
+@pytest.mark.parametrize(
+    'vars',
+    (
+        [
+            {
+                'name': 'VAR',
+                'initial_value': 'VALUE',
+            },
+        ],
+        [
+            {
+                'name': 'DJANGO_SECRET_KEY',
+                'initial_value': 'changeme!',
+                'secure': True,
+            },
+        ],
+    ),
+)
+@pytest.mark.parametrize(
+    'app_base_class',
+    (
+        AnvilApplicationBase,
+        EventsApplicationBase,
+        TransformationsApplicationBase,
+        WebApplicationBase,
+    ),
+)
+def test_get_django_secret_key_variable_with_variables(app_base_class, vars):
+
+    @django_secret_key_variable('DJANGO_SECRET_KEY')
+    @variables(vars)
+    class MyApp(app_base_class):
+        pass
+
+    assert MyApp.get_django_secret_key_variable() == 'DJANGO_SECRET_KEY'
+    assert {
+        'name': 'DJANGO_SECRET_KEY',
+        'initial_value': 'changeme!',
+        'secure': True,
+    } in MyApp.get_variables()
