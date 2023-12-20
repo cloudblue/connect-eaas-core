@@ -305,7 +305,7 @@ class Message(BaseModel):
         raw_data = raw.get('data')
 
         if version == 2:
-            if 'output' in raw_data and 'runtime' in raw_data['output']:
+            if raw_data and 'output' in raw_data and 'runtime' in raw_data['output']:
                 raw['data']['output']['runtime'] = raw_data['output']['runtime'] or 0.0
             return cls(**raw)
 
