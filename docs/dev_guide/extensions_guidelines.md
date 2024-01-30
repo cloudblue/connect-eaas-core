@@ -4,7 +4,7 @@ This article pretends to give some guideles on tech stack, code style and tools 
 ## Tech Stack
 
 - ORM and db toolkit: SQLAlchemy
-- Database: PostgresSQL 11 
+- Database: PostgresSQL
 - Web framework: FastAPI 
 - Pagination: fastapi-pagination
 - Filtering and sorting: fastapi_filter
