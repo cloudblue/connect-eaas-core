@@ -57,6 +57,8 @@ The 4th job is the one in charge of running frontend tests.
 
 ## Another Tools
 
-	[Connect-cli](https://github.com/cloudblue/connect-cli)
-	[Docker compose](https://docs.docker.com/compose/)
-	[Poetry](https://python-poetry.org/docs/basic-usage/)
+[Connect-cli](https://github.com/cloudblue/connect-cli)
+
+[Docker compose](https://docs.docker.com/compose/)
+
+[Poetry](https://python-poetry.org/docs/basic-usage/)
