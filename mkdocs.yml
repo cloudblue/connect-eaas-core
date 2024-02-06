@@ -99,6 +99,7 @@ nav:
       - Tools: dev_guide/tools.md
       - UI Toolkit: dev_guide/ui_toolkit.md
       - Async support: dev_guide/async.md
+      - Extensions guidelines: dev_guide/extensions_guidelines.md
   - Available events: events.md
   - Migration guide: migration_guide.md
   - API Reference:
