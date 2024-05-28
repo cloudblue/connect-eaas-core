@@ -566,6 +566,37 @@ def test_validate_docker_compose_yml_invalid_image_dockerfile(mocker):
     assert item.file == 'fake_dir/Dockerfile'
 
 
+def test_validate_docker_compose_yml_multistage_image_dockerfile(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        return_value=True,
+    )
+    mocked_open = mocker.MagicMock()
+    mocked_open.read.return_value = (
+        'FROM cloudblueconnect/connect-extension-runner:0.3 as a-stage-name\n'
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.open',
+        side_effect=[None, mocked_open],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.yaml.safe_load',
+        return_value={
+            'services': {
+                'dev': {
+                    'build': {'dockerfile': 'Dockerfile'},
+                },
+            },
+        },
+    )
+
+    result = validate_docker_compose_yml({'project_dir': 'fake_dir', 'runner_version': '0.3'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 0
+
+
 def test_validate_docker_compose_yml_invalid_image_no_dockerfile(mocker):
     mocker.patch(
         'connect.eaas.core.validation.validators.base.os.path.isfile',
