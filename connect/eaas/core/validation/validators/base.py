@@ -224,7 +224,7 @@ def validate_docker_compose_yml(context):  # noqa: CCR001
                     ),
                 )
                 continue
-            image = from_cmd[4:].strip()
+            image = re.sub(r'\s+AS\s+.*', '', from_cmd[4:], flags=re.IGNORECASE).strip()
             if image != runner_image:
                 messages.append(
                     ValidationItem(
