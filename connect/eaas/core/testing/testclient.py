@@ -256,6 +256,7 @@ class WebAppTestClient(TestClient):
             handlers = self._webapp_class.get_exception_handlers(handlers)
         app = FastAPI(
             exception_handlers=handlers,
+            root_path='/public/v1',
         )
 
         auth_router, no_auth_router = self._webapp_class.get_routers()

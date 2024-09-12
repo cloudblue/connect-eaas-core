@@ -34,7 +34,7 @@ def client_error_exception_handler(request: Request, exc: ClientError):
 
 
 def get_correlation_id(connect_correlation_id):
-    if type(connect_correlation_id) != str:
+    if type(connect_correlation_id) is not str:
         return None
     operation_id = connect_correlation_id[3:34]
     span_id = os.urandom(8).hex()

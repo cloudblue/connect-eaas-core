@@ -15,38 +15,37 @@ classifiers = [
     "Environment :: Console",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Utilities",
     "Topic :: Software Development :: Libraries",
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4"
+python = ">=3.9,<4"
 connect-openapi-client = ">=25.20"
-pydantic = "^1.10.7"
-fastapi = "^0.95.0"
-fastapi-utils = "^0.2.1"
-logzio-python-handler = "^3.1.1"
-anvil-uplink = "^0.4.0"
+pydantic = "^1.10"
+fastapi = "^0.114.0"
+fastapi-utils = "^0.7.0"
+logzio-python-handler = ">=3.1.1,<4.2"
+anvil-uplink = "^0.5.1"
 toml = "^0.10.2"
 PyYAML = "^6.0"
-typing-extensions = "<4.6.0"
-urllib3 = "<2"
+typing-extensions = "<5"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=6.1.2,<8"
 pytest-cov = ">=2.10.1,<5"
-pytest-mock = "^3.3.1"
+pytest-mock = "^3.14.0"
 coverage = {extras = ["toml"], version = ">=5.3,<7"}
-flake8 = ">=3.8,<6"
+flake8 = ">=3.8,<8"
 flake8-bugbear = ">=20,<23"
 flake8-cognitive-complexity = "^0.1"
-flake8-commas = "~2.1"
+flake8-commas = "^4.0"
 flake8-future-import = "~0.4"
-flake8-broken-line = ">=0.3,<0.7"
+flake8-broken-line = ">=0.3,<1.1"
 flake8-pyproject = "^1.2.2"
 pytest-asyncio = "^0.20.1"
 mock = { version = "^4.0.3", markers = "python_version < '3.8'" }
@@ -54,7 +53,7 @@ fs = "^2.4.12"
 responses = ">=0.14.0,<1"
 pytest-httpx = ">=0.20"
 Faker = "^14.2.0"
-flake8-isort = "^6.0.0"
+flake8-isort = "^6.1.0"
 django-rql = "^4.4.0"
 
 [tool.poetry.group.docs.dependencies]
