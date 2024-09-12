@@ -221,19 +221,19 @@ def test_middlewares(webapp_mock):
 
     assert len(client.app.user_middleware) == 3
     assert client.app.user_middleware[0].cls.__name__ == 'MiddlewareTimingClassWithParams'
-    assert client.app.user_middleware[0].options['log_level'] == 40
-    assert client.app.user_middleware[0].options['threshold'] == 40.0
+    assert client.app.user_middleware[0].kwargs['log_level'] == 40
+    assert client.app.user_middleware[0].kwargs['threshold'] == 40.0
     assert client.app.user_middleware[1].cls.__name__ == 'MiddlewareTimingClass'
-    assert client.app.user_middleware[1].options == {}
+    assert client.app.user_middleware[1].kwargs == {}
     assert client.app.user_middleware[2].cls.__name__ == 'BaseHTTPMiddleware'
-    assert 'dispatch' in client.app.user_middleware[2].options
-    assert client.app.user_middleware[2].options['dispatch'].__name__ == 'middleware_timing'
+    assert 'dispatch' in client.app.user_middleware[2].kwargs
+    assert client.app.user_middleware[2].kwargs['dispatch'].__name__ == 'middleware_timing'
 
 
 def test_exception_handlers(webapp_mock):
     client = WebAppTestClient(webapp_mock)
 
-    assert len(client.app.exception_handlers) == 3
+    assert len(client.app.exception_handlers) == 4
     assert ClientError in client.app.exception_handlers
     assert RequestValidationError in client.app.exception_handlers
 
