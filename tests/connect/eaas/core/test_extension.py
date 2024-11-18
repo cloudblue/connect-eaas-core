@@ -54,6 +54,13 @@ def test_get_events():
         async def process_change(self, request):
             pass
 
+        @event(
+            'asset_renew_request_processing',
+            statuses=['pending', 'inquiring'],
+        )
+        def process_renew(self, request):
+            pass
+
     assert sorted(MyExtension.get_events(), key=lambda x: x['method']) == [
         {
             'method': 'process_change',
@@ -63,6 +70,11 @@ def test_get_events():
         {
             'method': 'process_purchase',
             'event_type': 'asset_purchase_request_processing',
+            'statuses': ['pending', 'inquiring'],
+        },
+        {
+            'method': 'process_renew',
+            'event_type': 'asset_renew_request_processing',
             'statuses': ['pending', 'inquiring'],
         },
     ]
