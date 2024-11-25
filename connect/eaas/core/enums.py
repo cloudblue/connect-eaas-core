@@ -5,6 +5,7 @@ class EventType:
     ASSET_RESUME_REQUEST_PROCESSING = 'asset_resume_request_processing'
     ASSET_CANCEL_REQUEST_PROCESSING = 'asset_cancel_request_processing'
     ASSET_ADJUSTMENT_REQUEST_PROCESSING = 'asset_adjustment_request_processing'
+    ASSET_RENEW_REQUEST_PROCESSING = 'asset_renew_request_processing'
     ASSET_PURCHASE_REQUEST_VALIDATION = 'asset_purchase_request_validation'
     ASSET_CHANGE_REQUEST_VALIDATION = 'asset_change_request_validation'
     PRODUCT_ACTION_EXECUTION = 'product_action_execution'
