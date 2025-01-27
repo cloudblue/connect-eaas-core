@@ -8,6 +8,7 @@ class EventType:
     ASSET_RENEW_REQUEST_PROCESSING = 'asset_renew_request_processing'
     ASSET_PURCHASE_REQUEST_VALIDATION = 'asset_purchase_request_validation'
     ASSET_CHANGE_REQUEST_VALIDATION = 'asset_change_request_validation'
+    ASSET_RENEW_REQUEST_VALIDATION = 'asset_renew_request_validation'
     PRODUCT_ACTION_EXECUTION = 'product_action_execution'
     PRODUCT_CUSTOM_EVENT_PROCESSING = 'product_custom_event_processing'
     TIER_CONFIG_SETUP_REQUEST_PROCESSING = 'tier_config_setup_request_processing'
