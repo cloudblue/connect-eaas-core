@@ -78,7 +78,6 @@ class WebAppTestClient(TestClient):
         cookies=None,
         auth=httpx._client.USE_CLIENT_DEFAULT,
         follow_redirects=None,
-        allow_redirects=None,
         timeout=httpx._client.USE_CLIENT_DEFAULT,
         extensions=None,
         context=None,
@@ -115,7 +114,6 @@ class WebAppTestClient(TestClient):
                 cookies=cookies,
                 auth=auth,
                 follow_redirects=follow_redirects,
-                allow_redirects=allow_redirects,
                 timeout=timeout,
                 extensions=extensions,
             )
@@ -140,7 +138,6 @@ class WebAppTestClient(TestClient):
                 cookies=cookies,
                 auth=auth,
                 follow_redirects=follow_redirects,
-                allow_redirects=allow_redirects,
                 timeout=timeout,
                 extensions=extensions,
             )
@@ -174,7 +171,6 @@ class WebAppTestClient(TestClient):
                 cookies=cookies,
                 auth=auth,
                 follow_redirects=follow_redirects,
-                allow_redirects=allow_redirects,
                 timeout=timeout,
                 extensions=extensions,
             )
