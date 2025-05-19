@@ -17,7 +17,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install poetry
-        poetry install --no-root
+        poetry install --no-root --all-groups
     - name: Linting
       run: |
         poetry run flake8

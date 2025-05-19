@@ -27,13 +27,16 @@ classifiers = [
 python = ">=3.9,<4"
 connect-openapi-client = ">=25.20"
 pydantic = "^1.10"
-fastapi = "^0.114.0"
-fastapi-utils = "^0.7.0"
+fastapi = "^0.115.0"
+fastapi-utils = "^0.8.0"
 logzio-python-handler = ">=3.1.1,<4.2"
-anvil-uplink = "^0.5.1"
+anvil-uplink = "^0.5.2"
 toml = "^0.10.2"
 PyYAML = "^6.0"
 typing-extensions = "<5"
+
+[tool.poetry.group.test]
+optional = true
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=6.1.2,<8"
@@ -55,6 +58,9 @@ pytest-httpx = ">=0.20"
 Faker = "^14.2.0"
 flake8-isort = "^6.1.0"
 django-rql = "^4.4.0"
+
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.4.2"
