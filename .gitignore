@@ -20,3 +20,6 @@ temp/
 coverage.xml
 
 setup.py
+
+# Docker test artifacts
+Dockerfile.test
