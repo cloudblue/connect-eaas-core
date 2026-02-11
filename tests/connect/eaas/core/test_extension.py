@@ -1,8 +1,8 @@
 import os
+from importlib.metadata import EntryPoint
 
 import pytest
 from fastapi_utils.inferring_router import InferringRouter
-from pkg_resources import EntryPoint
 
 from connect.client import AsyncConnectClient, ConnectClient
 from connect.eaas.core.constants import UNAUTHORIZED_ENDPOINT_ATTR_NAME
