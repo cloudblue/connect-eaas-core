@@ -534,6 +534,8 @@ def test_validate_docker_compose_yml_invalid_image_dockerfile(mocker):
         return_value=True,
     )
     mocked_open = mocker.MagicMock()
+    mocked_open.__enter__ = mocker.MagicMock(return_value=mocked_open)
+    mocked_open.__exit__ = mocker.MagicMock(return_value=False)
     mocked_open.read.return_value = 'FROM cloudblueconnect/connect-extension-runner:0.3\n'
     mocker.patch(
         'connect.eaas.core.validation.validators.base.open',
@@ -572,6 +574,8 @@ def test_validate_docker_compose_yml_multistage_image_dockerfile(mocker):
         return_value=True,
     )
     mocked_open = mocker.MagicMock()
+    mocked_open.__enter__ = mocker.MagicMock(return_value=mocked_open)
+    mocked_open.__exit__ = mocker.MagicMock(return_value=False)
     mocked_open.read.return_value = (
         'FROM cloudblueconnect/connect-extension-runner:0.3 as a-stage-name\n'
     )
@@ -595,6 +599,89 @@ def test_validate_docker_compose_yml_multistage_image_dockerfile(mocker):
     assert isinstance(result, ValidationResult)
     assert result.must_exit is False
     assert len(result.items) == 0
+
+
+def test_validate_docker_compose_yml_multistage_runner_in_last_stage(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        return_value=True,
+    )
+    mocked_open = mocker.MagicMock()
+    mocked_open.__enter__ = mocker.MagicMock(return_value=mocked_open)
+    mocked_open.__exit__ = mocker.MagicMock(return_value=False)
+    mocked_open.read.return_value = (
+        'FROM python:3.10 AS builder\n'
+        'RUN pip install stuff\n'
+        '\n'
+        'FROM cloudblueconnect/connect-extension-runner:0.3\n'
+        'COPY --from=builder /app /app\n'
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.open',
+        side_effect=[None, mocked_open],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.yaml.safe_load',
+        return_value={
+            'services': {
+                'dev': {
+                    'build': {'dockerfile': 'Dockerfile'},
+                },
+            },
+        },
+    )
+
+    result = validate_docker_compose_yml({'project_dir': 'fake_dir', 'runner_version': '0.3'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 0
+
+
+def test_validate_docker_compose_yml_multistage_wrong_last_stage(mocker):
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.os.path.isfile',
+        return_value=True,
+    )
+    mocked_open = mocker.MagicMock()
+    mocked_open.__enter__ = mocker.MagicMock(return_value=mocked_open)
+    mocked_open.__exit__ = mocker.MagicMock(return_value=False)
+    mocked_open.read.return_value = (
+        'FROM cloudblueconnect/connect-extension-runner:0.3 AS base\n'
+        'RUN pip install stuff\n'
+        '\n'
+        'FROM python:3.10\n'
+        'COPY --from=base /app /app\n'
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.open',
+        side_effect=[None, mocked_open],
+    )
+    mocker.patch(
+        'connect.eaas.core.validation.validators.base.yaml.safe_load',
+        return_value={
+            'services': {
+                'dev': {
+                    'build': {'dockerfile': 'Dockerfile'},
+                },
+            },
+        },
+    )
+
+    result = validate_docker_compose_yml({'project_dir': 'fake_dir', 'runner_version': '0.3'})
+
+    assert isinstance(result, ValidationResult)
+    assert result.must_exit is False
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert isinstance(item, ValidationItem)
+    assert item.level == 'ERROR'
+    assert (
+        'Invalid base image in Dockerfile of service *dev*: expected '
+        '*cloudblueconnect/connect-extension-runner:0.3* '
+        'got *python:3.10*.'
+    ) in item.message
+    assert item.file == 'fake_dir/Dockerfile'
 
 
 def test_validate_docker_compose_yml_invalid_image_no_dockerfile(mocker):
