@@ -1,3 +1,4 @@
+import json
 import os
 from importlib.metadata import EntryPoint
 
@@ -129,6 +130,61 @@ def test_get_schedulables():
 
     assert MyExtension(None, None, None).schedulable1.__name__ == 'schedulable1'
     assert MyExtension(None, None, None).schedulable1.__doc__ == 'This is schedulable'
+
+
+def test_get_descriptor(tmp_path, monkeypatch):
+    pkg_dir = tmp_path / 'fake_ext'
+    pkg_dir.mkdir()
+    (pkg_dir / '__init__.py').write_text('')
+    descriptor = {
+        'name': 'Test Extension',
+        'description': 'A test extension',
+        'version': '1.0.0',
+        'audience': ['vendor'],
+    }
+    (pkg_dir / 'extension.json').write_text(json.dumps(descriptor))
+
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    class MyExtension(EventsApplicationBase):
+        pass
+
+    MyExtension.__module__ = 'fake_ext'
+
+    assert MyExtension.get_descriptor() == descriptor
+
+
+def test_get_descriptor_file_not_found(tmp_path, monkeypatch):
+    pkg_dir = tmp_path / 'fake_ext_no_json'
+    pkg_dir.mkdir()
+    (pkg_dir / '__init__.py').write_text('')
+
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    class MyExtension(EventsApplicationBase):
+        pass
+
+    MyExtension.__module__ = 'fake_ext_no_json'
+
+    with pytest.raises(FileNotFoundError):
+        MyExtension.get_descriptor()
+
+
+def test_get_descriptor_invalid_json(tmp_path, monkeypatch):
+    pkg_dir = tmp_path / 'fake_ext_bad_json'
+    pkg_dir.mkdir()
+    (pkg_dir / '__init__.py').write_text('')
+    (pkg_dir / 'extension.json').write_text('not valid json{')
+
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    class MyExtension(EventsApplicationBase):
+        pass
+
+    MyExtension.__module__ = 'fake_ext_bad_json'
+
+    with pytest.raises(json.JSONDecodeError):
+        MyExtension.get_descriptor()
 
 
 def test_get_variables():

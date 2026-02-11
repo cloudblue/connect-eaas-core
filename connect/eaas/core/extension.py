@@ -31,7 +31,7 @@ from connect.eaas.core.decorators import router
 class ApplicationBase:
 
     @classmethod
-    def get_descriptor(cls) -> dict:  # pragma: no cover
+    def get_descriptor(cls) -> dict:
         """
         Returns the **extension.json** extension descriptor.
 
