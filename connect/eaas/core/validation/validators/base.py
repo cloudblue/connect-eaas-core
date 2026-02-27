@@ -226,7 +226,7 @@ def validate_docker_compose_yml(context):  # noqa: CCR001
                 )
                 continue
             image = from_cmd[4:].split()[0]
-            if image != runner_image:
+            if image.lower() != runner_image.lower():
                 messages.append(
                     ValidationItem(
                         level='ERROR',
