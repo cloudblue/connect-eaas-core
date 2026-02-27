@@ -27,9 +27,15 @@ class EgressProxyClient(ConnectClient):
         certificates: EgressProxyCertificates,
     ):
         self.proxy = proxy
-        self.cert_file = self._create_temp_cert_file(certificates.client_cert)
-        self.key_file = self._create_temp_cert_file(certificates.client_key)
-        self.ca_file = self._create_temp_cert_file(certificates.ca_cert)
+        self.cert_file = self._create_cert_file(
+            'client_cert.pem', certificates.client_cert,
+        )
+        self.key_file = self._create_cert_file(
+            'client_key.pem', certificates.client_key,
+        )
+        self.ca_file = self._create_cert_file(
+            'ca_cert.pem', certificates.ca_cert,
+        )
 
         super().__init__(
             endpoint=self.proxy.url,
@@ -39,16 +45,24 @@ class EgressProxyClient(ConnectClient):
         )
 
     @staticmethod
-    def _create_temp_cert_file(cert_content):
-        """Create a temporary file with certificate content."""
-        temp_file = tempfile.NamedTemporaryFile(
-            mode='w',
-            delete=False,
-            suffix='.pem',
-        )
-        temp_file.write(cert_content)
-        temp_file.close()
-        return temp_file.name
+    def _create_cert_file(filename, cert_content):
+        """
+        Create or reuse a certificate file at a fixed location.
+
+        Uses /tmp/<filename> as a stable path. Only writes if the
+        file doesn't exist or its content has changed.
+        """
+        filepath = os.path.join(tempfile.gettempdir(), filename)
+
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                if f.read() == cert_content:
+                    return filepath
+
+        with open(filepath, 'w') as f:
+            f.write(cert_content)
+
+        return filepath
 
     @classmethod
     def require_proxy(cls, account_id: str):
