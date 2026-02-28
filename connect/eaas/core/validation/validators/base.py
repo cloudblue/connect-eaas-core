@@ -210,8 +210,9 @@ def validate_docker_compose_yml(context):  # noqa: CCR001
                     ),
                 )
                 continue
-            content = open(dockerfile, 'r').read().splitlines()
-            from_cmd = next(filter(lambda x: x.startswith('FROM'), content), None)
+            with open(dockerfile, 'r') as f:
+                content = f.read().splitlines()
+            from_cmd = next(filter(lambda x: x.startswith('FROM'), reversed(content)), None)
             if not from_cmd:
                 messages.append(
                     ValidationItem(
@@ -224,8 +225,8 @@ def validate_docker_compose_yml(context):  # noqa: CCR001
                     ),
                 )
                 continue
-            image = from_cmd[4:].strip()
-            if image != runner_image:
+            image = from_cmd[4:].split()[0]
+            if image.lower() != runner_image.lower():
                 messages.append(
                     ValidationItem(
                         level='ERROR',
