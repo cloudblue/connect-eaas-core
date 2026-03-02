@@ -2,10 +2,10 @@ import functools
 import inspect
 import json
 import os
+from importlib.resources import files
 from typing import Dict, List, Union
 
 import anvil.server
-import pkg_resources
 from fastapi import APIRouter
 
 from connect.client import AsyncConnectClient, ConnectClient
@@ -31,7 +31,7 @@ from connect.eaas.core.decorators import router
 class ApplicationBase:
 
     @classmethod
-    def get_descriptor(cls) -> dict:  # pragma: no cover
+    def get_descriptor(cls) -> dict:
         """
         Returns the **extension.json** extension descriptor.
 
@@ -50,10 +50,7 @@ class ApplicationBase:
             ```
         """
         return json.load(
-            pkg_resources.resource_stream(
-                cls.__module__,
-                'extension.json',
-            ),
+            files(cls.__module__).joinpath('extension.json').open('r'),
         )
 
     @classmethod
