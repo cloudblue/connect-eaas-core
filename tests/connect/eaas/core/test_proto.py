@@ -159,6 +159,7 @@ SETUP_RESPONSE_DATA = {
         'log_level': 'log-level',
         'runner_log_level': 'runner-log-level',
         'meta': {
+            'repository_tag': 'repository_tag',
             'account_id': 'account_id',
             'account_name': 'account_name',
             'service_id': 'service_id',
@@ -178,6 +179,7 @@ SETUP_RESPONSE_DATA_V1 = {
     'environment_type': 'environ-type',
     'log_level': 'log-level',
     'runner_log_level': 'runner-log-level',
+    'repository_tag': 'repository_tag',
     'account_id': 'account_id',
     'account_name': 'account_name',
     'service_id': 'service_id',
@@ -191,6 +193,7 @@ SETUP_RESPONSE_DATA_V1_NO_META = {
     'environment_type': 'environ-type',
     'log_level': 'log-level',
     'runner_log_level': 'runner-log-level',
+    'repository_tag': None,
     'account_id': None,
     'account_name': None,
     'service_id': None,

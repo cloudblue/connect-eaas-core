@@ -91,6 +91,7 @@ class Task(BaseModel):
 
 
 class LogMeta(BaseModel):
+    repository_tag: Optional[str] = None
     account_id: Optional[str]
     account_name: Optional[str]
     service_id: Optional[str]
@@ -268,6 +269,7 @@ class Message(BaseModel):
                     'logging_api_key': self.data.logging.logging_api_key,
                     'log_level': self.data.logging.log_level,
                     'runner_log_level': self.data.logging.runner_log_level,
+                    'repository_tag': self.data.logging.meta.repository_tag,
                     'account_id': self.data.logging.meta.account_id,
                     'account_name': self.data.logging.meta.account_name,
                     'service_id': self.data.logging.meta.service_id,
@@ -347,6 +349,7 @@ class Message(BaseModel):
                         log_level=raw_data.get('log_level'),
                         runner_log_level=raw_data.get('runner_log_level'),
                         meta=LogMeta(
+                            repository_tag=raw_data.get('repository_tag'),
                             account_id=raw_data.get('account_id'),
                             account_name=raw_data.get('account_name'),
                             service_id=raw_data.get('service_id'),
