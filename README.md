@@ -15,7 +15,7 @@
 
 ## Install
 
-`Connect EaaS Core` requires python 3.9 or later.
+`Connect EaaS Core` requires Python 3.9 through 3.12.
 
 
 `Connect EaaS Core` can be installed from [pypi.org](https://pypi.org/project/connect-eaas-core/) using pip:
