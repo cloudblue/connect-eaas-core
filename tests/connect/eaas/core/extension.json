@@ -1,0 +1,6 @@
+{
+    "name": "Test Extension",
+    "description": "A test extension",
+    "version": "1.0.0",
+    "audience": ["vendor"]
+}

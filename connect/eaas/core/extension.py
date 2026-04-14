@@ -2,7 +2,6 @@ import functools
 import inspect
 import json
 import os
-from importlib.resources import files
 from typing import Dict, List, Union
 
 import anvil.server
@@ -49,9 +48,15 @@ class ApplicationBase:
             }
             ```
         """
-        return json.load(
-            files(cls.__module__).joinpath('extension.json').open('r'),
+        source_file = inspect.getsourcefile(cls)
+        if source_file is None:
+            source_file = inspect.getfile(cls)
+        descriptor_path = os.path.join(
+            os.path.dirname(source_file),
+            'extension.json',
         )
+        with open(descriptor_path, 'r') as f:
+            return json.load(f)
 
     @classmethod
     def get_variables(cls) -> dict:

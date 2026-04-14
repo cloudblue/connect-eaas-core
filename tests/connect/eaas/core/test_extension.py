@@ -132,56 +132,68 @@ def test_get_schedulables():
     assert MyExtension(None, None, None).schedulable1.__doc__ == 'This is schedulable'
 
 
-def test_get_descriptor(tmp_path, monkeypatch):
-    pkg_dir = tmp_path / 'fake_ext'
-    pkg_dir.mkdir()
-    (pkg_dir / '__init__.py').write_text('')
+def test_get_descriptor():
+    # Class defined here means getsourcefile() returns this test file's path,
+    # so it looks for extension.json in this same directory
+    class MyExtension(EventsApplicationBase):
+        pass
+
+    assert MyExtension.get_descriptor() == {
+        'name': 'Test Extension',
+        'description': 'A test extension',
+        'version': '1.0.0',
+        'audience': ['vendor'],
+    }
+
+
+def test_get_descriptor_getsourcefile_returns_none(tmp_path, mocker):
+    ext_dir = tmp_path / 'my_ext'
+    ext_dir.mkdir()
     descriptor = {
         'name': 'Test Extension',
         'description': 'A test extension',
         'version': '1.0.0',
         'audience': ['vendor'],
     }
-    (pkg_dir / 'extension.json').write_text(json.dumps(descriptor))
-
-    monkeypatch.syspath_prepend(str(tmp_path))
+    (ext_dir / 'extension.json').write_text(json.dumps(descriptor))
 
     class MyExtension(EventsApplicationBase):
         pass
 
-    MyExtension.__module__ = 'fake_ext'
+    mocker.patch('inspect.getsourcefile', return_value=None)
+    mocker.patch('inspect.getfile', return_value=str(ext_dir / 'webapp.pyc'))
 
     assert MyExtension.get_descriptor() == descriptor
 
 
-def test_get_descriptor_file_not_found(tmp_path, monkeypatch):
-    pkg_dir = tmp_path / 'fake_ext_no_json'
-    pkg_dir.mkdir()
-    (pkg_dir / '__init__.py').write_text('')
-
-    monkeypatch.syspath_prepend(str(tmp_path))
+def test_get_descriptor_file_not_found(tmp_path, mocker):
+    ext_dir = tmp_path / 'my_ext_no_json'
+    ext_dir.mkdir()
 
     class MyExtension(EventsApplicationBase):
         pass
 
-    MyExtension.__module__ = 'fake_ext_no_json'
+    mocker.patch(
+        'inspect.getsourcefile',
+        return_value=str(ext_dir / 'webapp.py'),
+    )
 
     with pytest.raises(FileNotFoundError):
         MyExtension.get_descriptor()
 
 
-def test_get_descriptor_invalid_json(tmp_path, monkeypatch):
-    pkg_dir = tmp_path / 'fake_ext_bad_json'
-    pkg_dir.mkdir()
-    (pkg_dir / '__init__.py').write_text('')
-    (pkg_dir / 'extension.json').write_text('not valid json{')
-
-    monkeypatch.syspath_prepend(str(tmp_path))
+def test_get_descriptor_invalid_json(tmp_path, mocker):
+    ext_dir = tmp_path / 'my_ext_bad_json'
+    ext_dir.mkdir()
+    (ext_dir / 'extension.json').write_text('not valid json{')
 
     class MyExtension(EventsApplicationBase):
         pass
 
-    MyExtension.__module__ = 'fake_ext_bad_json'
+    mocker.patch(
+        'inspect.getsourcefile',
+        return_value=str(ext_dir / 'webapp.py'),
+    )
 
     with pytest.raises(json.JSONDecodeError):
         MyExtension.get_descriptor()
