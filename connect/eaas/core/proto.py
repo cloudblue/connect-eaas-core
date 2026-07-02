@@ -7,7 +7,6 @@ from typing import (
 )
 
 from pydantic import BaseModel as PydanticBaseModel, Field
-from pydantic.utils import DUNDER_ATTRIBUTES
 
 from connect.eaas.core.utils import obfuscate_header
 
@@ -33,13 +32,11 @@ class BaseModel(PydanticBaseModel):
         return k, v  # pragma: no cover
 
     def __repr_args__(self):
+        fields = type(self).model_fields
         return [
             self.__obfuscate_args__(k, v)
             for k, v in self.__dict__.items()
-            if (
-                k not in DUNDER_ATTRIBUTES
-                and (k not in self.__fields__ or self.__fields__[k].field_info.repr)
-            )
+            if (k not in fields or fields[k].repr)
         ]
 
 
@@ -59,11 +56,11 @@ class MessageType:
 class TaskOptions(BaseModel):
     task_id: str
     task_category: str
-    correlation_id: Optional[str]
-    reply_to: Optional[str]
-    api_key: Optional[str]
-    installation_id: Optional[str]
-    connect_correlation_id: Optional[str]
+    correlation_id: Optional[str] = None
+    reply_to: Optional[str] = None
+    api_key: Optional[str] = None
+    installation_id: Optional[str] = None
+    connect_correlation_id: Optional[str] = None
 
     def get_sensitive_fields(self):
         return ['api_key']
@@ -71,40 +68,40 @@ class TaskOptions(BaseModel):
 
 class TaskOutput(BaseModel):
     result: str
-    data: Optional[Any]
+    data: Optional[Any] = None
     countdown: int = 0
     runtime: float = 0.0
-    message: Optional[str]
+    message: Optional[str] = None
 
 
 class TaskInput(BaseModel):
     event_type: str
     object_id: str
-    data: Optional[Any]
+    data: Optional[Any] = None
 
 
 class Task(BaseModel):
     options: TaskOptions
     input: TaskInput
-    output: Optional[TaskOutput]
+    output: Optional[TaskOutput] = None
     model_type: Literal['task'] = 'task'
 
 
 class LogMeta(BaseModel):
     repository_tag: Optional[str] = None
-    account_id: Optional[str]
-    account_name: Optional[str]
-    service_id: Optional[str]
+    account_id: Optional[str] = None
+    account_name: Optional[str] = None
+    service_id: Optional[str] = None
     # delete after stop using version 1
-    products: Optional[List[str]]
-    hub_id: Optional[str]
+    products: Optional[List[str]] = None
+    hub_id: Optional[str] = None
 
 
 class Logging(BaseModel):
-    logging_api_key: Optional[str]
-    log_level: Optional[str]
-    runner_log_level: Optional[str]
-    meta: Optional[LogMeta]
+    logging_api_key: Optional[str] = None
+    log_level: Optional[str] = None
+    runner_log_level: Optional[str] = None
+    meta: Optional[LogMeta] = None
 
     def get_sensitive_fields(self):
         return ['logging_api_key']
@@ -118,14 +115,14 @@ class EventDefinition(BaseModel):
 
 
 class SetupResponse(BaseModel):
-    variables: Optional[list]
+    variables: Optional[list] = None
     # delete after stop using version 1
-    environment_type: Optional[str]
-    logging: Optional[Logging]
-    event_definitions: Optional[List[EventDefinition]]
-    environment_runtime: Optional[str]
-    environment_hostname: Optional[str]
-    environment_domain: Optional[str]
+    environment_type: Optional[str] = None
+    logging: Optional[Logging] = None
+    event_definitions: Optional[List[EventDefinition]] = None
+    environment_runtime: Optional[str] = None
+    environment_hostname: Optional[str] = None
+    environment_domain: Optional[str] = None
     model_type: Literal['setup_response'] = 'setup_response'
 
     def get_sensitive_fields(self):
@@ -160,23 +157,23 @@ class Transformation(BaseModel):
 
 
 class Repository(BaseModel):
-    readme_url: Optional[str]
-    changelog_url: Optional[str]
+    readme_url: Optional[str] = None
+    changelog_url: Optional[str] = None
 
 
 class SetupRequest(BaseModel):
     # for version 1 'capabilities' renaming to 'event_subscriptions'
-    event_subscriptions: Optional[dict]
-    ui_modules: Optional[dict]
-    icon: Optional[str]
-    variables: Optional[list]
-    schedulables: Optional[List[Schedulable]]
-    anvil_callables: Optional[list]
-    transformations: Optional[List[Transformation]]
-    audience: Optional[List[Literal['vendor', 'distributor', 'reseller']]]
-    repository: Optional[Repository]
-    runner_version: Optional[str]
-    proxied_connect_api: Optional[Union[list, dict]]
+    event_subscriptions: Optional[dict] = None
+    ui_modules: Optional[dict] = None
+    icon: Optional[str] = None
+    variables: Optional[list] = None
+    schedulables: Optional[List[Schedulable]] = None
+    anvil_callables: Optional[list] = None
+    transformations: Optional[List[Transformation]] = None
+    audience: Optional[List[Literal['vendor', 'distributor', 'reseller']]] = None
+    repository: Optional[Repository] = None
+    runner_version: Optional[str] = None
+    proxied_connect_api: Optional[Union[list, dict]] = None
     model_type: Literal['setup_request'] = 'setup_request'
 
     def get_sensitive_fields(self):
@@ -186,14 +183,14 @@ class SetupRequest(BaseModel):
 class HttpResponse(BaseModel):
     status: int
     headers: dict
-    content: Optional[Any]
+    content: Optional[Any] = None
 
 
 class HttpRequest(BaseModel):
     method: str
     url: str
     headers: dict
-    content: Optional[Any]
+    content: Optional[Any] = None
 
     def get_sensitive_fields(self):
         return ['headers']
@@ -205,15 +202,15 @@ class HttpRequest(BaseModel):
 class WebTaskOptions(BaseModel):
     correlation_id: str
     reply_to: str
-    api_key: Optional[str]
-    installation_id: Optional[str]
-    tier_account_id: Optional[str]
-    connect_correlation_id: Optional[str]
-    user_id: Optional[str]
-    account_id: Optional[str]
-    account_role: Optional[str]
-    call_type: Optional[Literal['admin', 'user']]
-    call_source: Optional[Literal['ui', 'api']]
+    api_key: Optional[str] = None
+    installation_id: Optional[str] = None
+    tier_account_id: Optional[str] = None
+    connect_correlation_id: Optional[str] = None
+    user_id: Optional[str] = None
+    account_id: Optional[str] = None
+    account_role: Optional[str] = None
+    call_type: Optional[Literal['admin', 'user']] = None
+    call_source: Optional[Literal['ui', 'api']] = None
 
     def get_sensitive_fields(self):
         return ['api_key']
@@ -221,8 +218,8 @@ class WebTaskOptions(BaseModel):
 
 class WebTask(BaseModel):
     options: WebTaskOptions
-    request: Optional[HttpRequest]
-    response: Optional[HttpResponse]
+    request: Optional[HttpRequest] = None
+    response: Optional[HttpResponse] = None
     model_type: Literal['web_task'] = 'web_task'
 
 
@@ -233,11 +230,11 @@ class Message(BaseModel):
         WebTask, Task,
         SetupRequest, SetupResponse,
         None,
-    ] = Field(discriminator='model_type')
+    ] = Field(default=None, discriminator='model_type')
 
     def serialize(self, protocol_version=2):
         if protocol_version == 2:
-            return self.dict()
+            return self.model_dump()
 
         if self.message_type == MessageType.SETUP_REQUEST:
             return {

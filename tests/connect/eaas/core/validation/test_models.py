@@ -23,7 +23,7 @@ def test_validation_res_to_dict():
     assert isinstance(res, ValidationResult)
     assert isinstance(item1, ValidationItem)
     assert isinstance(item2, ValidationItem)
-    dict_res = res.dict()
+    dict_res = res.model_dump()
 
     assert dict_res['must_exit'] is True
     assert dict_res['context'] == {'ext_class': 'MyAwesomeExtension'}
