@@ -6,13 +6,13 @@ from pydantic import BaseModel
 class ValidationItem(BaseModel):
     level: Literal['WARNING', 'ERROR'] = 'WARNING'
     message: str
-    file: Optional[str]
-    start_line: Optional[int]
-    lineno: Optional[int]
-    code: Optional[str]
+    file: Optional[str] = None
+    start_line: Optional[int] = None
+    lineno: Optional[int] = None
+    code: Optional[str] = None
 
 
 class ValidationResult(BaseModel):
     items: List[ValidationItem] = []
     must_exit: bool = False
-    context: Optional[dict]
+    context: Optional[dict] = None
