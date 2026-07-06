@@ -213,7 +213,7 @@ def test_deserialize_task_message():
     assert isinstance(message, Message)
     assert message.message_type == MessageType.TASK
     assert isinstance(message.data, Task)
-    assert message.dict() == msg_data
+    assert message.model_dump() == msg_data
     assert isinstance(message.data.options, TaskOptions)
     assert isinstance(message.data.input, TaskInput)
 
@@ -230,7 +230,7 @@ def test_deserialize_setup_response_message():
     assert isinstance(message, Message)
     assert message.message_type == MessageType.SETUP_RESPONSE
     assert isinstance(message.data, SetupResponse)
-    assert message.dict() == msg_data
+    assert message.model_dump() == msg_data
     assert isinstance(message.data.logging, Logging)
     assert isinstance(message.data.logging.meta, LogMeta)
 
@@ -252,7 +252,7 @@ def test_deserialize_setup_request_message():
     assert isinstance(message, Message)
     assert message.message_type == MessageType.SETUP_REQUEST
     assert isinstance(message.data, SetupRequest)
-    assert message.dict() == msg_data
+    assert message.model_dump() == msg_data
     assert isinstance(message.data.repository, Repository)
 
 
@@ -265,13 +265,19 @@ def test_deserialize_setup_request_message_with_vars_and_schedulables():
 
     message = Message.deserialize(msg_data)
 
-    assert message.dict() == msg_data
+    assert message.model_dump() == msg_data
     assert message.data.variables == msg_data['data']['variables']
-    assert message.data.schedulables == msg_data['data']['schedulables']
+    assert (
+        [s.model_dump() for s in message.data.schedulables]
+        == msg_data['data']['schedulables']
+    )
     assert isinstance(message.data.schedulables[0], Schedulable)
     assert message.data.variables[0]['foo'] == msg_data['data']['variables'][0]['foo']
     assert message.data.variables[0]['bar'] == msg_data['data']['variables'][0]['bar']
-    assert message.data.transformations == msg_data['data']['transformations']
+    assert (
+        [t.model_dump() for t in message.data.transformations]
+        == msg_data['data']['transformations']
+    )
     assert isinstance(message.data.transformations[0], Transformation)
 
 
@@ -307,7 +313,7 @@ def test_serialize_v1_task_data():
     assert message.message_type == MessageType.TASK
     assert isinstance(message.data, Task)
 
-    assert message.dict()['data'] == TASK_OUTPUT_DATA
+    assert message.model_dump()['data'] == TASK_OUTPUT_DATA
 
 
 def test_deserialize_v1_setup_response_data():
@@ -323,7 +329,7 @@ def test_deserialize_v1_setup_response_data():
     assert message.message_type == MessageType.SETUP_RESPONSE
     assert isinstance(message.data, SetupResponse)
 
-    assert message.dict()['data'] == SETUP_RESPONSE_DATA
+    assert message.model_dump()['data'] == SETUP_RESPONSE_DATA
 
 
 def test_deserialize_v1_setup_request_data():
@@ -344,7 +350,7 @@ def test_deserialize_v1_setup_request_data():
     assert message.message_type == MessageType.SETUP_REQUEST
     assert isinstance(message.data, SetupRequest)
 
-    assert message.dict()['data'] == expected_data
+    assert message.model_dump()['data'] == expected_data
 
 
 def test_serialize_setup_request_data_to_v1():

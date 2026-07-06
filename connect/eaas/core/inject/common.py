@@ -57,7 +57,7 @@ def get_logger(
     )
     return logging.LoggerAdapter(
         logger,
-        context.dict(),
+        context.model_dump(),
     )
 
 
