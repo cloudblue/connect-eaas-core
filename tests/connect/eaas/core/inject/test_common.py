@@ -18,7 +18,7 @@ def test_get_logger_with_logz_handler():
     )
 
     adapter = common.get_logger('api_key', json.dumps(some_metadata), 'INFO', ctx)
-    assert adapter.extra == ctx.dict()
+    assert adapter.extra == ctx.model_dump()
 
     logger = adapter.logger
 
@@ -46,7 +46,7 @@ def test_get_logger_without_logz_handler(mocker):
 
     adapter = common.get_logger(None, None, 'DEBUG', ctx)
 
-    assert adapter.extra == ctx.dict()
+    assert adapter.extra == ctx.model_dump()
 
     logger = adapter.logger
 

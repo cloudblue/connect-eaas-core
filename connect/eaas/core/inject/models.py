@@ -22,13 +22,13 @@ class Context(BaseModel):
     * **call_type** - it can be `admin` if the call came from the same account
         that own the extension otherwise `user`.
     """
-    extension_id: Optional[str]
-    environment_id: Optional[str]
-    environment_type: Optional[Literal['development', 'test', 'production']]
+    extension_id: Optional[str] = None
+    environment_id: Optional[str] = None
+    environment_type: Optional[Literal['development', 'test', 'production']] = None
     installation_id: Optional[str] = None
     tier_account_id: Optional[str] = None
-    user_id: Optional[str]
-    account_id: Optional[str]
-    account_role: Optional[str]
-    call_source: Optional[Literal['ui', 'api']]
-    call_type: Optional[Literal['admin', 'user']]
+    user_id: Optional[str] = None
+    account_id: Optional[str] = None
+    account_role: Optional[str] = None
+    call_source: Optional[Literal['ui', 'api']] = None
+    call_type: Optional[Literal['admin', 'user']] = None
