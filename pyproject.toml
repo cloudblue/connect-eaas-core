@@ -75,6 +75,10 @@ mkdocs-glightbox = "^0.3.0"
 mkdocs-macros-plugin = ">=1.0"
 mkdocstrings = ">=0.27"
 mkdocstrings-python = ">=1.11"
+# pymdown-extensions 12.2 changed Highlight in a way that mkdocstrings 1.0.6 cannot
+# cope with, and the releases of mkdocstrings that can need Python 3.11, which this
+# project still supports. Drop this once Python 3.10 is (as in django-rql and lib-rql).
+pymdown-extensions = "<12.2"
 
 
 [build-system]
