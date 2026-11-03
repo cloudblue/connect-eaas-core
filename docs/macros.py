@@ -20,6 +20,9 @@ CONNECT_UI_TOOLKIT_URL = (
 def get_events(extension_type):  # noqa: CCR001
     api_key = os.getenv('CONNECT_API_KEY')
 
+    if not api_key:
+        return '*The list of events is built when CONNECT_API_KEY is set.*'
+
     if os.getenv('READTHEDOCS'):
         api_key = api_key[1:-1]
 
