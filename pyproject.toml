@@ -76,8 +76,8 @@ mkdocs-macros-plugin = ">=1.0"
 mkdocstrings = ">=0.27"
 mkdocstrings-python = ">=1.11"
 # pymdown-extensions 12.2 changed Highlight in a way that mkdocstrings 1.0.6 cannot
-# cope with, and the releases of mkdocstrings that can need Python 3.11, which this
-# project still supports. Drop this once Python 3.10 is (as in django-rql and lib-rql).
+# cope with. The mkdocstrings releases that cope with it need Python 3.11, and this
+# project still supports 3.10. Drop this cap when 3.10 support goes.
 pymdown-extensions = "<12.2"
 
 
