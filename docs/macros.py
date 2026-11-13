@@ -21,6 +21,8 @@ def get_events(extension_type):  # noqa: CCR001
     api_key = os.getenv('CONNECT_API_KEY')
 
     if not api_key:
+        if os.getenv('READTHEDOCS'):
+            raise RuntimeError('CONNECT_API_KEY is not set on Read the Docs')
         return '*The list of events is built when CONNECT_API_KEY is set.*'
 
     if os.getenv('READTHEDOCS'):

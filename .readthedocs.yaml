@@ -8,10 +8,12 @@ build:
   jobs:
     post_create_environment:
       - pip install poetry==2.5.1
-      - poetry config virtualenvs.create false
     post_install:
       # Install the docs dependencies from poetry.lock, and the package itself for mkdocstrings.
-      - poetry install --only main,docs
+      # Read the Docs doesn't set VIRTUAL_ENV, and without it Poetry installs into the base Python.
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --only main,docs
 
 mkdocs:
   configuration: mkdocs.yml
+  # Stop on warnings, as CI does, so a page that fails to build is never published.
+  fail_on_warning: true
