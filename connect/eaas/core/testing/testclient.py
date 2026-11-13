@@ -50,7 +50,7 @@ class WebAppTestClient(TestClient):
     ```
 
     Args:
-        webapp: The web application class.
+        webapp (type): The web application class.
         base_url (str): The base url to be used.
     """
     def __init__(self, webapp, base_url='https://example.org/public/v1'):

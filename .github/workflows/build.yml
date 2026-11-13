@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
     - uses: actions/checkout@v7
       with:
@@ -36,6 +36,11 @@ jobs:
     - name: Testing
       run: |
         poetry run pytest
+    - name: Documentation
+      # The docs are built with Python 3.10 on Read the Docs, from the docs group of the lock.
+      if: matrix.python-version == '3.10'
+      run: |
+        poetry run mkdocs build --strict --site-dir "$RUNNER_TEMP/site"
   sonar:
     needs: [test]
     runs-on: ubuntu-latest
